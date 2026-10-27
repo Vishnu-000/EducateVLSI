@@ -1,0 +1,6 @@
+# EducateVLSI Robots Configuration
+User-agent: *
+Allow: /
+
+# Sitemap Location
+Sitemap: https://vishnu-000.github.io/EducateVLSI/sitemap.xml

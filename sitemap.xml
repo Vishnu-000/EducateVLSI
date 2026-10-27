@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main Silicon Workstation Shell -->
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 5-Day Foundation Masterclass Interactive HTML Labs -->
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/day1_cmos_foundations.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/day2_sequential_logic.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/day3_power_vlsi_verilog.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/day4_logic_synthesis.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/day5_static_timing_analysis.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Phase 2 Advanced Physical Design Series Interactive HTML Labs -->
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/Phase2_Part1_VLSI_Fundamentals.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/Phase2_Part2_Floorplan_Power_Placement.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/Phase2_Part3_CTS_Routing_STA_Signoff.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Master Training PDFs & Reference Documents -->
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/LMS_PD_Notes.pdf</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/LMS_ICC_Lab_Manual.pdf</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/Blueprint_to_Silicon.pdf</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/DigitalDesign-CombinationalLogic.pdf</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/The_Digital_Engineer_s_Toolkit.pdf</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://vishnu-000.github.io/EducateVLSI/study/Tcl_Presentation.pdf</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+</urlset>
