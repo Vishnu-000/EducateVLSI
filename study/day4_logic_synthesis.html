@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 4 — Logic Synthesis | PD Engineer Training</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Barlow:wght@300;400;500;600&family=Inconsolata:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg:       #050d09;
+  --bg2:      #071210;
+  --bg3:      #091a14;
+  --bg4:      #0c2018;
+  --border:   #132e20;
+  --border2:  #1c4030;
+  --emerald:  #00c97a;
+  --emerald2: #00a862;
+  --emerald3: #4dffac;
+  --gold:     #d4a843;
+  --gold2:    #f0c860;
+  --gold3:    #ffe4a0;
+  --copper:   #b87333;
+  --red:      #ff4f4f;
+  --blue:     #5bc8ff;
+  --text:     #c8ddd0;
+  --muted:    #3d6050;
+  --subtle:   #6a9080;
+  --dim:      #1e3828;
+  --mono:     'Inconsolata', monospace;
+  --serif:    'Playfair Display', serif;
+  --sans:     'Barlow', sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.75;
+  font-size:16px;
+}
+
+/* ── ART DECO PATTERN BG ─────────────────── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(0,201,122,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(212,168,67,0.03) 0%, transparent 40%),
+    linear-gradient(rgba(0,201,122,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,201,122,0.02) 1px, transparent 1px);
+  background-size:100% 100%, 100% 100%, 60px 60px, 60px 60px;
+  pointer-events:none;z-index:0;
+}
+
+/* ── DECO SIDE ORNAMENTS ─────────────────── */
+.deco-left{
+  position:fixed;left:0;top:50%;transform:translateY(-50%);
+  width:4px;height:200px;
+  background:linear-gradient(to bottom, transparent, var(--emerald), var(--gold), transparent);
+  opacity:0.3;z-index:2;
+}
+.deco-right{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);
+  width:4px;height:200px;
+  background:linear-gradient(to bottom, transparent, var(--gold), var(--emerald), transparent);
+  opacity:0.3;z-index:2;
+}
+
+.page{position:relative;z-index:1;}
+
+/* ── TOPBAR ───────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:500;
+  background:rgba(5,13,9,0.97);
+  border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(20px);
+  height:50px;
+  display:flex;align-items:center;
+  padding:0 48px;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.tb-brand{
+  font-family:var(--serif);
+  font-size:0.95rem;
+  color:var(--gold);
+  letter-spacing:2px;
+  font-style:italic;
+}
+
+.tb-center{
+  display:flex;align-items:center;gap:14px;
+}
+
+.tb-phase{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  color:var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.tb-sep{color:var(--border2);}
+
+.tb-day{
+  font-family:var(--mono);
+  font-size:0.68rem;
+  color:var(--emerald);
+  letter-spacing:3px;
+  font-weight:600;
+  text-transform:uppercase;
+}
+
+.tb-right{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  color:var(--muted);
+  letter-spacing:1px;
+}
+
+/* ── HERO ─────────────────────────────────── */
+.hero{
+  position:relative;overflow:hidden;
+  padding:72px 60px 60px;
+  border-bottom:1px solid var(--border2);
+}
+
+/* deco gold lines */
+.hero::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, transparent 5%, var(--gold) 20%, var(--emerald) 50%, var(--gold) 80%, transparent 95%);
+  opacity:0.6;
+}
+
+.hero::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:60px;right:60px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--border2) 20%, var(--border2) 80%, transparent);
+}
+
+.hero-deco{
+  position:absolute;
+  right:60px;top:50%;transform:translateY(-50%);
+  opacity:0.06;
+  font-family:var(--serif);
+  font-size:clamp(8rem,18vw,16rem);
+  color:var(--emerald);
+  line-height:1;
+  font-weight:900;
+  pointer-events:none;
+  letter-spacing:-10px;
+}
+
+.hero-inner{position:relative;z-index:1;max-width:720px;}
+
+.hero-tag{
+  display:inline-flex;align-items:center;gap:12px;
+  font-family:var(--mono);
+  font-size:0.6rem;
+  color:var(--gold);
+  letter-spacing:4px;
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+
+.hero-tag::before,.hero-tag::after{
+  content:'◆';font-size:0.5rem;color:var(--gold);opacity:0.5;
+}
+
+.hero h1{
+  font-family:var(--serif);
+  font-size:clamp(2.2rem,5vw,3.8rem);
+  line-height:1.08;
+  color:var(--text);
+  margin-bottom:10px;
+  font-weight:700;
+}
+
+.hero h1 em{font-style:italic;color:var(--gold2);}
+.hero h1 .em2{font-style:italic;color:var(--emerald3);}
+
+.hero-sub{
+  font-family:var(--sans);
+  font-weight:300;
+  font-size:1rem;
+  color:var(--subtle);
+  max-width:580px;
+  line-height:1.85;
+  margin-bottom:36px;
+}
+
+.hero-stats{
+  display:flex;gap:0;
+  border:1px solid var(--border2);
+  width:fit-content;
+  position:relative;
+}
+
+.hero-stats::before{
+  content:'';
+  position:absolute;
+  top:-4px;left:-4px;right:-4px;bottom:-4px;
+  border:1px solid rgba(212,168,67,0.1);
+  pointer-events:none;
+}
+
+.hs-item{
+  padding:14px 26px;
+  border-right:1px solid var(--border2);
+  text-align:center;
+}
+.hs-item:last-child{border-right:none;}
+
+.hs-num{
+  font-family:var(--serif);
+  font-size:1.7rem;
+  color:var(--gold2);
+  line-height:1;
+  margin-bottom:4px;
+}
+
+.hs-label{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  color:var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+/* ── LAYOUT ───────────────────────────────── */
+.layout{
+  display:grid;
+  grid-template-columns:230px 1fr;
+  max-width:1160px;
+  margin:0 auto;
+}
+
+/* ── SIDEBAR ──────────────────────────────── */
+.sidebar{
+  position:sticky;top:50px;
+  height:calc(100vh - 50px);
+  overflow-y:auto;
+  border-right:1px solid var(--border);
+  background:var(--bg2);
+  padding:30px 0;
+}
+
+.sb-group{
+  padding:0 18px;
+  margin-bottom:10px;
+}
+
+.sb-group-label{
+  font-family:var(--mono);
+  font-size:0.53rem;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:8px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+
+.sb-group-label::before{content:'◆';font-size:0.4rem;color:var(--gold);opacity:0.6;}
+
+.sb-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 10px;
+  border-radius:3px;
+  text-decoration:none;
+  margin-bottom:1px;
+  transition:all 0.15s;
+  cursor:pointer;
+}
+
+.sb-item:hover{background:rgba(0,201,122,0.06);}
+.sb-item.active{
+  background:rgba(0,201,122,0.08);
+  border-left:2px solid var(--emerald);
+  padding-left:8px;
+}
+
+.sb-n{
+  font-family:var(--mono);
+  font-size:0.57rem;
+  color:var(--gold);
+  min-width:20px;margin-top:1px;
+  letter-spacing:1px;
+}
+
+.sb-t{
+  font-family:var(--mono);
+  font-size:0.63rem;
+  color:var(--subtle);
+  line-height:1.45;
+}
+
+.sb-item:hover .sb-t,.sb-item.active .sb-t{color:var(--text);}
+
+/* ── MAIN ─────────────────────────────────── */
+.main{
+  padding:52px 60px 100px;
+}
+
+/* ── SECTION ──────────────────────────────── */
+.ls{
+  margin-bottom:80px;
+  scroll-margin-top:66px;
+}
+
+.sec-hdr{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:30px;
+  padding-bottom:18px;
+  position:relative;
+}
+
+.sec-hdr::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg, var(--border2) 60%, transparent);
+}
+
+.sec-badge{
+  font-family:var(--mono);
+  font-size:0.57rem;
+  letter-spacing:2px;
+  padding:5px 14px;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  border-radius:1px;
+  white-space:nowrap;
+  text-transform:uppercase;
+  position:relative;
+}
+
+.sec-badge::before{
+  content:'';
+  position:absolute;
+  top:-3px;left:-3px;right:-3px;bottom:-3px;
+  border:1px solid rgba(212,168,67,0.15);
+}
+
+.sec-badge.em{border-color:var(--emerald);color:var(--emerald);}
+.sec-badge.em::before{border-color:rgba(0,201,122,0.15);}
+.sec-badge.bl{border-color:var(--blue);color:var(--blue);}
+.sec-badge.bl::before{border-color:rgba(91,200,255,0.15);}
+.sec-badge.rd{border-color:var(--red);color:var(--red);}
+.sec-badge.rd::before{border-color:rgba(255,79,79,0.15);}
+
+.sec-title{
+  font-family:var(--serif);
+  font-size:1.65rem;
+  color:var(--text);
+  line-height:1.1;
+  font-weight:700;
+}
+
+/* ── PROSE ────────────────────────────────── */
+p{
+  font-size:0.97rem;
+  line-height:1.9;
+  color:#8ab0a0;
+  margin-bottom:18px;
+  font-weight:300;
+}
+
+h3{
+  font-family:var(--serif);
+  font-size:1.15rem;
+  color:var(--text);
+  margin:30px 0 12px;
+  font-weight:600;
+  display:flex;align-items:center;gap:10px;
+}
+
+h3::before{
+  content:'';
+  display:inline-block;width:20px;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  flex-shrink:0;
+}
+
+h4{
+  font-family:var(--mono);
+  font-size:0.66rem;
+  color:var(--emerald);
+  text-transform:uppercase;
+  letter-spacing:2.5px;
+  margin:22px 0 10px;
+}
+
+ul,ol{padding-left:22px;margin-bottom:18px;}
+
+li{
+  font-size:0.95rem;
+  line-height:1.85;
+  color:#7a9e8e;
+  margin-bottom:5px;
+  font-weight:300;
+}
+
+li strong{color:var(--text);}
+strong{color:var(--text);}
+em{color:var(--gold2);font-style:italic;}
+
+/* ── CALLOUT BOXES ────────────────────────── */
+.box{
+  border-radius:2px;
+  padding:18px 22px;
+  margin:22px 0;
+  position:relative;
+}
+
+.box-label{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.box p{margin:0;font-size:0.93rem;line-height:1.75;}
+
+.box-gold{
+  background:rgba(212,168,67,0.06);
+  border:1px solid rgba(212,168,67,0.2);
+  border-left:3px solid var(--gold);
+}
+.box-gold .box-label{color:var(--gold2);}
+.box-gold p{color:#b09050;}
+
+.box-em{
+  background:rgba(0,201,122,0.05);
+  border-left:3px solid var(--emerald2);
+}
+.box-em .box-label{color:var(--emerald);}
+.box-em p{color:#5a9a70;}
+
+.box-warn{
+  background:rgba(255,79,79,0.05);
+  border:1px solid rgba(255,79,79,0.2);
+}
+.box-warn .box-label{color:var(--red);}
+.box-warn p{color:#a06060;}
+
+.box-note{
+  background:rgba(91,200,255,0.04);
+  border-left:3px solid var(--blue);
+}
+.box-note .box-label{color:var(--blue);}
+.box-note p{color:#5a8898;}
+
+/* ── DIAGRAM ──────────────────────────────── */
+.diagram{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:22px 26px;
+  margin:20px 0;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:0.72rem;
+  line-height:1.95;
+  white-space:pre;
+  color:#3d6050;
+}
+
+.diagram .g {color:var(--emerald);}
+.diagram .g2{color:var(--emerald3);}
+.diagram .au{color:var(--gold);}
+.diagram .a2{color:var(--gold2);}
+.diagram .r {color:var(--red);}
+.diagram .b {color:var(--blue);}
+.diagram .w {color:var(--text);}
+.diagram .d {color:#1c3028;}
+
+/* ── CODE BLOCK ───────────────────────────── */
+.code-wrap{position:relative;margin:18px 0;}
+
+.code-lang{
+  position:absolute;top:0;right:0;
+  font-family:var(--mono);
+  font-size:0.52rem;
+  letter-spacing:2px;
+  background:var(--gold);
+  color:var(--bg);
+  padding:3px 12px;
+  border-radius:0 2px 0 4px;
+  text-transform:uppercase;
+  font-weight:600;
+}
+
+.code-block{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:22px 26px;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:0.72rem;
+  line-height:1.9;
+  white-space:pre;
+  color:#3d6a50;
+  tab-size:2;
+}
+
+.kw {color:#c678dd;}
+.ty {color:var(--gold2);}
+.str{color:var(--emerald);}
+.cm {color:#2d4838;font-style:italic;}
+.nm {color:#d19a66;}
+.fn {color:var(--blue);}
+.va {color:var(--text);}
+.op2{color:var(--gold);}
+
+/* ── TABLE ────────────────────────────────── */
+.tbl{
+  width:100%;
+  border-collapse:collapse;
+  margin:20px 0;
+  font-size:0.86rem;
+}
+
+.tbl th{
+  background:var(--bg3);
+  border-bottom:2px solid var(--gold);
+  border-top:1px solid var(--border2);
+  padding:11px 15px;
+  text-align:left;
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+
+.tbl td{
+  padding:10px 15px;
+  border-bottom:1px solid var(--border);
+  color:#6a8878;
+  vertical-align:top;
+  line-height:1.6;
+}
+
+.tbl tr:hover td{background:rgba(0,201,122,0.02);}
+.tbl .hi td{color:var(--text);background:rgba(0,201,122,0.03);}
+.tbl .warn td{color:#9a7040;background:rgba(212,168,67,0.03);}
+.tbl .danger td{color:#9a5050;background:rgba(255,79,79,0.03);}
+
+/* ── FORMULA ──────────────────────────────── */
+.formula-box{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-top:2px solid var(--gold);
+  border-radius:2px;
+  padding:20px 24px;
+  margin:20px 0;
+  position:relative;
+}
+
+.formula-box::before{
+  content:'◆';
+  position:absolute;top:-8px;left:24px;
+  background:var(--bg3);
+  padding:0 6px;
+  color:var(--gold);
+  font-size:0.6rem;
+}
+
+.f-title{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:3px;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+.formula{
+  font-family:var(--mono);
+  font-size:0.8rem;
+  color:var(--emerald);
+  line-height:2.1;
+  white-space:pre;
+}
+
+.formula .fv{color:var(--gold2);}
+.formula .fc{color:var(--muted);font-size:0.7rem;}
+.formula .fo{color:var(--red);}
+
+/* ── SYNTHESIS FLOW ───────────────────────── */
+.synth-flow{
+  display:grid;
+  grid-template-columns:1fr auto 1fr auto 1fr;
+  gap:0;
+  align-items:center;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:24px;
+  margin:20px 0;
+  overflow-x:auto;
+}
+
+.sf-stage{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:14px 16px;
+  text-align:center;
+  min-width:140px;
+}
+
+.sf-stage-name{
+  font-family:var(--serif);
+  font-size:0.85rem;
+  color:var(--text);
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.sf-stage-desc{
+  font-family:var(--mono);
+  font-size:0.6rem;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.sf-arrow{
+  font-size:1.2rem;
+  color:var(--gold);
+  padding:0 12px;
+  opacity:0.6;
+}
+
+/* ── INTERACTIVE ──────────────────────────── */
+.demo-box{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:24px;
+  margin:24px 0;
+  position:relative;
+}
+
+.demo-box::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg, var(--emerald), var(--gold));
+}
+
+.demo-title{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:3px;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+
+.demo-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:16px;
+}
+
+.demo-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.demo-label{
+  font-family:var(--mono);
+  font-size:0.6rem;
+  color:var(--subtle);
+  letter-spacing:1px;
+}
+
+.demo-input{
+  -webkit-appearance:none;
+  width:100%;height:3px;
+  border-radius:2px;
+  background:var(--border2);
+  outline:none;
+  accent-color:var(--emerald);
+  cursor:pointer;
+}
+
+.demo-val{
+  font-family:var(--mono);
+  font-size:0.68rem;
+  color:var(--emerald);
+}
+
+.demo-result{
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:16px 18px;
+  font-family:var(--mono);
+  font-size:0.74rem;
+  line-height:2;
+  min-height:70px;
+}
+
+/* ── LIBERTY VIEWER ───────────────────────── */
+.lib-viewer{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:0;
+  margin:20px 0;
+  overflow:hidden;
+}
+
+.lib-tabs{
+  display:flex;
+  border-bottom:1px solid var(--border2);
+  background:var(--bg);
+}
+
+.lib-tab{
+  font-family:var(--mono);
+  font-size:0.62rem;
+  letter-spacing:1px;
+  padding:10px 20px;
+  cursor:pointer;
+  color:var(--muted);
+  border:none;
+  background:none;
+  border-bottom:2px solid transparent;
+  transition:all 0.15s;
+  text-transform:uppercase;
+}
+
+.lib-tab.active{
+  color:var(--gold);
+  border-bottom-color:var(--gold);
+  background:var(--bg2);
+}
+
+.lib-tab:hover{color:var(--subtle);}
+
+.lib-content{
+  display:none;
+  padding:22px 26px;
+}
+
+.lib-content.active{display:block;}
+
+/* ── QUIZ ─────────────────────────────────── */
+.quiz-wrap{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:36px;
+  margin:40px 0;
+  position:relative;
+}
+
+.quiz-wrap::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg, transparent 5%, var(--gold) 30%, var(--emerald) 70%, transparent 95%);
+}
+
+.quiz-hdr{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:28px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border);
+}
+
+.quiz-ornament{
+  font-family:var(--serif);
+  font-size:1.6rem;
+  color:var(--gold);
+  opacity:0.5;
+  line-height:1;
+}
+
+.quiz-hdr-text{}
+.quiz-hdr-title{
+  font-family:var(--serif);
+  font-size:1.25rem;
+  color:var(--text);
+  font-weight:700;
+}
+.quiz-hdr-sub{
+  font-family:var(--mono);
+  font-size:0.6rem;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.q-block{
+  margin-bottom:28px;
+  padding-bottom:28px;
+  border-bottom:1px solid var(--border);
+}
+.q-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+
+.q-num{
+  font-family:var(--mono);
+  font-size:0.57rem;
+  color:var(--gold);
+  letter-spacing:2px;
+  margin-bottom:8px;
+}
+
+.q-text{
+  font-family:var(--serif);
+  font-size:1rem;
+  color:var(--text);
+  line-height:1.65;
+  margin-bottom:14px;
+}
+
+.opt{
+  display:block;width:100%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--subtle);
+  padding:11px 16px;
+  margin:7px 0;
+  border-radius:2px;
+  text-align:left;
+  cursor:pointer;
+  font-size:0.9rem;
+  font-family:var(--sans);
+  font-weight:300;
+  transition:all 0.15s;
+  line-height:1.5;
+}
+
+.opt:hover:not(:disabled){
+  border-color:var(--gold);
+  color:var(--text);
+  background:rgba(212,168,67,0.05);
+}
+
+.opt.correct{background:rgba(0,201,122,0.08);border-color:var(--emerald);color:#80c898;}
+.opt.wrong{background:rgba(255,79,79,0.06);border-color:var(--red);color:#d09090;}
+.opt:disabled{cursor:default;}
+
+.q-fb{
+  font-family:var(--mono);
+  font-size:0.7rem;
+  line-height:1.7;
+  padding:12px 16px;
+  border-radius:2px;
+  margin-top:10px;
+  display:none;
+}
+
+.q-fb.show{display:block;}
+.q-fb.pass{background:rgba(0,201,122,0.07);color:#60a878;border:1px solid rgba(0,201,122,0.2);}
+.q-fb.fail{background:rgba(255,79,79,0.07);color:#c08080;border:1px solid rgba(255,79,79,0.2);}
+
+/* ── CHECKLIST ────────────────────────────── */
+.cl-wrap{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:28px;
+  margin:40px 0;
+}
+
+.cl-title{
+  font-family:var(--serif);
+  font-size:1.1rem;
+  color:var(--gold2);
+  font-style:italic;
+  margin-bottom:18px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+
+.cl-item{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(19,46,32,0.6);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.cl-item:last-child{border-bottom:none;}
+.cl-item:hover{padding-left:4px;}
+
+.cl-box{
+  width:18px;height:18px;
+  border:1px solid var(--border2);
+  border-radius:1px;
+  flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.65rem;
+  color:transparent;
+  transition:all 0.2s;
+}
+
+.cl-item.done .cl-box{background:var(--emerald2);border-color:var(--emerald2);color:var(--bg);}
+.cl-item.done .cl-text{text-decoration:line-through;color:var(--muted);}
+
+.cl-text{font-size:0.9rem;color:var(--subtle);line-height:1.5;font-weight:300;}
+
+/* ── SUMMARY ──────────────────────────────── */
+.sum-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:12px;
+  margin:22px 0;
+}
+
+.sum-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:16px 18px;
+  position:relative;
+  overflow:hidden;
+}
+
+.sum-card::before{
+  content:'';
+  position:absolute;top:0;left:0;width:3px;height:100%;
+  background:linear-gradient(to bottom, var(--gold), var(--emerald));
+}
+
+.sum-t{
+  font-family:var(--mono);
+  font-size:0.56rem;letter-spacing:2px;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.sum-b{
+  font-size:0.83rem;color:var(--subtle);
+  line-height:1.65;font-weight:300;
+}
+
+/* ── NEXT DAY ─────────────────────────────── */
+.next-banner{
+  background:var(--bg2);
+  border-top:1px solid var(--border2);
+  padding:56px 60px;
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+}
+
+.next-banner::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg, transparent 10%, var(--gold) 30%, var(--emerald) 50%, var(--gold) 70%, transparent 90%);
+}
+
+.nb-ornament{
+  font-family:var(--serif);
+  font-size:0.9rem;
+  color:var(--gold);
+  letter-spacing:8px;
+  opacity:0.5;
+  margin-bottom:14px;
+}
+
+.nb-title{
+  font-family:var(--serif);
+  font-size:2rem;
+  color:var(--text);
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.nb-sub{
+  font-size:0.9rem;
+  color:var(--subtle);
+  max-width:560px;
+  margin:0 auto 24px;
+  line-height:1.8;
+  font-weight:300;
+}
+
+.nb-chips{
+  display:flex;justify-content:center;
+  flex-wrap:wrap;gap:8px;
+}
+
+.nb-chip{
+  font-family:var(--mono);font-size:0.58rem;
+  padding:5px 14px;
+  border:1px solid var(--border2);
+  color:var(--muted);border-radius:1px;
+  letter-spacing:0.5px;
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{padding:32px 24px 80px;}
+  .hero{padding:44px 24px 44px;}
+  .topbar{padding:0 24px;}
+  .next-banner{padding:40px 24px;}
+  .synth-flow{grid-template-columns:1fr;}
+  .sf-arrow{transform:rotate(90deg);}
+}
+</style>
+</head>
+<body>
+<div class="deco-left"></div>
+<div class="deco-right"></div>
+<div class="page">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-brand">PD Mentor</div>
+  <div class="tb-center">
+    <span class="tb-phase">Phase 2 · Synthesis & STA</span>
+    <span class="tb-sep">|</span>
+    <span class="tb-day">Day 04 of 120</span>
+  </div>
+  <div class="tb-right">Est. 4 hrs · 8 Topics · 10 Quiz Qs</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-deco">04</div>
+  <div class="hero-inner">
+    <div class="hero-tag">Day 4 · Phase 2 Opens · Logic Synthesis</div>
+    <h1>Logic Synthesis —<br><em>RTL to Silicon</em><br>in <span class="em2">Gate-Level Netlist</span></h1>
+    <div class="hero-sub">Synthesis is the bridge between an RTL designer's intent and silicon reality. As a PD engineer you receive the netlist synthesis produces — understanding how that netlist was built, what it optimizes for, and how its timing models work makes you dramatically more effective at every PD stage that follows.</div>
+    <div class="hero-stats">
+      <div class="hs-item"><div class="hs-num">8</div><div class="hs-label">Topics</div></div>
+      <div class="hs-item"><div class="hs-num">2</div><div class="hs-label">Simulators</div></div>
+      <div class="hs-item"><div class="hs-num">10</div><div class="hs-label">Quiz Qs</div></div>
+      <div class="hs-item"><div class="hs-num">1</div><div class="hs-label">Lab Exercise</div></div>
+      <div class="hs-item"><div class="hs-num">4 hrs</div><div class="hs-label">Study Time</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-group">
+    <div class="sb-group-label">Synthesis Core</div>
+    <a class="sb-item" href="#s1"><span class="sb-n">01</span><span class="sb-t">What Synthesis Does & Why It Matters</span></a>
+    <a class="sb-item" href="#s2"><span class="sb-n">02</span><span class="sb-t">Three-Stage Synthesis Flow</span></a>
+    <a class="sb-item" href="#s3"><span class="sb-n">03</span><span class="sb-t">Technology Mapping Deep Dive</span></a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Timing Models</div>
+    <a class="sb-item" href="#s4"><span class="sb-n">04</span><span class="sb-t">Liberty (.lib) Files — The Timing Bible</span></a>
+    <a class="sb-item" href="#s5"><span class="sb-n">05</span><span class="sb-t">NLDM vs CCS Timing Models</span></a>
+    <a class="sb-item" href="#s6"><span class="sb-n">06</span><span class="sb-t">SDC Constraints for Synthesis</span></a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Optimization</div>
+    <a class="sb-item" href="#s7"><span class="sb-n">07</span><span class="sb-t">Synthesis Optimization Strategies</span></a>
+    <a class="sb-item" href="#s8"><span class="sb-n">08</span><span class="sb-t">Lab — Synthesis with Yosys</span></a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Assessment</div>
+    <a class="sb-item" href="#quiz"><span class="sb-n">Q</span><span class="sb-t">Day 4 Quiz · 10 Questions</span></a>
+    <a class="sb-item" href="#summary"><span class="sb-n">∑</span><span class="sb-t">Summary & Reference Sheet</span></a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ═══════════════════════════════════ -->
+<!-- S1: WHAT SYNTHESIS DOES            -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s1">
+  <div class="sec-hdr">
+    <div class="sec-badge">01 · Foundation</div>
+    <div class="sec-title">What Synthesis Does & Why It Matters</div>
+  </div>
+
+  <p>Logic synthesis is the automated process of translating a behavioral hardware description (RTL Verilog) into a structural netlist of real physical gates from a technology-specific standard cell library. It is the boundary between the logical and physical worlds of chip design.</p>
+
+  <p>As a PD engineer you do not run synthesis — the synthesis team does. But you live with its output every day. The quality of synthesis directly determines how hard your job is: a poorly constrained synthesis run produces a netlist with timing violations that are nearly impossible to fix in PD. A well-run synthesis gives you a clean starting point with achievable timing closure.</p>
+
+  <h3>The Big Picture: What Goes In, What Comes Out</h3>
+
+  <div class="diagram"><span class="au">SYNTHESIS INPUTS</span>                          <span class="au">SYNTHESIS OUTPUTS</span>
+
+  RTL Verilog (.v)       ──┐                 ┌── Gate-level Netlist (.v)
+  SDC Constraints (.sdc) ──┤                 ├── Timing Reports (.rpt)
+  Liberty Files (.lib)   ──┤  [SYNTHESIS]    ├── Area Reports (.rpt)
+  Technology LEF (.lef)  ──┤      TOOL       ├── Power Estimates (.rpt)
+  UPF Power Intent (.upf)──┘  Synopsys DC    └── SDF Delay File (.sdf)
+                               Cadence Genus
+
+<span class="g">What the netlist contains:</span>
+  <span class="g">module counter_synth (clk, rst_n, count);</span>
+  <span class="g">  DFFRHQX1 count_reg_0 (.D(n1), .CK(clk), .RN(rst_n), .Q(count[0]));</span>
+  <span class="g">  XOR2X1   U5          (.A(count[1]), .B(count[0]), .Y(n1));</span>
+  <span class="g">  ...real standard cells from the library...</span>
+  <span class="g">endmodule</span>
+
+<span class="d">Every module instantiation references a real physical cell</span>
+<span class="d">Every cell has precisely characterized timing in the .lib file</span></div>
+
+  <h3>The Three Goals Synthesis Optimizes</h3>
+
+  <p>Synthesis tools optimize for three competing objectives simultaneously — and the priority order you specify in SDC determines what trade-offs get made:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Goal</th><th>Metric</th><th>How Synthesis Achieves It</th><th>Conflicts With</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Timing</strong></td><td>Setup/Hold slack, WNS, TNS</td><td>Use faster (LVT/larger) cells, reduce logic depth, restructure critical paths</td><td>Area, Power</td></tr>
+      <tr><td><strong>Area</strong></td><td>Cell count, total gate area (µm²)</td><td>Share logic, use smaller cells, remove redundant gates</td><td>Timing (smaller = slower)</td></tr>
+      <tr><td><strong>Power</strong></td><td>Dynamic mW, leakage µW</td><td>Use HVT cells, reduce switching activity, enable clock gating</td><td>Timing (HVT = slower)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-gold">
+    <div class="box-label">🔑 Key Insight for PD Engineers</div>
+    <p>Synthesis sets the baseline timing. Every setup violation that exists in the post-synthesis netlist is a violation you must eventually fix in PD through placement, routing, or ECO. If synthesis leaves WNS = −500ps with a 1GHz clock, your PD job just became extremely difficult. This is why PD engineers participate in synthesis reviews and advocate for tighter pre-synthesis targets (called "synthesis timing guardband").</p>
+  </div>
+
+  <h3>Industry Synthesis Tools</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Tool</th><th>Vendor</th><th>Market Share</th><th>Key Command</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Design Compiler (DC)</strong></td><td>Synopsys</td><td>~60% of industry</td><td><code>compile_ultra</code></td></tr>
+      <tr><td><strong>Genus Synthesis</strong></td><td>Cadence</td><td>~35% of industry</td><td><code>syn_generic; syn_map; syn_opt</code></td></tr>
+      <tr><td><strong>Yosys</strong></td><td>Open Source</td><td>Academia / OpenLane</td><td><code>synth -top design</code></td></tr>
+      <tr><td><strong>Precision RTL</strong></td><td>Mentor/Siemens</td><td>FPGA focus</td><td><code>synthesize -effort high</code></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S2: THREE-STAGE SYNTHESIS FLOW     -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s2">
+  <div class="sec-hdr">
+    <div class="sec-badge em">02 · Flow</div>
+    <div class="sec-title">The Three-Stage Synthesis Flow</div>
+  </div>
+
+  <p>Every synthesis tool performs three distinct stages internally, regardless of how the user initiates them. Understanding each stage lets you diagnose synthesis quality issues and communicate effectively with synthesis engineers.</p>
+
+  <div class="synth-flow">
+    <div class="sf-stage" style="border-top:2px solid var(--gold)">
+      <div class="sf-stage-name">Stage 1<br>Translation</div>
+      <div class="sf-stage-desc">RTL → Generic Boolean<br>Network (GTECH)<br><br>Language-level parsing<br>No technology yet</div>
+    </div>
+    <div class="sf-arrow">→</div>
+    <div class="sf-stage" style="border-top:2px solid var(--gold)">
+      <div class="sf-stage-name">Stage 2<br>Logic Optimization</div>
+      <div class="sf-stage-desc">Minimize gate count<br>Reduce logic depth<br><br>Boolean & structural<br>optimization</div>
+    </div>
+    <div class="sf-arrow">→</div>
+    <div class="sf-stage" style="border-top:2px solid var(--gold)">
+      <div class="sf-stage-name">Stage 3<br>Technology Mapping</div>
+      <div class="sf-stage-desc">Generic → Real cells<br>from .lib library<br><br>Meet timing, area<br>power constraints</div>
+    </div>
+  </div>
+
+  <h3>Stage 1: Translation — RTL to Generic Network</h3>
+
+  <p>The synthesis tool first <strong>parses your Verilog</strong> and converts it into an internal representation called a generic technology-independent network (Synopsys calls this GTECH — Generic Technology). At this stage:</p>
+
+  <ul>
+    <li>All behavioral Verilog constructs are converted to Boolean expressions</li>
+    <li>Module hierarchy is either preserved (hierarchical synthesis) or flattened</li>
+    <li><code>always @(posedge clk)</code> blocks become generic flip-flop cells</li>
+    <li>Arithmetic operators (+, -, *, &lt;&lt;) become adder/subtractor/shifter networks</li>
+    <li>No real timing exists yet — cells are generic</li>
+  </ul>
+
+  <div class="box box-note">
+    <div class="box-label">📌 RTL Synthesis Errors Appear Here</div>
+    <p>If your Verilog has syntax errors, multiple drivers, or undeclared signals, Stage 1 is where synthesis will fail. PD engineers see these errors in synthesis log files and must relay them to RTL designers. Common errors: "multiple drivers on net", "inferred latch on signal X" (incomplete case/if), "unresolved reference to module Y".</p>
+  </div>
+
+  <h3>Stage 2: Logic Optimization — Making It Efficient</h3>
+
+  <p>After translation, the tool applies two classes of optimization to the generic network:</p>
+
+  <h4>Structural Optimization</h4>
+  <ul>
+    <li><strong>Constant propagation</strong> — if a signal is always 0 or 1, remove logic driven by it</li>
+    <li><strong>Dead code elimination</strong> — remove logic whose output is never used</li>
+    <li><strong>Common subexpression sharing</strong> — if two paths compute the same function, share the gates</li>
+    <li><strong>Resource sharing</strong> — if a multiplier is only used in one state at a time, share it across states</li>
+  </ul>
+
+  <h4>Boolean Optimization</h4>
+  <ul>
+    <li><strong>Two-level minimization</strong> — Karnaugh maps / Quine-McCluskey for small functions</li>
+    <li><strong>Multi-level optimization</strong> — factoring and decomposing logic functions to reduce gate count</li>
+    <li><strong>Don't-care conditions</strong> — exploit unused input combinations to simplify logic</li>
+  </ul>
+
+  <h3>Stage 3: Technology Mapping — Generic to Real</h3>
+
+  <p>This is the most critical stage from a PD perspective. The generic network is mapped to real cells from your standard cell library using a <em>covering algorithm</em>: the tool finds the optimal combination of library cells (AND, OR, NAND, NOR, complex gates) that implements each section of logic while meeting timing constraints.</p>
+
+  <div class="diagram"><span class="au">TECHNOLOGY MAPPING EXAMPLE</span>
+
+Generic network (after Stage 2):
+  <span class="w">F = A·B + C·D + E</span>     <span class="d">← abstract Boolean expression</span>
+
+Possible mappings from library:
+  <span class="g">Option 1 (slower, smaller):  NAND2(A,B) + NAND2(C,D) + NOR3 → 3 cells</span>
+  <span class="g">Option 2 (faster, larger):   AOI22(A,B,C,D) + INV + OR2(result,E) → 3 cells, less delay</span>
+  <span class="g">Option 3 (fastest):          AOI221(A,B,C,D,E) → 1 complex cell</span>
+
+Mapping decision based on:
+  <span class="a2">→ Is this path critical? (check SDC timing constraints)</span>
+  <span class="a2">→ What is the output load? (determines which drive strength)</span>
+  <span class="a2">→ What is the timing budget? (slack available)</span>
+  <span class="a2">→ Which option meets timing with minimum area and power?</span></div>
+
+  <div class="box box-gold">
+    <div class="box-label">🔑 PD Relevance of Technology Mapping</div>
+    <p>The cell selection made during technology mapping directly determines how many standard cells you will place in PD, how much area the design uses, and the baseline timing you start with. Understanding this is why PD engineers sometimes ask synthesis engineers to re-run with different cell preferences — for example, "please prefer NAND-heavy implementations over NOR-heavy" because NAND gates have series NMOS (faster pull-down) versus NOR's series PMOS (slower pull-up).</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S3: TECHNOLOGY MAPPING DEEP DIVE   -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s3">
+  <div class="sec-hdr">
+    <div class="sec-badge">03 · Mapping</div>
+    <div class="sec-title">Technology Mapping — Drive Strength & Cell Selection</div>
+  </div>
+
+  <p>Technology mapping is a combinatorial optimization problem. The tool must decide not just WHICH cell type to use, but also WHICH DRIVE STRENGTH and THRESHOLD VOLTAGE variant. These decisions have lasting consequences for PD.</p>
+
+  <h3>Drive Strength Selection Logic</h3>
+
+  <p>Every standard cell comes in multiple drive strengths (X1, X2, X4, X8, X16...). The synthesis tool selects drive strength based on <strong>output load capacitance</strong>:</p>
+
+  <div class="formula-box">
+    <div class="f-title">Drive Strength Selection</div>
+    <div class="formula"><span class="fv">C_load</span> = Σ (input capacitance of fan-out gates) + <span class="fv">C_wire_estimated</span>
+
+<span class="fv">t_prop</span> = <span class="fv">t_intrinsic</span> + <span class="fv">k</span> × <span class="fv">C_load</span>   <span class="fc">← from Liberty NLDM table</span>
+
+<span class="fc">t_intrinsic = internal gate delay (zero load)
+k           = drive resistance coefficient
+C_load      = total output capacitance</span>
+
+Rule: if <span class="fv">C_load</span> is high (many fan-outs or long wire) → use higher drive strength
+      if <span class="fv">C_load</span> is low  (few fan-outs, short wire)  → use X1 (area/power efficient)
+
+<span class="fc">Note: synthesis uses ESTIMATED wire capacitance (before routing exists)
+      Post-route STA uses ACTUAL parasitics from SPEF — often very different!</span></div>
+  </div>
+
+  <h3>Fan-out and Buffering</h3>
+
+  <p>When one cell drives too many gates (high fan-out), the load capacitance becomes so large that the driving cell slows down dramatically. Synthesis handles this by <strong>buffer insertion</strong> or <strong>cell upsizing</strong>:</p>
+
+  <div class="diagram"><span class="au">HIGH FAN-OUT PROBLEM AND FIX</span>
+
+Problem: reset_n drives 2000 flip-flops
+  <span class="r">reset_n ─────────────────────── FF_0</span>
+          <span class="r">│</span>
+          <span class="r">├──────────────────────── FF_1</span>
+          <span class="r">│   ... 1998 more ...</span>
+          <span class="r">└──────────────────────── FF_1999</span>
+  <span class="r">Result: C_load = 2000 × 5fF = 10pF → drive too slow → timing failure</span>
+
+<span class="g">Fix: buffer tree (synthesis inserts automatically)</span>
+  <span class="g">reset_n ──[BUFX16]──┬──[BUFX8]──── FF_0 ... FF_499</span>
+                       <span class="g">├──[BUFX8]──── FF_500 ... FF_999</span>
+                       <span class="g">├──[BUFX8]──── FF_1000 ... FF_1499</span>
+                       <span class="g">└──[BUFX8]──── FF_1500 ... FF_1999</span>
+  <span class="g">Result: each BUFX8 drives 500 FFs → C_load manageable → timing met</span>
+
+<span class="d">PD implication: synthesis-inserted buffers must be placed well in PD
+                to minimize the wire lengths between buffer levels</span></div>
+
+  <h3>Max Fan-out Constraint in SDC</h3>
+
+  <p>You can control the maximum fan-out per cell via SDC, which directly shapes how synthesis inserts buffers:</p>
+
+  <div class="code-wrap">
+    <div class="code-lang">SDC / Tcl</div>
+    <div class="code-block"><span class="cm"># Limit fan-out to prevent excessive capacitive loading</span>
+<span class="fn">set_max_fanout</span> <span class="nm">32</span> [<span class="fn">get_designs</span> *]          <span class="cm"># global max</span>
+<span class="fn">set_max_fanout</span> <span class="nm">8</span>  [<span class="fn">get_ports</span> clk_en*]       <span class="cm"># tighter for clock enables</span>
+
+<span class="cm"># Limit capacitive load on output ports</span>
+<span class="fn">set_max_capacitance</span> <span class="nm">0.5</span> [<span class="fn">all_outputs</span>]        <span class="cm"># 0.5pF max per output</span>
+
+<span class="cm"># Limit transition time (slew) — prevents slow edges</span>
+<span class="fn">set_max_transition</span> <span class="nm">0.2</span> [<span class="fn">get_designs</span> *]       <span class="cm"># 200ps max slew</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S4: LIBERTY FILES                  -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s4">
+  <div class="sec-hdr">
+    <div class="sec-badge em">04 · Timing Models</div>
+    <div class="sec-title">Liberty (.lib) Files — The Timing Bible</div>
+  </div>
+
+  <p>The Liberty file is the most important input to both synthesis and STA. It contains the electrical characterization of every cell in the standard cell library: timing arcs, power consumption, input capacitances, leakage currents, and functional descriptions. Without accurate .lib files, timing analysis is meaningless.</p>
+
+  <h3>Liberty File Structure</h3>
+
+  <p>A Liberty file is a structured text format organized hierarchically. Click through the tabs below to see each level:</p>
+
+  <div class="lib-viewer">
+    <div class="lib-tabs">
+      <button class="lib-tab active" onclick="showLib('header')">Library Header</button>
+      <button class="lib-tab" onclick="showLib('cell')">Cell Definition</button>
+      <button class="lib-tab" onclick="showLib('timing')">Timing Arcs</button>
+      <button class="lib-tab" onclick="showLib('power')">Power Data</button>
+    </div>
+
+    <div class="lib-content active" id="lib-header">
+      <div class="code-block"><span class="cm">/* ── Liberty File Header ── */</span>
+<span class="fn">library</span> (<span class="va">sky130_fd_sc_hd__tt_025C_1v80</span>) {
+  <span class="cm">/* Process-Voltage-Temperature (PVT) corner this file characterizes */</span>
+  <span class="fn">technology</span>         (<span class="va">cmos</span>);
+  <span class="fn">delay_model</span>        : <span class="va">table_lookup</span>;   <span class="cm">/* NLDM model */</span>
+  <span class="fn">nom_process</span>        : <span class="nm">1.0</span>;             <span class="cm">/* typical process (1.0 = nominal) */</span>
+  <span class="fn">nom_voltage</span>        : <span class="nm">1.8</span>;             <span class="cm">/* VDD = 1.8V */</span>
+  <span class="fn">nom_temperature</span>    : <span class="nm">25</span>;              <span class="cm">/* 25°C ambient */</span>
+
+  <span class="cm">/* Operating conditions — defines PVT corner name */</span>
+  <span class="fn">operating_conditions</span> (<span class="va">tt_025C_1v80</span>) {
+    <span class="fn">process</span>     : <span class="nm">1.0</span>;    <span class="cm">/* typical-typical (TT) */</span>
+    <span class="fn">temperature</span> : <span class="nm">25</span>;
+    <span class="fn">voltage</span>     : <span class="nm">1.8</span>;
+  }
+
+  <span class="cm">/* Lookup table templates for NLDM timing arcs */</span>
+  <span class="fn">lu_table_template</span> (<span class="va">delay_template_7x7</span>) {
+    <span class="fn">variable_1</span> : <span class="va">input_net_transition</span>;     <span class="cm">/* row = input slew */</span>
+    <span class="fn">variable_2</span> : <span class="va">total_output_net_capacitance</span>; <span class="cm">/* col = output load */</span>
+    <span class="fn">index_1</span> (<span class="str">"0.01, 0.05, 0.10, 0.20, 0.40, 0.80, 1.60"</span>); <span class="cm">/* ns */</span>
+    <span class="fn">index_2</span> (<span class="str">"0.005, 0.01, 0.02, 0.04, 0.08, 0.16, 0.32"</span>); <span class="cm">/* pF */</span>
+  }
+}</div>
+    </div>
+
+    <div class="lib-content" id="lib-cell">
+      <div class="code-block"><span class="cm">/* ── Cell Definition: 2-input AND gate ── */</span>
+<span class="fn">cell</span> (<span class="va">sky130_fd_sc_hd__and2_1</span>) {
+  <span class="fn">area</span> : <span class="nm">6.26</span>;                 <span class="cm">/* µm² — affects area reporting */</span>
+  <span class="fn">cell_leakage_power</span> : <span class="nm">0.0017</span>; <span class="cm">/* nW at TT, 25°C, 1.8V */</span>
+
+  <span class="fn">pin</span> (<span class="va">A</span>) {                      <span class="cm">/* Input pin A */</span>
+    <span class="fn">direction</span>    : <span class="va">input</span>;
+    <span class="fn">capacitance</span>  : <span class="nm">0.0036</span>;      <span class="cm">/* pF — load on driving gate */</span>
+    <span class="fn">rise_capacitance</span>  : <span class="nm">0.0036</span>;
+    <span class="fn">fall_capacitance</span>  : <span class="nm">0.0030</span>;
+  }
+
+  <span class="fn">pin</span> (<span class="va">B</span>) {
+    <span class="fn">direction</span>    : <span class="va">input</span>;
+    <span class="fn">capacitance</span>  : <span class="nm">0.0040</span>;      <span class="cm">/* slightly more than A — different layout */</span>
+  }
+
+  <span class="fn">pin</span> (<span class="va">X</span>) {                      <span class="cm">/* Output pin X = A AND B */</span>
+    <span class="fn">direction</span>    : <span class="va">output</span>;
+    <span class="fn">function</span>     : <span class="str">"(A B)"</span>;     <span class="cm">/* Boolean function */</span>
+    <span class="cm">/* timing arcs defined inside output pin — see Timing Arcs tab */</span>
+  }
+}</div>
+    </div>
+
+    <div class="lib-content" id="lib-timing">
+      <div class="code-block"><span class="cm">/* ── Timing Arc: A→X rise path in AND2 cell ── */</span>
+<span class="fn">timing</span> () {
+  <span class="fn">related_pin</span>   : <span class="str">"A"</span>;             <span class="cm">/* arc from pin A to pin X */</span>
+  <span class="fn">timing_sense</span>  : <span class="va">positive_unate</span>;  <span class="cm">/* A rises → X may rise (AND behavior) */</span>
+
+  <span class="cm">/* RISE DELAY: 7×7 table [input_slew][output_load] in nanoseconds */</span>
+  <span class="fn">cell_rise</span> (<span class="va">delay_template_7x7</span>) {
+    <span class="fn">index_1</span> (<span class="str">"0.01,0.05,0.10,0.20,0.40,0.80,1.60"</span>); <span class="cm">/* input slew (ns) */</span>
+    <span class="fn">index_2</span> (<span class="str">"0.005,0.01,0.02,0.04,0.08,0.16,0.32"</span>); <span class="cm">/* output cap (pF) */</span>
+    <span class="fn">values</span> (
+      <span class="cm">/* Fast slew, small load → Fast slew, large load */</span>
+      <span class="str">"0.072, 0.098, 0.150, 0.253, 0.460, 0.873, 1.701"</span>,
+      <span class="str">"0.098, 0.123, 0.175, 0.278, 0.485, 0.898, 1.726"</span>,
+      <span class="str">"0.140, 0.165, 0.216, 0.320, 0.527, 0.940, 1.768"</span>,
+      <span class="str">"0.220, 0.245, 0.295, 0.398, 0.605, 1.018, 1.845"</span>,
+      <span class="str">"0.374, 0.399, 0.449, 0.552, 0.759, 1.172, 2.000"</span>,
+      <span class="str">"0.680, 0.705, 0.755, 0.858, 1.065, 1.478, 2.307"</span>,
+      <span class="str">"1.291, 1.316, 1.366, 1.469, 1.676, 2.090, 2.919"</span>
+    );  <span class="cm">/* Slow slew, large load → slow delay (bottom-right) */</span>
+  }
+
+  <span class="cm">/* SETUP TIME (for flip-flop D pin arcs) */</span>
+  <span class="fn">rise_constraint</span> (<span class="va">constraint_template_7x7</span>) {
+    <span class="fn">values</span> ( ... ); <span class="cm">/* setup time vs data slew and clock slew */</span>
+  }
+}</div>
+    </div>
+
+    <div class="lib-content" id="lib-power">
+      <div class="code-block"><span class="cm">/* ── Power Data in Liberty ── */</span>
+<span class="fn">internal_power</span> () {
+  <span class="fn">related_pin</span> : <span class="str">"A"</span>;          <span class="cm">/* power when pin A switches */</span>
+
+  <span class="cm">/* Energy per switching event (nW·ns = pJ) */</span>
+  <span class="fn">rise_power</span> (<span class="va">power_template_7x7</span>) {
+    <span class="fn">values</span> (
+      <span class="str">"0.004, 0.006, 0.009, 0.016, 0.029, 0.055, 0.108"</span>,
+      <span class="cm">/* ... 6 more rows ... */</span>
+    );
+  }
+
+  <span class="fn">fall_power</span> (<span class="va">power_template_7x7</span>) {
+    <span class="fn">values</span> ( ... );
+  }
+}
+
+<span class="cm">/* Leakage power states — different leakage for each input combination */</span>
+<span class="fn">leakage_power</span> () { <span class="fn">when</span> : <span class="str">"!A !B"</span>; <span class="fn">value</span> : <span class="nm">0.00120</span>; } <span class="cm">/* A=0,B=0 */</span>
+<span class="fn">leakage_power</span> () { <span class="fn">when</span> : <span class="str">"A !B"</span>;  <span class="fn">value</span> : <span class="nm">0.00160</span>; } <span class="cm">/* A=1,B=0 */</span>
+<span class="fn">leakage_power</span> () { <span class="fn">when</span> : <span class="str">"!A B"</span>;  <span class="fn">value</span> : <span class="nm">0.00140</span>; } <span class="cm">/* A=0,B=1 */</span>
+<span class="fn">leakage_power</span> () { <span class="fn">when</span> : <span class="str">"A B"</span>;   <span class="fn">value</span> : <span class="nm">0.00210</span>; } <span class="cm">/* A=1,B=1 */</span></div>
+    </div>
+  </div>
+
+  <h3>PVT Corners — Why Multiple .lib Files Exist</h3>
+
+  <p>Standard cell libraries are characterized at multiple Process-Voltage-Temperature (PVT) corners. Each corner has its own .lib file because cell delays change significantly across PVT:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Corner</th><th>Process</th><th>Voltage</th><th>Temp</th><th>Effect</th><th>Used For</th></tr></thead>
+    <tbody>
+      <tr class="danger"><td><strong>SS (Slow-Slow)</strong></td><td>Slow</td><td>Low (0.9V)</td><td>Hot (125°C)</td><td>Slowest possible — max delay</td><td>Setup timing signoff</td></tr>
+      <tr class="hi"><td><strong>TT (Typical)</strong></td><td>Typical</td><td>Nominal (1.0V)</td><td>25°C</td><td>Average — nominal performance</td><td>Design exploration</td></tr>
+      <tr class="warn"><td><strong>FF (Fast-Fast)</strong></td><td>Fast</td><td>High (1.1V)</td><td>Cold (−40°C)</td><td>Fastest — minimum delay</td><td>Hold timing signoff</td></tr>
+      <tr><td><strong>SF / FS</strong></td><td>Mixed</td><td>Various</td><td>Various</td><td>Worst case for specific effects</td><td>Advanced signoff</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-gold">
+    <div class="box-label">🔑 Critical PD Understanding</div>
+    <p>Setup violations are worst at SS corner (everything slow → data arrives late). Hold violations are worst at FF corner (everything fast → data arrives too early). This is why STA always runs at multiple corners: setup at SS_0.9V_125C, hold at FF_1.1V_−40C. As a PD engineer you will run timing closure at ALL corners simultaneously — fixing one corner must not break another.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S5: NLDM vs CCS                    -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s5">
+  <div class="sec-hdr">
+    <div class="sec-badge">05 · Timing Models</div>
+    <div class="sec-title">NLDM vs CCS Timing Models</div>
+  </div>
+
+  <p>The Liberty file can store timing data in two main formats — NLDM (the older industry standard) and CCS (the more accurate advanced model). As nodes shrink below 28nm, NLDM accuracy degrades and CCS becomes mandatory for signoff.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Property</th><th>NLDM (Non-Linear Delay Model)</th><th>CCS (Composite Current Source)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>What it models</strong></td><td>Delay and output slew as 2D lookup tables: f(input_slew, output_load)</td><td>Complete output current waveform as function of time — models actual transistor behavior</td></tr>
+      <tr><td><strong>Accuracy</strong></td><td>Good for 130nm–28nm. Underestimates noise at advanced nodes.</td><td>Excellent for 28nm and below. Accurately captures waveform-level effects.</td></tr>
+      <tr><td><strong>File size</strong></td><td>~10–50MB per corner</td><td>~100–500MB per corner (larger due to more data)</td></tr>
+      <tr class="hi"><td><strong>Used at</strong></td><td>Older nodes (180nm, 130nm, 65nm) or fast early-stage analysis</td><td>Advanced nodes (28nm, 14nm, 7nm, 5nm) — mandatory for signoff</td></tr>
+      <tr><td><strong>Supports SI?</strong></td><td>Limited — cannot model crosstalk current injection accurately</td><td>Yes — CCS-noise variant models crosstalk receiver behavior</td></tr>
+      <tr><td><strong>Runtime</strong></td><td>Fast — simple table lookup</td><td>Slower — waveform propagation calculations</td></tr>
+    </tbody>
+  </table>
+
+  <h3>How NLDM Lookup Works</h3>
+
+  <div class="demo-box">
+    <div class="demo-title">⚡ NLDM Timing Interpolation Simulator</div>
+    <div class="demo-grid">
+      <div class="demo-field">
+        <div class="demo-label">Input Slew (ns) — how fast the input transitions</div>
+        <input type="range" class="demo-input" id="slew" min="0" max="6" step="1" value="2" oninput="calcNLDM()">
+        <div class="demo-val" id="slew-v">Input Slew Index: 2 → 0.10 ns</div>
+      </div>
+      <div class="demo-field">
+        <div class="demo-label">Output Load (pF) — total capacitance driven</div>
+        <input type="range" class="demo-input" id="load" min="0" max="6" step="1" value="3" oninput="calcNLDM()">
+        <div class="demo-val" id="load-v">Output Load Index: 3 → 0.04 pF</div>
+      </div>
+    </div>
+    <div class="demo-result" id="nldm-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S6: SDC CONSTRAINTS               -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s6">
+  <div class="sec-hdr">
+    <div class="sec-badge em">06 · Constraints</div>
+    <div class="sec-title">SDC Constraints for Synthesis</div>
+  </div>
+
+  <p>SDC (Synopsys Design Constraints) is the universal language for specifying timing requirements to EDA tools. Both synthesis and PnR tools use the same SDC file. Writing correct, complete SDC is arguably the most important skill for both synthesis and PD engineers — garbage SDC produces garbage timing results.</p>
+
+  <h3>The Complete SDC Template for Synthesis</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">SDC</div>
+    <div class="code-block"><span class="cm">########################################
+# 1. CLOCK DEFINITION — Most Critical
+########################################</span>
+<span class="cm"># Primary clock: 1GHz (10ns period)</span>
+<span class="fn">create_clock</span> -<span class="va">name</span> <span class="va">clk_main</span> \
+             -<span class="va">period</span> <span class="nm">10.0</span> \
+             -<span class="va">waveform</span> {<span class="nm">0.0</span> <span class="nm">5.0</span>} \
+             [<span class="fn">get_ports</span> <span class="va">clk</span>]         <span class="cm">← rising edge at 0, falling at 5ns</span>
+
+<span class="cm"># Secondary clock: 333MHz</span>
+<span class="fn">create_clock</span> -<span class="va">name</span> <span class="va">clk_slow</span> -<span class="va">period</span> <span class="nm">3.0</span> [<span class="fn">get_ports</span> <span class="va">clk_slow</span>]
+
+<span class="cm"># Generated clock: divided down from clk_main</span>
+<span class="fn">create_generated_clock</span> -<span class="va">name</span> <span class="va">clk_div2</span> \
+                        -<span class="va">source</span> [<span class="fn">get_ports</span> <span class="va">clk</span>] \
+                        -<span class="va">divide_by</span> <span class="nm">2</span> \
+                        [<span class="fn">get_pins</span> <span class="va">u_clk_div/Q</span>]
+
+<span class="cm">########################################
+# 2. CLOCK QUALITY
+########################################</span>
+<span class="cm"># Clock uncertainty = jitter + skew budget</span>
+<span class="fn">set_clock_uncertainty</span> -<span class="va">setup</span> <span class="nm">0.15</span> [<span class="fn">all_clocks</span>]  <span class="cm"># 150ps for setup</span>
+<span class="fn">set_clock_uncertainty</span> -<span class="va">hold</span>  <span class="nm">0.05</span> [<span class="fn">all_clocks</span>]  <span class="cm"># 50ps for hold</span>
+
+<span class="cm"># Clock latency (pre-CTS estimate — replaced by CTS actual later)</span>
+<span class="fn">set_clock_latency</span> -<span class="va">source</span> <span class="nm">0.3</span> [<span class="fn">all_clocks</span>]       <span class="cm"># source latency</span>
+<span class="fn">set_clock_latency</span>          <span class="nm">0.8</span> [<span class="fn">all_clocks</span>]       <span class="cm"># network latency</span>
+
+<span class="cm">########################################
+# 3. INPUT/OUTPUT DELAYS
+########################################</span>
+<span class="cm"># Input: data arrives 2ns after clock edge from external chip</span>
+<span class="fn">set_input_delay</span> -<span class="va">max</span> <span class="nm">2.0</span> -<span class="va">clock</span> <span class="va">clk_main</span> [<span class="fn">all_inputs</span>]
+<span class="fn">set_input_delay</span> -<span class="va">min</span> <span class="nm">0.5</span> -<span class="va">clock</span> <span class="va">clk_main</span> [<span class="fn">all_inputs</span>]
+
+<span class="cm"># Remove clock port from the above (clock is not data)</span>
+<span class="fn">remove_input_delay</span> [<span class="fn">get_ports</span> <span class="va">clk*</span>]
+
+<span class="cm"># Output: must be stable 1.5ns before next chip's clock edge</span>
+<span class="fn">set_output_delay</span> -<span class="va">max</span> <span class="nm">1.5</span> -<span class="va">clock</span> <span class="va">clk_main</span> [<span class="fn">all_outputs</span>]
+<span class="fn">set_output_delay</span> -<span class="va">min</span> <span class="nm">0.3</span> -<span class="va">clock</span> <span class="va">clk_main</span> [<span class="fn">all_outputs</span>]
+
+<span class="cm">########################################
+# 4. ENVIRONMENT CONSTRAINTS
+########################################</span>
+<span class="cm"># Driving cell — what drives input ports externally</span>
+<span class="fn">set_driving_cell</span> -<span class="va">lib_cell</span> <span class="va">BUFX4</span> [<span class="fn">all_inputs</span>]
+
+<span class="cm"># Load on output ports — what the chip drives externally</span>
+<span class="fn">set_load</span> <span class="nm">0.05</span> [<span class="fn">all_outputs</span>]   <span class="cm"># 50fF per output</span>
+
+<span class="cm">########################################
+# 5. TIMING EXCEPTIONS
+########################################</span>
+<span class="cm"># False path — reset doesn't need timing analysis</span>
+<span class="fn">set_false_path</span> -<span class="va">from</span> [<span class="fn">get_ports</span> <span class="va">rst_n</span>]
+
+<span class="cm"># Multicycle path — this computation takes 2 cycles intentionally</span>
+<span class="fn">set_multicycle_path</span> <span class="nm">2</span> -<span class="va">setup</span> \
+  -<span class="va">from</span> [<span class="fn">get_cells</span> <span class="va">u_alu/slow_mult*</span>] \
+  -<span class="va">to</span>   [<span class="fn">get_cells</span> <span class="va">u_alu/result_reg*</span>]
+<span class="fn">set_multicycle_path</span> <span class="nm">1</span> -<span class="va">hold</span> \
+  -<span class="va">from</span> [<span class="fn">get_cells</span> <span class="va">u_alu/slow_mult*</span>] \
+  -<span class="va">to</span>   [<span class="fn">get_cells</span> <span class="va">u_alu/result_reg*</span>]
+
+<span class="cm"># Clock domain crossing — analyzed separately by CDC tool</span>
+<span class="fn">set_false_path</span> -<span class="va">from</span> [<span class="fn">get_clocks</span> <span class="va">clk_main</span>] \
+               -<span class="va">to</span>   [<span class="fn">get_clocks</span> <span class="va">clk_slow</span>]</div>
+  </div>
+
+  <h3>Understanding False Paths vs Multicycle Paths</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Exception Type</th><th>When to Use</th><th>Effect on STA</th><th>Common Mistake</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>False Path</strong></td><td>Path never carries valid data or is never active at timing-critical time</td><td>Path completely excluded from timing analysis — tool ignores it entirely</td><td>Over-using false paths hides real timing violations</td></tr>
+      <tr><td><strong>Multicycle Path (N)</strong></td><td>Data takes N clock cycles to propagate intentionally (slow arithmetic, long computation)</td><td>Required time extends to N×T_period for setup; hold checked at (N-1)×T_period</td><td>Forgetting to set both -setup AND -hold variants correctly</td></tr>
+      <tr><td><strong>Case Analysis</strong></td><td>A mux selects one path or another based on a configuration bit</td><td>Tool only analyzes the active path; ignores the inactive case</td><td>Incorrect case conditions can cause functional mismatches</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S7: SYNTHESIS OPTIMIZATION         -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s7">
+  <div class="sec-hdr">
+    <div class="sec-badge">07 · Optimization</div>
+    <div class="sec-title">Synthesis Optimization Strategies</div>
+  </div>
+
+  <p>After the initial compile, synthesis tools perform iterative optimization passes. Understanding these passes — and how to direct them through Tcl commands — is what separates engineers who get good netlists from those who struggle with timing closure.</p>
+
+  <h3>Synopsys DC: The compile_ultra Flow</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">DC Tcl</div>
+    <div class="code-block"><span class="cm">###################################################
+# COMPLETE SYNOPSYS DC SYNTHESIS SCRIPT
+###################################################</span>
+
+<span class="cm"># 1. Read design files</span>
+<span class="fn">read_verilog</span>  {<span class="va">design.v subblock_a.v subblock_b.v</span>}
+<span class="fn">read_verilog</span>  <span class="va">top.v</span>
+<span class="fn">current_design</span> <span class="va">top</span>
+
+<span class="cm"># 2. Link design (resolve all module references)</span>
+<span class="fn">link</span>
+
+<span class="cm"># 3. Read timing library (PVT corner)</span>
+<span class="fn">set_target_library</span> <span class="va">sky130_ss_1v8_125C.db</span>   <span class="cm"># SS corner for setup</span>
+
+<span class="cm"># 4. Apply constraints</span>
+<span class="fn">read_sdc</span> <span class="va">constraints.sdc</span>
+
+<span class="cm"># 5. Check design before compile</span>
+<span class="fn">check_design</span>             <span class="cm"># reports errors: multiple drivers, undriven inputs</span>
+<span class="fn">check_timing</span>             <span class="cm"># reports unconstrained paths</span>
+
+<span class="cm"># 6. COMPILE — the core synthesis command
+#    compile_ultra = most aggressive timing optimization</span>
+<span class="fn">compile_ultra</span> \
+  -<span class="va">timing_high_effort_script</span> \  <span class="cm"># prioritize timing (slower runtime)</span>
+  -<span class="va">no_autoungroup</span>            \  <span class="cm"># preserve module hierarchy</span>
+  -<span class="va">gate_clock</span>                   <span class="cm"># enable clock gating insertion</span>
+
+<span class="cm"># 7. Incremental optimization for remaining violations</span>
+<span class="fn">optimize_registers</span> -<span class="va">pipeline</span>  <span class="cm"># retiming if allowed</span>
+<span class="fn">compile_ultra</span> -<span class="va">incremental</span>    <span class="cm"># fix remaining violations only</span>
+
+<span class="cm"># 8. Reports — CHECK THESE before handing to PD</span>
+<span class="fn">report_timing</span> -<span class="va">nworst</span> <span class="nm">10</span>      <span class="cm"># top 10 critical paths</span>
+<span class="fn">report_timing</span> -<span class="va">delay_type min</span> <span class="cm"># hold timing</span>
+<span class="fn">report_area</span>                   <span class="cm"># cell count, gate area</span>
+<span class="fn">report_power</span>                  <span class="cm"># dynamic + leakage</span>
+<span class="fn">report_qor</span>                    <span class="cm"># Quality of Results summary: WNS, TNS, area</span>
+
+<span class="cm"># 9. Write outputs for PD</span>
+<span class="fn">write</span> -<span class="va">format verilog</span> -<span class="va">hierarchy</span> -<span class="va">output</span> <span class="va">netlist.v</span>
+<span class="fn">write_sdc</span> <span class="va">final_constraints.sdc</span>
+<span class="fn">write_sdf</span> -<span class="va">version</span> <span class="nm">3.0</span> <span class="va">delays.sdf</span></div>
+  </div>
+
+  <h3>Key Synthesis Optimization Techniques</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Technique</th><th>What It Does</th><th>When Tool Uses It</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Cell upsizing</strong></td><td>Replaces X1 cell with X2/X4/X8 — more drive strength → faster switching</td><td>Critical path has setup violation: Tcq or logic delay too high</td></tr>
+      <tr><td><strong>Vt swapping</strong></td><td>Swaps HVT→SVT→LVT for speed, or LVT→HVT for leakage reduction</td><td>Timing optimization or power optimization passes</td></tr>
+      <tr class="hi"><td><strong>Logic restructuring</strong></td><td>Rearranges gate tree to reduce depth (fewer gate levels on critical path)</td><td>Critical path has too many gate levels (deep combinational cone)</td></tr>
+      <tr><td><strong>Buffer insertion</strong></td><td>Adds buffers to long nets to recover signal slew</td><td>Net has excessive transition time or high fan-out</td></tr>
+      <tr><td><strong>Register retiming</strong></td><td>Moves flip-flops across combinational logic to balance pipeline stages</td><td>One stage has large negative slack while adjacent stage has large positive slack</td></tr>
+      <tr class="hi"><td><strong>Path splitting</strong></td><td>Creates duplicate logic for different timing paths to optimize independently</td><td>Cell drives both timing-critical and non-critical endpoints</td></tr>
+      <tr><td><strong>Clock gating</strong></td><td>Inserts ICG cells where synthesis detects idle registers</td><td>RTL has enable conditions on register updates — tool infers clock gates</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reading the report_qor Output</h3>
+
+  <div class="diagram"><span class="au">SAMPLE report_qor OUTPUT — Quality of Results</span>
+
+<span class="w">Design: top_chip</span>
+<span class="w">Startpoint: u_alu/count_reg_3/CK</span>
+<span class="w">Endpoint:   u_alu/result_reg_7/D</span>
+
+<span class="g">Timing Summary
+──────────────────────────────────────────</span>
+<span class="g">Setup:</span>
+<span class="g">  WNS (Worst Negative Slack):     -0.043 ns</span>  <span class="r">← FAILING by 43ps</span>
+<span class="g">  TNS (Total Negative Slack):   -128.450 ns</span>  <span class="r">← 128ps total violation across all paths</span>
+<span class="g">  # Failing Endpoints:                  47</span>   <span class="r">← 47 paths failing</span>
+<span class="g">Hold:</span>
+<span class="g">  WNS:                            +0.082 ns</span>  <span class="b">← Passing (pre-CTS, expected)</span>
+<span class="g">  # Failing Endpoints:                   0</span>
+
+<span class="a2">Area Summary
+──────────────────────────────────────────</span>
+<span class="a2">  Total Cell Area:           24,831 µm²</span>
+<span class="a2">  # Sequential Cells:            3,421</span>   <span class="d">← flip-flops</span>
+<span class="a2">  # Combinational Cells:        18,976</span>
+
+<span class="b">Power Summary
+──────────────────────────────────────────</span>
+<span class="b">  Dynamic Power:               12.4 mW</span>
+<span class="b">  Leakage Power:               84.2 µW</span>
+<span class="b">  Total Power:                 12.5 mW</span>
+
+<span class="d">INTERPRETATION:
+WNS = -43ps means you need to find 43ps somewhere on the critical path
+47 failing endpoints is manageable — PD can often close with placement optimization
+Hold passing pre-CTS is expected — holds appear after CTS inserts real clock delays</span></div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S8: LAB — YOSYS SYNTHESIS          -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s8">
+  <div class="sec-hdr">
+    <div class="sec-badge bl">08 · Lab</div>
+    <div class="sec-title">Lab — Hands-On Synthesis with Yosys</div>
+  </div>
+
+  <p>Yosys is an open-source synthesis tool that runs the same three stages (translation, optimization, technology mapping) as commercial tools. It uses the Skywater 130nm open-source PDK. This lab walks you through a complete synthesis run from RTL to gate-level netlist.</p>
+
+  <h3>Step 1: Install Yosys and the Sky130 Library</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Bash</div>
+    <div class="code-block"><span class="cm"># Ubuntu/Debian installation</span>
+sudo apt-get install -y yosys
+
+<span class="cm"># Verify installation</span>
+yosys --version
+<span class="cm"># Should output: Yosys 0.xx (git sha xxxxxxx)</span>
+
+<span class="cm"># Get the Sky130 standard cell library (.lib file)</span>
+<span class="cm"># Option 1: From OpenLane installation</span>
+ls ~/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/
+<span class="cm"># sky130_fd_sc_hd__tt_025C_1v80.lib  ← TT corner</span>
+<span class="cm"># sky130_fd_sc_hd__ss_100C_1v60.lib  ← SS corner</span>
+
+<span class="cm"># Option 2: Download directly</span>
+wget https://raw.githubusercontent.com/The-OpenROAD-Project/OpenLane/master/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib</div>
+  </div>
+
+  <h3>Step 2: Write the RTL Design</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Verilog</div>
+    <div class="code-block"><span class="cm">// File: alu_simple.v
+// Simple ALU: add, subtract, AND, OR — 4 operations on 8-bit operands</span>
+<span class="kw">module</span> <span class="va">alu_simple</span> (
+    <span class="kw">input</span>        <span class="va">clk</span>, <span class="va">rst_n</span>,
+    <span class="kw">input</span>  [<span class="nm">7</span>:<span class="nm">0</span>] <span class="va">a</span>, <span class="va">b</span>,
+    <span class="kw">input</span>  [<span class="nm">1</span>:<span class="nm">0</span>] <span class="va">op</span>,       <span class="cm">// 00=ADD, 01=SUB, 10=AND, 11=OR</span>
+    <span class="kw">output</span> <span class="kw">reg</span> [<span class="nm">7</span>:<span class="nm">0</span>] <span class="va">result</span>,
+    <span class="kw">output</span> <span class="kw">reg</span>        <span class="va">carry</span>
+);
+    <span class="kw">reg</span> [<span class="nm">8</span>:<span class="nm">0</span>] <span class="va">tmp</span>;   <span class="cm">// 9-bit to capture carry</span>
+
+    <span class="kw">always</span> @(<span class="kw">posedge</span> <span class="va">clk</span> <span class="kw">or negedge</span> <span class="va">rst_n</span>) <span class="kw">begin</span>
+        <span class="kw">if</span> (!<span class="va">rst_n</span>) <span class="kw">begin</span>
+            <span class="va">result</span> <= <span class="nm">8'h00</span>;
+            <span class="va">carry</span>  <= <span class="nm">1'b0</span>;
+        <span class="kw">end else begin</span>
+            <span class="kw">case</span> (<span class="va">op</span>)
+                <span class="nm">2'b00</span>: <span class="va">tmp</span> = {<span class="nm">1'b0</span>,<span class="va">a</span>} + {<span class="nm">1'b0</span>,<span class="va">b</span>};  <span class="cm">// ADD</span>
+                <span class="nm">2'b01</span>: <span class="va">tmp</span> = {<span class="nm">1'b0</span>,<span class="va">a</span>} - {<span class="nm">1'b0</span>,<span class="va">b</span>};  <span class="cm">// SUB</span>
+                <span class="nm">2'b10</span>: <span class="va">tmp</span> = {<span class="nm">1'b0</span>, <span class="va">a</span> & <span class="va">b</span>};        <span class="cm">// AND</span>
+                <span class="nm">2'b11</span>: <span class="va">tmp</span> = {<span class="nm">1'b0</span>, <span class="va">a</span> | <span class="va">b</span>};        <span class="cm">// OR</span>
+            <span class="kw">endcase</span>
+            <span class="va">result</span> <= <span class="va">tmp</span>[<span class="nm">7</span>:<span class="nm">0</span>];
+            <span class="va">carry</span>  <= <span class="va">tmp</span>[<span class="nm">8</span>];
+        <span class="kw">end</span>
+    <span class="kw">end</span>
+<span class="kw">endmodule</span></div>
+  </div>
+
+  <h3>Step 3: Write the Yosys Synthesis Script</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Yosys Script</div>
+    <div class="code-block"><span class="cm"># File: synth.ys — Yosys synthesis script</span>
+
+<span class="cm"># ── Stage 1: Read and elaborate RTL ──</span>
+<span class="fn">read_verilog</span> alu_simple.v
+<span class="fn">hierarchy</span> -<span class="va">top</span> <span class="va">alu_simple</span>   <span class="cm"># set top module</span>
+<span class="fn">hierarchy</span> -<span class="va">check</span>             <span class="cm"># check all modules resolved</span>
+
+<span class="cm"># ── Stage 2: Generic logic optimization ──</span>
+<span class="fn">proc</span>      <span class="cm"># convert always blocks to netlists</span>
+<span class="fn">opt</span>       <span class="cm"># constant propagation, dead code elimination</span>
+<span class="fn">fsm</span>       <span class="cm"># extract and optimize finite state machines</span>
+<span class="fn">opt</span>       <span class="cm"># re-optimize after FSM extraction</span>
+<span class="fn">memory</span>    <span class="cm"># map memory constructs</span>
+<span class="fn">opt</span>       <span class="cm"># final optimization pass</span>
+
+<span class="cm"># ── Stage 3: Technology mapping ──</span>
+<span class="fn">techmap</span>   <span class="cm"># map to generic cells first</span>
+<span class="fn">opt</span>       <span class="cm"># optimize again after techmap</span>
+
+<span class="cm"># Map flip-flops to Sky130 DFF cells</span>
+<span class="fn">dfflibmap</span> -<span class="va">liberty</span> <span class="va">sky130_fd_sc_hd__tt_025C_1v80.lib</span>
+
+<span class="cm"># Map combinational logic to Sky130 cells (ABC optimizer)</span>
+<span class="fn">abc</span> -<span class="va">liberty</span> <span class="va">sky130_fd_sc_hd__tt_025C_1v80.lib</span> \
+    -<span class="va">constr</span> <span class="va">abc_constr.txt</span>  <span class="cm"># timing constraints for ABC</span>
+
+<span class="fn">clean</span>     <span class="cm"># remove unused cells and wires</span>
+
+<span class="cm"># ── Output ──</span>
+<span class="fn">stat</span>      <span class="cm"># print cell statistics: count per cell type, total area</span>
+<span class="fn">write_verilog</span> -<span class="va">noattr</span> <span class="va">alu_netlist.v</span>    <span class="cm"># gate-level netlist</span>
+<span class="fn">write_json</span>           <span class="va">alu_netlist.json</span>  <span class="cm"># JSON for visualization</span></div>
+  </div>
+
+  <h3>Step 4: Run and Analyze Results</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Bash</div>
+    <div class="code-block"><span class="cm"># Run synthesis</span>
+yosys synth.ys 2>&1 | tee synth.log
+
+<span class="cm"># Expected 'stat' output:</span>
+<span class="cm"># === alu_simple ===</span>
+<span class="cm">#</span>
+<span class="cm">#    Number of wires:                 82</span>
+<span class="cm">#    Number of cells:                 75</span>
+<span class="cm">#      sky130_fd_sc_hd__a21oi_1:       4   ← AOI21 complex gates</span>
+<span class="cm">#      sky130_fd_sc_hd__and2_1:        6   ← AND2 gates</span>
+<span class="cm">#      sky130_fd_sc_hd__dfxtp_1:      17   ← 9 result FFs + 8 carry logic FFs</span>
+<span class="cm">#      sky130_fd_sc_hd__inv_1:         8   ← inverters</span>
+<span class="cm">#      sky130_fd_sc_hd__nand2_1:      12   ← NAND2 (most common)</span>
+<span class="cm">#      sky130_fd_sc_hd__nor2_1:        3   ← NOR2</span>
+<span class="cm">#      sky130_fd_sc_hd__xor2_1:        9   ← XOR2 for adder</span>
+<span class="cm">#    ...</span>
+<span class="cm">#    Chip area for module 'alu_simple': 612.34 µm²</span>
+
+<span class="cm"># View the netlist</span>
+cat alu_netlist.v | head -50
+
+<span class="cm"># Run STA on the netlist (OpenSTA)</span>
+opensta
+<span class="cm"># sta> read_liberty sky130_fd_sc_hd__tt_025C_1v80.lib</span>
+<span class="cm"># sta> read_verilog alu_netlist.v</span>
+<span class="cm"># sta> link_design alu_simple</span>
+<span class="cm"># sta> create_clock -period 10 [get_ports clk]</span>
+<span class="cm"># sta> report_timing</span>
+<span class="cm"># sta> report_wns</span></div>
+  </div>
+
+  <h3>Step 5: What to Observe and Record</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Observation</th><th>Where to Find It</th><th>What to Record</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td>Total cell count</td><td><code>stat</code> output</td><td>Number of FFs, combinational cells, total area (µm²)</td></tr>
+      <tr><td>Critical path</td><td><code>report_timing</code> in OpenSTA</td><td>Startpoint, endpoint, total delay, slack</td></tr>
+      <tr class="hi"><td>WNS at target clock</td><td><code>report_wns</code></td><td>Is it positive (timing met) or negative (violation)?</td></tr>
+      <tr><td>Most-used cell types</td><td><code>stat</code> output</td><td>Which gates dominate — NAND? XOR? Mux?</td></tr>
+      <tr class="hi"><td>Number of DFFs</td><td><code>stat</code> — count dfxtp</td><td>Should be exactly 9 (8 result + 1 carry)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-em">
+    <div class="box-label">✅ Portfolio Milestone</div>
+    <p>Keep the netlist, stat output, and timing report from this lab. In your Day 8 lab (Floorplanning) you will use this same design to run the full PnR flow. By Day 20 you will have taken this ALU from RTL all the way to GDSII — a complete project to put on your resume and GitHub.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- QUIZ                               -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="quiz">
+<div class="quiz-wrap">
+  <div class="quiz-hdr">
+    <div class="quiz-ornament">✦</div>
+    <div class="quiz-hdr-text">
+      <div class="quiz-hdr-title">Day 4 Assessment</div>
+      <div class="quiz-hdr-sub">Logic Synthesis · Liberty Files · SDC Constraints · Yosys Lab · 10 Questions</div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 01 / 10</div>
+    <div class="q-text">In the Yosys stat output you see 17 <code>dfxtp</code> cells for your 8-bit ALU design. You expected 9 (8 result bits + 1 carry). What is the most likely explanation?</div>
+    <button class="opt" onclick="qa(this,false,'Yosys does not create extra flip-flops without reason. The difference between 17 and 9 is 8 — matching the 8 bits of operand or intermediate result that the synthesizer decided to register for timing improvement.')">A. Yosys has a bug — it always adds extra flip-flops</button>
+    <button class="opt" onclick="qa(this,true,'Correct! The synthesizer inferred or retained 17 flip-flops: 8 for result[7:0], 1 for carry, plus 8 additional registers. Most likely the tool pipelined the adder logic — the 9-bit tmp result involved multi-level adder carry propagation that the tool split across two cycles for timing improvement, or the RTL instantiated intermediate registered signals. Check the netlist carefully: trace which signals are registered and compare to your RTL intent. 8 extra FFs could also indicate the subtractor path was duplicated for timing.')">B. The synthesizer registered 8 additional intermediate signals to improve timing — trace the netlist to understand which signals gained registers</button>
+    <button class="opt" onclick="qa(this,false,'dfxtp is a D flip-flop cell in Sky130 (dfxtp = D FlipFlop, Positive-edge Triggered). Not an error cell.')">C. dfxtp is not a flip-flop — it is a combinational cell type</button>
+    <button class="opt" onclick="qa(this,false,'The count discrepancy is 17 vs 9 = 8 extra. This needs investigation, not dismissal.')">D. 17 flip-flops is correct because each 8-bit register requires 2 flip-flops per bit</button>
+    <div class="q-fb" id="qf1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 02 / 10</div>
+    <div class="q-text">A Liberty file shows a NAND2 cell with <code>timing_sense: negative_unate</code> for the A→Y arc. What does negative_unate mean, and why is this correct for a NAND gate?</div>
+    <button class="opt" onclick="qa(this,true,'Correct! Unate refers to the monotonic relationship between input and output. Negative_unate means: when input A rises (increases), output Y falls (decreases), and vice versa. For NAND: when A=1 and B=1, Y=0; when A=0 (B still 1), Y=1. So A rising (0→1) causes Y to fall (1→0) — negative unateness. Synthesis and STA tools use unateness to determine how signal transitions propagate through gates, which affects whether a path has a setup or hold timing arc in a particular direction.')">A. When input A rises, output Y falls — correct for NAND because A=1,B=1 produces Y=0 (A rising causes Y to go LOW)</button>
+    <button class="opt" onclick="qa(this,false,'Positive_unate means input rise causes output rise (like a buffer or AND gate). NAND inverts, so it is negative_unate.')">B. When input A rises, output Y also rises — matches NAND behavior at high inputs</button>
+    <button class="opt" onclick="qa(this,false,'Negative_unate does not mean negative power — it describes the timing relationship between input and output transitions.')">C. The cell consumes negative power (energy harvesting) — NAND cells regenerate charge</button>
+    <button class="opt" onclick="qa(this,false,'Non-unate means the relationship is neither consistently monotone-increasing nor decreasing — like XOR. NAND is negative_unate, not non-unate.')">D. Non-monotonic relationship — output can both rise and fall for the same input direction</button>
+    <div class="q-fb" id="qf2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 03 / 10</div>
+    <div class="q-text">After synthesis, report_qor shows WNS = −43ps with 47 failing endpoints at a 1GHz clock. The PD manager asks "can PD close this?" What is your assessment?</div>
+    <button class="opt" onclick="qa(this,false,'WNS = −43ps with 47 endpoints is actually quite manageable for PD to close — not a catastrophic result requiring re-synthesis.')">A. No — this is catastrophic. The entire design must be re-synthesized with a lower frequency target.</button>
+    <button class="opt" onclick="qa(this,true,'Correct! WNS = −43ps is a mild violation — it means the worst path needs only 43ps improvement. 47 failing endpoints is a reasonable number for PD to address through timing-driven placement, buffer insertion, and cell upsizing during ECO. PD typically recovers 50–200ps of margin through better placement alone (shorter wires → less net delay than the estimated values synthesis used). This synthesis result is acceptable to hand to PD. If WNS were −500ps with 5000 failing endpoints, THEN you would re-run synthesis.')">B. Yes, likely closable — WNS = −43ps is mild and 47 endpoints is manageable. PD placement optimization and ECO cell upsizing can typically recover 50–200ps of margin.</button>
+    <button class="opt" onclick="qa(this,false,'Ignoring timing violations is never the answer. Tapeout requires WNS ≥ 0 at all corners.')">C. Ignore it — timing violations at synthesis stage are expected and do not matter for tapeout</button>
+    <button class="opt" onclick="qa(this,false,'Reducing frequency would fix timing but that is a design decision, not the first action. PD closure should be attempted first.')">D. Reduce clock frequency to 900MHz immediately to eliminate all violations</button>
+    <div class="q-fb" id="qf3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 04 / 10</div>
+    <div class="q-text">Why does synthesis use an SS (Slow-Slow) process corner Liberty file for setup timing, and an FF (Fast-Fast) corner for hold timing? Why not use TT for both?</div>
+    <button class="opt" onclick="qa(this,false,'Commercial synthesis tools do use multiple corners — this is fundamental to correct timing closure.')">A. Commercial synthesis tools only use TT corner — SS and FF are only for post-route STA</button>
+    <button class="opt" onclick="qa(this,true,'Correct! This is the worst-case corner analysis principle. Setup timing fails worst when everything is slow: slow process, low voltage, high temperature (SS, 0.9V, 125°C) → gates are sluggish → data arrives late → setup margins shrink. Hold timing fails worst when everything is fast: fast process, high voltage, cold temperature (FF, 1.1V, −40°C) → gates are quick → data arrives too early → hold margins shrink. Using TT for signoff would mean the design passes in typical conditions but could fail on actual silicon (which can be slow OR fast due to process variation). Worst-case corner analysis ensures silicon correctness across all manufacturing and environmental variations.')">B. Setup fails worst when everything is slow (SS: low voltage, hot temperature → slow gates → data arrives late). Hold fails worst when everything is fast (FF: high voltage, cold → data arrives too early). Using TT would miss corner failures on real silicon.</button>
+    <button class="opt" onclick="qa(this,false,'The corner choice is driven by worst-case analysis requirements, not tool preference or file availability.')">C. It is just a tool default — all corners give the same results for well-designed chips</button>
+    <button class="opt" onclick="qa(this,false,'The SS corner has more delay (slower), not less. Fast-fast has less delay.')">D. SS corner has less delay than FF — faster cells have more leakage which slows timing</button>
+    <div class="q-fb" id="qf4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 05 / 10</div>
+    <div class="q-text">What is the purpose of <code>set_false_path -from [get_ports rst_n]</code> in an SDC file? What happens if you accidentally set a critical data path as a false path?</div>
+    <button class="opt" onclick="qa(this,false,'set_false_path does not reduce timing — it tells the tool to skip that path entirely in timing analysis.')">A. It improves timing on the reset path by giving it higher priority</button>
+    <button class="opt" onclick="qa(this,true,'Correct! set_false_path tells the STA tool to completely ignore timing analysis on paths from the reset port. This is correct for async reset because: (1) reset is only asserted during power-up, not during normal operation — there is no meaningful timing requirement between when reset asserts and when flip-flops respond. (2) Including the reset path in STA would create false violations (reset drives hundreds of FFs — the fanout alone would show apparent timing violations). If you accidentally mark a REAL data path as false_path, the tool ignores it entirely — synthesis/PD will not optimize it, and it may violate timing on silicon causing functional failures that are extremely difficult to debug post-silicon. False path misuse is one of the most dangerous SDC errors.')">B. It tells STA to completely ignore timing on reset paths — correct because reset has no meaningful timing requirement in operation. Misuse on real paths causes undetected timing failures on silicon.</button>
+    <button class="opt" onclick="qa(this,false,'false_path does not make the path faster — it removes it from timing analysis entirely.')">C. It makes the reset path timing-optimal by using the fastest available cells</button>
+    <button class="opt" onclick="qa(this,false,'set_false_path does not affect power or leakage — it is a timing analysis directive only.')">D. It reduces power on reset paths by disconnecting them from the power analysis</button>
+    <div class="q-fb" id="qf5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 06 / 10</div>
+    <div class="q-text">In a Liberty file NLDM table, the delay value at row index 0 (fastest slew = 0.01ns), column index 0 (smallest load = 0.005pF) is 0.072ns. The delay at row 6 (slowest slew), column 6 (largest load) is 2.919ns. What does this 40× difference tell you about optimizing a high-fanout net?</div>
+    <button class="opt" onclick="qa(this,false,'The 40× delay variation is due to load capacitance AND input slew, not just load. Both parameters matter.')">A. Load capacitance has no effect — both delays are almost the same</button>
+    <button class="opt" onclick="qa(this,false,'The delay varies by 40× — this is extremely significant for timing. High-fanout nets with slow slew have dramatically worse delay.')">B. The delay difference is negligible for timing analysis purposes</button>
+    <button class="opt" onclick="qa(this,true,'Correct! The 40× delay difference (0.072ns vs 2.919ns) between best and worst case demonstrates that: (1) Driving a large capacitive load dramatically increases propagation delay. (2) A slow input slew compounds the problem. For high-fanout nets in PD: if a single cell drives 100 FFs (C_load ~500fF), the driving cell likely operates at the worst-case table entry. The fix — buffer insertion to split the fanout — moves each buffer to a smaller load regime, dramatically improving delay. This also explains why synthesis and PD both aggressively buffer high-fanout nets: the timing improvement from load reduction is enormous.')">C. It shows that load capacitance and input slew dramatically impact delay (40× range). High-fanout nets operate at worst-case table entries — buffering splits the load, moving cells toward the fast end of the table for huge timing improvement.</button>
+    <button class="opt" onclick="qa(this,false,'The NLDM table shows that delay increases with load — not that all cells should run at worst case.')">D. All cells should be characterized at worst-case — the 0.072ns entry is only theoretical</button>
+    <div class="q-fb" id="qf6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 07 / 10</div>
+    <div class="q-text">What is register retiming, and in what situation would a synthesis engineer use it?</div>
+    <button class="opt" onclick="qa(this,false,'Register retiming moves flip-flops across combinational logic. It is not about renaming them.')">A. Renaming register signals to improve readability of the netlist</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Register retiming is a synthesis optimization technique that physically relocates flip-flops across combinational logic boundaries to balance timing between pipeline stages. Example: Stage A has 3ns of combinational delay (WNS = −1ns at 500MHz) while Stage B has only 0.5ns (slack = +1.5ns). With retiming, the synthesis tool moves some logic from Stage A, across the register boundary, into Stage B. Now both stages have ~1.75ns, both passing timing. The functional behavior is preserved (retiming is logically equivalent). Synthesis tools perform retiming automatically when optimize_registers -pipeline is enabled. PD engineers benefit because the resulting netlist has better timing balance — fewer critical paths to chase during PnR.')">B. Moving flip-flops across combinational logic boundaries to balance pipeline stages — used when one stage has large negative slack while an adjacent stage has large positive slack, distributing timing budget evenly</button>
+    <button class="opt" onclick="qa(this,false,'Register retiming is about timing optimization through FF relocation, not power reduction.')">C. Removing redundant registers to reduce power consumption and area</button>
+    <button class="opt" onclick="qa(this,false,'Register retiming relocates FFs within the design netlist — it does not involve physical placement.')">D. Physically moving flip-flop cells to different locations on the chip during placement</button>
+    <div class="q-fb" id="qf7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 08 / 10</div>
+    <div class="q-text">A synthesis engineer applies <code>set_multicycle_path 2 -setup</code> to a path. Without also setting <code>set_multicycle_path 1 -hold</code>, what timing issue occurs?</div>
+    <button class="opt" onclick="qa(this,false,'The setup check is correctly relaxed by the multicycle path directive. The problem is with the hold check.')">A. The setup check becomes too tight — the path gets only 0.5 clock cycles</button>
+    <button class="opt" onclick="qa(this,true,'Correct! When you set a 2-cycle multicycle path for setup, the STA tool by default also relaxes the hold check by (N-1)=1 cycle — moving the hold check to launch edge minus 1 cycle = the PREVIOUS launch edge. This effectively means the hold check window also shifts by 1 cycle backward. Without explicitly setting set_multicycle_path 1 -hold (restoring hold to normal single-cycle checking), the hold check becomes extremely lenient and may miss real hold violations that exist because data changes too fast. Always set BOTH the -setup and -hold variants when using multicycle paths: set_multicycle_path 2 -setup AND set_multicycle_path 1 -hold.')">B. The hold check is automatically relaxed by 1 cycle (N-1), potentially masking real hold violations — always set both -setup and -hold variants for multicycle paths</button>
+    <button class="opt" onclick="qa(this,false,'The path still gets analyzed for both setup and hold — the multicycle setting changes the timing window, not whether checks occur.')">C. The path gets no timing analysis at all — both setup and hold are disabled</button>
+    <button class="opt" onclick="qa(this,false,'Multicycle paths affect the timing check window, not which clock edge is used for launch.')">D. The launch flip-flop changes to use a different clock edge for capturing</button>
+    <div class="q-fb" id="qf8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 09 / 10</div>
+    <div class="q-text">Why does synthesis prefer NAND-based logic implementations over NOR-based ones, even though both can implement any Boolean function?</div>
+    <button class="opt" onclick="qa(this,false,'NAND and NOR gates use the same number of transistors for the same input count. The preference is about speed, not transistor count.')">A. NAND gates use fewer transistors than NOR gates for the same logic function</button>
+    <button class="opt" onclick="qa(this,true,'Correct! This comes down to carrier mobility from Day 1. NAND gates pull down through series NMOS transistors (electron carriers, mobility ~1350 cm²/Vs). NOR gates pull up through series PMOS transistors (hole carriers, mobility ~480 cm²/Vs — roughly 3× slower). Series PMOS has significantly higher resistance than series NMOS of the same width, making NOR pull-up transitions much slower. Since NAND pull-down (series NMOS) is faster than NOR pull-up (series PMOS), NAND-based implementations are inherently faster for the same transistor sizing. Synthesis tools know this and map logic preferentially to NAND+inverter combinations rather than NOR chains.')">B. NAND pull-down uses series NMOS (fast electron carriers), while NOR pull-up uses series PMOS (slow hole carriers, ~3× lower mobility). NAND is inherently faster due to higher electron mobility.</button>
+    <button class="opt" onclick="qa(this,false,'NAND and NOR are both CMOS logic families with complementary networks. The preference is about transistor speed, not switching noise.')">C. NAND gates produce less switching noise due to different logic levels</button>
+    <button class="opt" onclick="qa(this,false,'NAND gates do not inherently leak less than NOR gates. Both can be implemented with the same Vt cells.')">D. NAND cells have lower leakage power than NOR cells across all process corners</button>
+    <div class="q-fb" id="qf9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 10 / 10</div>
+    <div class="q-text">A PD engineer receives a synthesis netlist with <code>set_input_delay -max 8.5 -clock clk [all_inputs]</code> in the SDC, with a 10ns clock period. What timing problem does this create and what should it be?</div>
+    <button class="opt" onclick="qa(this,false,'An 8.5ns input delay with a 10ns clock leaves only 10 - 8.5 - T_setup time for internal logic — that is extremely tight.')">A. No problem — 8.5ns input delay with 10ns clock is standard practice</button>
+    <button class="opt" onclick="qa(this,false,'set_input_delay does not affect hold timing directly. It affects setup timing by eating into the available internal logic budget.')">B. It creates a hold violation — input delay should always be set to 0</button>
+    <button class="opt" onclick="qa(this,true,'Correct! set_input_delay -max 8.5 means external data arrives 8.5ns after the clock edge. With a 10ns period, the remaining budget for internal combinational logic and setup time is only: 10 - 8.5 - T_setup ≈ 10 - 8.5 - 0.1 = 1.4ns. That is extremely tight — almost no logic can fit on any input-to-register path. This constraint means the external interface chip sends data very late, leaving almost no time for internal processing. If the actual external device sends data in 2–3ns (not 8.5ns), the SDC is wrong — it is over-constraining the input. Incorrect input_delay is one of the most common SDC errors that causes false violations or missed real violations. The synthesis engineer must verify this against the interface specification document.')">C. It leaves only ~1.4ns for internal logic (10 − 8.5 − T_setup), which is extremely tight and likely wrong — verify against the interface spec. If the external device actually sends data in 2–3ns, the SDC is over-constraining input paths and creating false violations.</button>
+    <button class="opt" onclick="qa(this,false,'set_input_delay -max constrains setup timing on input paths. Its value must reflect actual external interface timing.')">D. It only affects output paths — input_delay has no impact on internal timing paths</button>
+    <div class="q-fb" id="qf10"></div>
+  </div>
+
+</div><!-- /quiz -->
+</div>
+
+<!-- CHECKLIST -->
+<div class="ls">
+<div class="cl-wrap">
+  <div class="cl-title">Day 4 — Completion Checklist</div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 1: Understood what synthesis does, its 3 goals, and why PD engineers care about synthesis quality</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 2: Three synthesis stages — translation, logic optimization, technology mapping — and what happens at each</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 3: Drive strength selection, fan-out buffering, and max_fanout SDC constraint</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 4: Explored all 4 Liberty file tabs — header, cell, timing arc tables, power data</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Understood PVT corners: SS for setup signoff, FF for hold signoff — and WHY</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 5: NLDM vs CCS — used the interpolation simulator, understood the 7×7 table</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 6: Studied the complete SDC template — create_clock, set_input_delay, false_path, multicycle_path</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 7: Synthesis optimization techniques + interpreted the report_qor output</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Completed Section 8 Lab: Wrote alu_simple.v and ran Yosys synthesis successfully</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Ran OpenSTA on the synthesized netlist — recorded WNS and critical path</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Completed all 10 quiz questions — reviewed explanations for any wrong answers</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Can write a complete SDC file for a simple design from memory</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Saved alu_netlist.v and timing report — will be used for PnR labs starting Day 8</div></div>
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="ls" id="summary">
+  <div class="sec-hdr">
+    <div class="sec-badge">∑ · Summary</div>
+    <div class="sec-title">Day 4 — What to Remember Forever</div>
+  </div>
+
+  <div class="sum-grid">
+    <div class="sum-card"><div class="sum-t">Synthesis Purpose</div><div class="sum-b">RTL → gate netlist. Optimizes timing+area+power simultaneously. PD receives netlist — synthesis quality determines PD difficulty.</div></div>
+    <div class="sum-card"><div class="sum-t">3 Stages</div><div class="sum-b">Translation (RTL→GTECH), Logic Optimization (Boolean minimize), Technology Mapping (GTECH→real library cells).</div></div>
+    <div class="sum-card"><div class="sum-t">Liberty Files</div><div class="sum-b">7×7 NLDM tables: delay = f(input_slew, output_load). One .lib per PVT corner. Contains timing arcs, setup/hold, leakage, power.</div></div>
+    <div class="sum-card"><div class="sum-t">PVT Corners</div><div class="sum-b">SS corner for setup signoff (slow cells → data late). FF corner for hold signoff (fast cells → data too early). Never use TT only.</div></div>
+    <div class="sum-card"><div class="sum-t">NLDM vs CCS</div><div class="sum-b">NLDM: 2D lookup table — fast, good for 130nm–28nm. CCS: current waveform model — accurate for 28nm and below. Mandatory at advanced nodes.</div></div>
+    <div class="sum-card"><div class="sum-t">SDC Essentials</div><div class="sum-b">create_clock, set_input/output_delay, set_driving_cell, set_load, set_false_path, set_multicycle_path. Both -setup AND -hold for MCP.</div></div>
+    <div class="sum-card"><div class="sum-t">report_qor</div><div class="sum-b">WNS = worst single path. TNS = total violation sum. WNS −43ps with 47 endpoints is closeable. WNS −500ps with 5000 endpoints needs re-synthesis.</div></div>
+    <div class="sum-card"><div class="sum-t">Yosys Lab</div><div class="sum-b">read_verilog → proc → opt → techmap → abc -liberty lib.lib → write_verilog. stat shows cell counts. OpenSTA gives timing.</div></div>
+  </div>
+
+  <div class="formula-box" style="margin-top:24px">
+    <div class="f-title">Day 4 Critical Reference</div>
+    <div class="formula"><span class="fv">t_cell</span> = NLDM_lookup(<span class="fv">input_slew</span>, <span class="fv">output_load</span>)   <span class="fc">← interpolated from 7×7 table</span>
+<span class="fv">C_load</span> = Σ pin_cap(fan-out gates) + <span class="fv">C_wire</span>          <span class="fc">← synthesis uses wire model</span>
+
+<span class="fo">Timing Goal Priority:</span>
+  <span class="fo">1. Timing</span>  → faster cells, lower logic depth, buffer insertion
+  <span class="fo">2. Area</span>    → share logic, remove redundancy, smaller cells
+  <span class="fo">3. Power</span>   → HVT cells, clock gating, reduce switching
+
+<span class="fc">PVT corners for signoff:</span>
+  Setup:  <span class="fv">SS_0.9V_125C</span> → worst case slow, hot, low voltage
+  Hold:   <span class="fv">FF_1.1V_−40C</span> → worst case fast, cold, high voltage
+
+<span class="fc">SDC multicycle path — ALWAYS SET BOTH:</span>
+  <span class="fv">set_multicycle_path 2 -setup</span>   → relax required time by 1 period
+  <span class="fv">set_multicycle_path 1 -hold</span>    → restore hold to normal (CRITICAL!)</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- NEXT DAY -->
+<div class="next-banner">
+  <div class="nb-ornament">◆ ◆ ◆</div>
+  <div class="nb-title">Day 5 — Static Timing Analysis Deep Dive</div>
+  <div class="nb-sub">Day 4 gave you the netlist. Day 5 teaches you to fully read and debug what STA says about it. You will master timing path reports, multi-corner analysis, clock domain interactions, and run complete STA on your Day 4 ALU netlist using OpenSTA.</div>
+  <div class="nb-chips">
+    <span class="nb-chip">STA Fundamentals</span>
+    <span class="nb-chip">Reading Timing Reports</span>
+    <span class="nb-chip">Multi-Corner Analysis</span>
+    <span class="nb-chip">On-Chip Variation (OCV)</span>
+    <span class="nb-chip">Clock Uncertainty</span>
+    <span class="nb-chip">Timing Derating</span>
+    <span class="nb-chip">Lab: OpenSTA Full Run</span>
+    <span class="nb-chip">Fixing Violations</span>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+// ── QUIZ ──────────────────────────────
+function qa(btn, correct, msg) {
+  const block = btn.closest('.q-block');
+  block.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const fb = block.querySelector('.q-fb');
+  if (fb) {
+    fb.textContent = (correct ? '✓ ' : '✗ ') + msg;
+    fb.className = 'q-fb show ' + (correct ? 'pass' : 'fail');
+  }
+}
+
+// ── CHECKLIST ─────────────────────────
+function ck(el) {
+  el.classList.toggle('done');
+  el.querySelector('.cl-box').textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── LIBERTY TABS ──────────────────────
+function showLib(id) {
+  document.querySelectorAll('.lib-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.lib-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('lib-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── NLDM SIMULATOR ────────────────────
+const slewIdx  = [0.01, 0.05, 0.10, 0.20, 0.40, 0.80, 1.60];
+const loadIdx  = [0.005, 0.01, 0.02, 0.04, 0.08, 0.16, 0.32];
+// Rise delay table (from actual Sky130 AND2 cell)
+const nldmTable = [
+  [0.072, 0.098, 0.150, 0.253, 0.460, 0.873, 1.701],
+  [0.098, 0.123, 0.175, 0.278, 0.485, 0.898, 1.726],
+  [0.140, 0.165, 0.216, 0.320, 0.527, 0.940, 1.768],
+  [0.220, 0.245, 0.295, 0.398, 0.605, 1.018, 1.845],
+  [0.374, 0.399, 0.449, 0.552, 0.759, 1.172, 2.000],
+  [0.680, 0.705, 0.755, 0.858, 1.065, 1.478, 2.307],
+  [1.291, 1.316, 1.366, 1.469, 1.676, 2.090, 2.919]
+];
+
+function calcNLDM() {
+  const si = parseInt(document.getElementById('slew').value);
+  const li = parseInt(document.getElementById('load').value);
+  const sVal = slewIdx[si];
+  const lVal = loadIdx[li];
+  const delay = nldmTable[si][li];
+  const fastest = nldmTable[0][0];
+  const slowest = nldmTable[6][6];
+  const ratio = (delay / fastest).toFixed(1);
+
+  document.getElementById('slew-v').textContent = `Input Slew Index: ${si} → ${sVal} ns`;
+  document.getElementById('load-v').textContent = `Output Load Index: ${li} → ${lVal} pF`;
+
+  const color = delay < 0.3 ? 'var(--emerald)' : delay < 0.8 ? 'var(--gold)' : 'var(--red)';
+
+  document.getElementById('nldm-result').innerHTML =
+`<span style="color:var(--gold);font-size:0.62rem;letter-spacing:2px;display:block;margin-bottom:8px">NLDM TABLE LOOKUP RESULT</span>
+<span style="color:${color};font-size:1.1rem;font-weight:700;display:block;margin-bottom:8px">${delay.toFixed(3)} ns cell_rise delay</span>
+<span style="color:var(--muted);font-size:0.7rem;display:block">Input slew: ${sVal} ns | Output load: ${lVal} pF</span>
+<span style="color:var(--muted);font-size:0.7rem;display:block;margin-top:4px">${ratio}× slower than best case (${fastest}ns) | Best: ${fastest}ns | Worst: ${slowest}ns</span>
+<span style="color:var(--subtle);font-size:0.7rem;display:block;margin-top:8px">
+${si < 2 && li < 2 ? '✓ OPTIMAL — fast slew, small load. This cell is near best performance.' :
+  si > 4 || li > 4 ? '⚠ HIGH DELAY — slow slew or large load. Consider buffering this net.' :
+  '○ MODERATE — acceptable operating point. Monitor if this is on critical path.'}</span>`;
+}
+
+calcNLDM();
+
+// ── SIDEBAR ACTIVE STATE ──────────────
+const sections = document.querySelectorAll('.ls[id]');
+const sbItems  = document.querySelectorAll('.sb-item');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      sbItems.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-10% 0px -60% 0px' });
+
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

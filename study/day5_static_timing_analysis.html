@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 5 — Static Timing Analysis | PD Engineer Training</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Oxanium:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg:      #08050a;
+  --bg2:     #0e0810;
+  --bg3:     #130c16;
+  --bg4:     #180f1c;
+  --border:  #2a1530;
+  --border2: #3d2045;
+  --crimson: #c8203a;
+  --crim2:   #e8304d;
+  --crim3:   #ff6070;
+  --crim-dim:rgba(200,32,58,0.10);
+  --chalk:   #ede8f0;
+  --chalk2:  #c8c0d0;
+  --chalk3:  #8878a0;
+  --pass:    #39c870;
+  --fail:    #ff3a3a;
+  --blue:    #4ab8f0;
+  --gold:    #e8c040;
+  --muted:   #4a3858;
+  --subtle:  #7a6090;
+  --mono:    'Share Tech Mono', monospace;
+  --display: 'Oxanium', sans-serif;
+  --serif:   'Cormorant Garamond', serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:var(--serif);
+  background:var(--bg);
+  color:var(--chalk);
+  line-height:1.75;
+  font-size:17px;
+}
+
+/* ── RULED LINES TEXTURE ─────────────── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(200,32,58,0.04) 27px,
+      rgba(200,32,58,0.04) 28px
+    );
+  pointer-events:none;z-index:0;
+}
+
+/* ── VIGNETTE ─────────────────────────── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse 90% 90% at 50% 50%, transparent 50%, rgba(8,5,10,0.6) 100%);
+  pointer-events:none;z-index:0;
+}
+
+.page{position:relative;z-index:1;}
+
+/* ── TOP BAR ──────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:500;
+  background:rgba(8,5,10,0.97);
+  border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(20px);
+  height:50px;
+  display:flex;align-items:center;
+  padding:0 48px;
+  justify-content:space-between;gap:20px;
+}
+
+.tb-left{
+  font-family:var(--serif);
+  font-size:1rem;
+  color:var(--crimson);
+  font-style:italic;
+  letter-spacing:1px;
+}
+
+.tb-mid{
+  display:flex;align-items:center;gap:16px;
+}
+
+.tb-phase{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  color:var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.tb-day{
+  font-family:var(--display);
+  font-size:0.7rem;
+  color:var(--crimson);
+  font-weight:700;
+  letter-spacing:4px;
+}
+
+.tb-right{
+  font-family:var(--mono);
+  font-size:0.57rem;
+  color:var(--muted);
+  letter-spacing:1px;
+}
+
+/* ── HERO ─────────────────────────────── */
+.hero{
+  position:relative;overflow:hidden;
+  padding:70px 60px 60px;
+  border-bottom:1px solid var(--border2);
+}
+
+/* Chapter ornament top rule */
+.hero::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    var(--border2) 10%,
+    var(--crimson) 35%,
+    var(--crimson) 65%,
+    var(--border2) 90%,
+    transparent 100%);
+}
+
+.hero-chapter{
+  font-family:var(--serif);
+  font-size:0.8rem;
+  font-style:italic;
+  color:var(--crimson);
+  letter-spacing:4px;
+  margin-bottom:20px;
+  opacity:0.8;
+}
+
+.hero-ghost{
+  position:absolute;
+  right:40px;bottom:-20px;
+  font-family:var(--display);
+  font-size:clamp(10rem,22vw,20rem);
+  color:rgba(200,32,58,0.03);
+  line-height:1;
+  font-weight:800;
+  pointer-events:none;
+  letter-spacing:-12px;
+  user-select:none;
+}
+
+.hero-inner{position:relative;z-index:1;max-width:740px;}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2rem,5.5vw,3.8rem);
+  font-weight:800;
+  line-height:1.05;
+  color:var(--chalk);
+  margin-bottom:8px;
+  letter-spacing:1px;
+}
+
+.hero h1 .cr{color:var(--crimson);}
+.hero h1 .bl{color:var(--blue);}
+
+.hero-rule{
+  width:80px;height:2px;
+  background:linear-gradient(90deg,var(--crimson),transparent);
+  margin:18px 0;
+}
+
+.hero-desc{
+  font-family:var(--serif);
+  font-size:1.05rem;
+  font-weight:300;
+  color:var(--chalk3);
+  max-width:600px;
+  line-height:1.9;
+  margin-bottom:36px;
+  font-style:italic;
+}
+
+.hero-meta{
+  display:flex;gap:0;
+  border:1px solid var(--border2);
+  width:fit-content;
+}
+
+.hm-item{
+  padding:12px 24px;
+  border-right:1px solid var(--border2);
+  text-align:center;
+}
+.hm-item:last-child{border-right:none;}
+
+.hm-num{
+  font-family:var(--display);
+  font-size:1.6rem;
+  font-weight:700;
+  color:var(--crimson);
+  line-height:1;
+  margin-bottom:4px;
+}
+
+.hm-label{
+  font-family:var(--mono);
+  font-size:0.53rem;
+  color:var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+/* ── LAYOUT ───────────────────────────── */
+.layout{
+  display:grid;
+  grid-template-columns:230px 1fr;
+  max-width:1160px;
+  margin:0 auto;
+}
+
+/* ── SIDEBAR ──────────────────────────── */
+.sidebar{
+  position:sticky;top:50px;
+  height:calc(100vh - 50px);
+  overflow-y:auto;
+  border-right:1px solid var(--border);
+  background:var(--bg2);
+  padding:28px 0;
+}
+
+.sb-grp{
+  padding:0 18px;
+  margin-bottom:12px;
+}
+
+.sb-grp-lbl{
+  font-family:var(--mono);
+  font-size:0.52rem;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:8px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+}
+
+.sb-link{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 10px;
+  border-radius:2px;
+  text-decoration:none;
+  margin-bottom:1px;
+  transition:all 0.15s;
+  cursor:pointer;
+}
+
+.sb-link:hover{background:var(--crim-dim);}
+.sb-link.active{
+  background:var(--crim-dim);
+  border-left:2px solid var(--crimson);
+  padding-left:8px;
+}
+
+.sb-n{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  color:var(--crimson);
+  min-width:20px;
+  margin-top:1px;
+  letter-spacing:1px;
+}
+
+.sb-t{
+  font-family:var(--mono);
+  font-size:0.62rem;
+  color:var(--subtle);
+  line-height:1.45;
+}
+
+.sb-link:hover .sb-t,
+.sb-link.active .sb-t{color:var(--chalk);}
+
+/* ── MAIN ─────────────────────────────── */
+.main{
+  padding:52px 60px 100px;
+}
+
+/* ── SECTION ──────────────────────────── */
+.ls{
+  margin-bottom:84px;
+  scroll-margin-top:66px;
+}
+
+.sec-hdr{
+  display:flex;align-items:flex-start;gap:0;
+  margin-bottom:32px;
+}
+
+.sec-num-col{
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding-right:20px;
+  padding-top:4px;
+  flex-shrink:0;
+}
+
+.sec-num{
+  font-family:var(--display);
+  font-size:0.65rem;
+  font-weight:700;
+  letter-spacing:3px;
+  color:var(--crimson);
+  text-transform:uppercase;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+}
+
+.sec-num-line{
+  width:1px;
+  flex:1;
+  min-height:20px;
+  background:linear-gradient(to bottom,var(--crimson),transparent);
+  margin-top:8px;
+}
+
+.sec-title-col{}
+
+.sec-tag{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:3px;
+  color:var(--crimson);
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.sec-tag.pass{color:var(--pass);}
+.sec-tag.blue{color:var(--blue);}
+.sec-tag.gold{color:var(--gold);}
+.sec-tag.fail{color:var(--fail);}
+
+.sec-title{
+  font-family:var(--display);
+  font-size:1.6rem;
+  font-weight:700;
+  color:var(--chalk);
+  line-height:1.1;
+  letter-spacing:0.5px;
+}
+
+/* ── PROSE ────────────────────────────── */
+p{
+  font-family:var(--serif);
+  font-size:1rem;
+  line-height:1.9;
+  color:var(--chalk2);
+  margin-bottom:18px;
+  font-weight:300;
+}
+
+h3{
+  font-family:var(--display);
+  font-size:1.05rem;
+  font-weight:600;
+  color:var(--chalk);
+  margin:30px 0 12px;
+  letter-spacing:1px;
+  padding-left:14px;
+  border-left:2px solid var(--crimson);
+}
+
+h4{
+  font-family:var(--mono);
+  font-size:0.62rem;
+  color:var(--crimson);
+  text-transform:uppercase;
+  letter-spacing:3px;
+  margin:22px 0 10px;
+}
+
+ul,ol{padding-left:24px;margin-bottom:18px;}
+
+li{
+  font-family:var(--serif);
+  font-size:0.97rem;
+  line-height:1.85;
+  color:var(--chalk2);
+  margin-bottom:5px;
+  font-weight:300;
+}
+
+li strong{color:var(--chalk);font-weight:600;}
+strong{color:var(--chalk);}
+
+/* ── BOXES ────────────────────────────── */
+.box{
+  border-radius:2px;
+  padding:18px 22px;
+  margin:22px 0;
+}
+
+.box-label{
+  font-family:var(--mono);
+  font-size:0.54rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.box p{margin:0;font-family:var(--serif);font-size:0.95rem;line-height:1.8;}
+
+.box-cr{
+  background:rgba(200,32,58,0.06);
+  border-left:3px solid var(--crimson);
+}
+.box-cr .box-label{color:var(--crim2);}
+.box-cr p{color:#b08088;}
+
+.box-pass{
+  background:rgba(57,200,112,0.05);
+  border-left:3px solid var(--pass);
+}
+.box-pass .box-label{color:var(--pass);}
+.box-pass p{color:#608870;}
+
+.box-note{
+  background:rgba(74,184,240,0.05);
+  border-left:3px solid var(--blue);
+}
+.box-note .box-label{color:var(--blue);}
+.box-note p{color:#507888;}
+
+.box-warn{
+  background:rgba(232,192,64,0.05);
+  border:1px solid rgba(232,192,64,0.2);
+}
+.box-warn .box-label{color:var(--gold);}
+.box-warn p{color:#907840;}
+
+/* ── DIAGRAM ──────────────────────────── */
+.diagram{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:22px 26px;
+  margin:20px 0;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:0.71rem;
+  line-height:1.95;
+  white-space:pre;
+  color:#3d2848;
+}
+
+.diagram .cr{color:var(--crimson);}
+.diagram .cr2{color:var(--crim2);}
+.diagram .g{color:var(--pass);}
+.diagram .r{color:var(--fail);}
+.diagram .b{color:var(--blue);}
+.diagram .w{color:var(--chalk);}
+.diagram .go{color:var(--gold);}
+.diagram .d{color:#2a1535;}
+
+/* ── CODE ─────────────────────────────── */
+.code-wrap{position:relative;margin:18px 0;}
+
+.code-lang{
+  position:absolute;top:0;right:0;
+  font-family:var(--mono);
+  font-size:0.51rem;
+  letter-spacing:2px;
+  background:var(--crimson);
+  color:white;
+  padding:3px 12px;
+  border-radius:0 2px 0 4px;
+  text-transform:uppercase;
+}
+
+.code-block{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:22px 26px;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:0.71rem;
+  line-height:1.9;
+  white-space:pre;
+  color:#4a3058;
+  tab-size:2;
+}
+
+.kw{color:#c678dd;}
+.ty{color:var(--gold);}
+.st{color:var(--pass);}
+.cm{color:#3a2248;font-style:italic;}
+.nm{color:#d19a66;}
+.fn{color:var(--blue);}
+.va{color:var(--chalk);}
+.op{color:var(--crimson);}
+
+/* ── TABLE ────────────────────────────── */
+.tbl{
+  width:100%;
+  border-collapse:collapse;
+  margin:20px 0;
+  font-size:0.86rem;
+}
+
+.tbl th{
+  background:var(--bg3);
+  border-bottom:2px solid var(--crimson);
+  border-top:1px solid var(--border2);
+  padding:11px 14px;
+  text-align:left;
+  font-family:var(--mono);
+  font-size:0.57rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--crimson);
+}
+
+.tbl td{
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--chalk3);
+  vertical-align:top;
+  line-height:1.6;
+  font-family:var(--serif);
+  font-size:0.92rem;
+}
+
+.tbl tr:hover td{background:rgba(200,32,58,0.02);}
+.tbl .hi td{color:var(--chalk);background:rgba(200,32,58,0.04);}
+.tbl .pass td{color:#509868;background:rgba(57,200,112,0.03);}
+.tbl .fail td{color:#c05050;background:rgba(255,58,58,0.03);}
+
+/* ── FORMULA ──────────────────────────── */
+.formula-box{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-left:3px solid var(--crimson);
+  border-radius:0 2px 2px 0;
+  padding:20px 24px;
+  margin:20px 0;
+}
+
+.f-title{
+  font-family:var(--mono);
+  font-size:0.54rem;
+  letter-spacing:3px;
+  color:var(--crimson);
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+.formula{
+  font-family:var(--mono);
+  font-size:0.79rem;
+  color:var(--pass);
+  line-height:2.1;
+  white-space:pre;
+}
+
+.formula .fv{color:var(--gold);}
+.formula .fc{color:var(--muted);font-size:0.69rem;}
+.formula .fo{color:var(--crimson);}
+.formula .fb{color:var(--blue);}
+
+/* ── INTERACTIVE TIMING PATH ──────────── */
+.path-builder{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:24px;
+  margin:24px 0;
+  position:relative;
+}
+
+.path-builder::before{
+  content:'INTERACTIVE';
+  position:absolute;top:-1px;left:20px;
+  background:var(--crimson);
+  color:white;
+  font-family:var(--mono);
+  font-size:0.5rem;
+  letter-spacing:3px;
+  padding:3px 10px;
+  border-radius:0 0 3px 3px;
+}
+
+.pb-title{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:3px;
+  color:var(--crimson);
+  text-transform:uppercase;
+  margin-bottom:18px;
+  padding-top:8px;
+}
+
+.pb-sliders{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.pb-field{
+  display:flex;flex-direction:column;gap:6px;
+}
+
+.pb-label{
+  font-family:var(--mono);
+  font-size:0.59rem;
+  color:var(--subtle);
+  letter-spacing:1px;
+}
+
+.pb-input{
+  -webkit-appearance:none;
+  width:100%;height:3px;
+  border-radius:2px;
+  background:var(--border2);
+  outline:none;
+  accent-color:var(--crimson);
+  cursor:pointer;
+}
+
+.pb-val{
+  font-family:var(--mono);
+  font-size:0.66rem;
+  color:var(--crim2);
+}
+
+.pb-result{
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:16px 20px;
+  font-family:var(--mono);
+  font-size:0.72rem;
+  line-height:2;
+  min-height:90px;
+}
+
+/* ── OCV DEMO ─────────────────────────── */
+.ocv-demo{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:24px;
+  margin:24px 0;
+}
+
+.ocv-title{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:3px;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+
+.ocv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+
+.ocv-field{display:flex;flex-direction:column;gap:6px;}
+
+.ocv-label{font-family:var(--mono);font-size:0.59rem;color:var(--subtle);letter-spacing:1px;}
+
+.ocv-range{
+  -webkit-appearance:none;width:100%;height:3px;
+  border-radius:2px;background:var(--border2);
+  outline:none;accent-color:var(--gold);cursor:pointer;
+}
+
+.ocv-val{font-family:var(--mono);font-size:0.66rem;color:var(--gold);}
+
+.ocv-result{
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:16px 20px;
+  font-family:var(--mono);
+  font-size:0.72rem;
+  line-height:2;
+}
+
+/* ── TIMING REPORT VIEWER ─────────────── */
+.report-wrap{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  overflow:hidden;
+  margin:20px 0;
+}
+
+.report-tabs{
+  display:flex;
+  background:var(--bg);
+  border-bottom:1px solid var(--border2);
+}
+
+.rt{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:1px;
+  padding:10px 20px;
+  cursor:pointer;
+  color:var(--muted);
+  border:none;
+  background:none;
+  border-bottom:2px solid transparent;
+  transition:all 0.15s;
+  text-transform:uppercase;
+}
+
+.rt.active{color:var(--crimson);border-bottom-color:var(--crimson);background:var(--bg2);}
+.rt:hover{color:var(--subtle);}
+
+.report-panel{display:none;padding:22px 26px;}
+.report-panel.active{display:block;}
+
+/* ── QUIZ ─────────────────────────────── */
+.quiz-wrap{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:36px;
+  margin:40px 0;
+  position:relative;
+}
+
+.quiz-wrap::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent 5%,var(--crimson) 30%,var(--crim2) 70%,transparent 95%);
+}
+
+.quiz-hdr{
+  margin-bottom:28px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+
+.quiz-icon{
+  font-family:var(--serif);
+  font-size:2rem;
+  color:var(--crimson);
+  opacity:0.4;
+  line-height:1;
+  font-style:italic;
+}
+
+.quiz-title{
+  font-family:var(--display);
+  font-size:1.3rem;
+  font-weight:700;
+  color:var(--chalk);
+}
+
+.quiz-sub{
+  font-family:var(--mono);
+  font-size:0.57rem;
+  color:var(--muted);
+  margin-top:2px;
+  letter-spacing:1px;
+}
+
+.q-block{
+  margin-bottom:28px;
+  padding-bottom:28px;
+  border-bottom:1px solid var(--border);
+}
+.q-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+
+.q-num{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  color:var(--crimson);
+  letter-spacing:2px;
+  margin-bottom:8px;
+}
+
+.q-text{
+  font-family:var(--serif);
+  font-size:1.05rem;
+  color:var(--chalk);
+  line-height:1.65;
+  margin-bottom:14px;
+}
+
+.opt{
+  display:block;width:100%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--subtle);
+  padding:11px 16px;
+  margin:7px 0;
+  border-radius:2px;
+  text-align:left;
+  cursor:pointer;
+  font-size:0.92rem;
+  font-family:var(--serif);
+  font-weight:300;
+  transition:all 0.15s;
+  line-height:1.5;
+}
+
+.opt:hover:not(:disabled){
+  border-color:var(--crimson);
+  color:var(--chalk);
+  background:var(--crim-dim);
+}
+
+.opt.correct{background:rgba(57,200,112,0.08);border-color:var(--pass);color:#80c898;}
+.opt.wrong{background:rgba(255,58,58,0.06);border-color:var(--fail);color:#d09090;}
+.opt:disabled{cursor:default;}
+
+.q-fb{
+  font-family:var(--mono);
+  font-size:0.68rem;
+  line-height:1.7;
+  padding:12px 16px;
+  border-radius:2px;
+  margin-top:10px;
+  display:none;
+}
+
+.q-fb.show{display:block;}
+.q-fb.pass{background:rgba(57,200,112,0.07);color:#60a878;border:1px solid rgba(57,200,112,0.2);}
+.q-fb.fail{background:rgba(255,58,58,0.07);color:#c08080;border:1px solid rgba(255,58,58,0.2);}
+
+/* ── CHECKLIST ────────────────────────── */
+.cl-wrap{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:2px;
+  padding:28px;
+  margin:40px 0;
+}
+
+.cl-title{
+  font-family:var(--serif);
+  font-size:1.2rem;
+  color:var(--chalk);
+  font-style:italic;
+  margin-bottom:18px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+  font-weight:600;
+}
+
+.cl-item{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(42,21,48,0.6);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.cl-item:last-child{border-bottom:none;}
+.cl-item:hover{padding-left:4px;}
+
+.cl-box{
+  width:18px;height:18px;
+  border:1px solid var(--border2);
+  border-radius:1px;
+  flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.65rem;
+  color:transparent;
+  transition:all 0.2s;
+}
+
+.cl-item.done .cl-box{background:var(--pass);border-color:var(--pass);color:var(--bg);}
+.cl-item.done .cl-text{text-decoration:line-through;color:var(--muted);}
+
+.cl-text{
+  font-family:var(--serif);
+  font-size:0.93rem;
+  color:var(--subtle);
+  line-height:1.5;
+  font-weight:300;
+}
+
+/* ── SUMMARY ──────────────────────────── */
+.sum-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(192px,1fr));
+  gap:12px;
+  margin:22px 0;
+}
+
+.sum-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:16px 18px;
+  border-top:2px solid var(--crimson);
+}
+
+.sum-t{
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:2px;
+  color:var(--crimson);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.sum-b{
+  font-family:var(--serif);
+  font-size:0.87rem;
+  color:var(--subtle);
+  line-height:1.65;
+  font-weight:300;
+}
+
+/* ── NEXT DAY ─────────────────────────── */
+.next-banner{
+  background:var(--bg2);
+  border-top:2px solid var(--crimson);
+  padding:56px 60px;
+  text-align:center;
+  position:relative;
+}
+
+.nb-chapter{
+  font-family:var(--serif);
+  font-size:0.85rem;
+  font-style:italic;
+  color:var(--crimson);
+  letter-spacing:4px;
+  opacity:0.7;
+  margin-bottom:12px;
+}
+
+.nb-title{
+  font-family:var(--display);
+  font-size:2rem;
+  font-weight:800;
+  color:var(--chalk);
+  margin-bottom:10px;
+  letter-spacing:1px;
+}
+
+.nb-sub{
+  font-family:var(--serif);
+  font-size:0.97rem;
+  color:var(--chalk3);
+  max-width:560px;
+  margin:0 auto 24px;
+  line-height:1.85;
+  font-style:italic;
+}
+
+.nb-chips{
+  display:flex;justify-content:center;
+  flex-wrap:wrap;gap:8px;
+}
+
+.nb-chip{
+  font-family:var(--mono);
+  font-size:0.57rem;
+  padding:5px 14px;
+  border:1px solid var(--border2);
+  color:var(--muted);
+  border-radius:2px;
+  letter-spacing:0.5px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{padding:32px 24px 80px;}
+  .hero{padding:44px 24px;}
+  .topbar{padding:0 24px;}
+  .next-banner{padding:40px 24px;}
+  .pb-sliders,.ocv-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">PD Mentor — Static Timing Analysis</div>
+  <div class="tb-mid">
+    <span class="tb-phase">Phase 2 · Synthesis & STA</span>
+    <span style="color:var(--border2)">|</span>
+    <span class="tb-day">DAY 05 OF 120</span>
+  </div>
+  <div class="tb-right">8 Topics · 2 Simulators · 10 Quiz Qs · 4 hrs</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-ghost">05</div>
+  <div class="hero-inner">
+    <div class="hero-chapter">Chapter V — The Discipline of Timing</div>
+    <h1>Static Timing<br><span class="cr">Analysis</span> —<br>Reading the <span class="bl">Fabric of Time</span></h1>
+    <div class="hero-rule"></div>
+    <div class="hero-desc">STA is the lens through which every Physical Design decision is evaluated. Every cell you place, every net you route, every buffer you insert — all are judged by their effect on timing paths. Master STA and you master the language of PD.</div>
+    <div class="hero-meta">
+      <div class="hm-item"><div class="hm-num">8</div><div class="hm-label">Topics</div></div>
+      <div class="hm-item"><div class="hm-num">2</div><div class="hm-label">Simulators</div></div>
+      <div class="hm-item"><div class="hm-num">10</div><div class="hm-label">Quiz Qs</div></div>
+      <div class="hm-item"><div class="hm-num">1</div><div class="hm-label">Full Lab</div></div>
+      <div class="hm-item"><div class="hm-num">4 hrs</div><div class="hm-label">Study Time</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-grp">
+    <div class="sb-grp-lbl">STA Fundamentals</div>
+    <a class="sb-link" href="#s1"><span class="sb-n">01</span><span class="sb-t">What STA Does & Why It Beats Simulation</span></a>
+    <a class="sb-link" href="#s2"><span class="sb-n">02</span><span class="sb-t">Timing Paths — Anatomy & Types</span></a>
+    <a class="sb-link" href="#s3"><span class="sb-n">03</span><span class="sb-t">Reading a Timing Report Line by Line</span></a>
+  </div>
+  <div class="sb-grp">
+    <div class="sb-grp-lbl">Advanced STA</div>
+    <a class="sb-link" href="#s4"><span class="sb-n">04</span><span class="sb-t">Multi-Corner Analysis & MMMC</span></a>
+    <a class="sb-link" href="#s5"><span class="sb-n">05</span><span class="sb-t">On-Chip Variation (OCV) & Derating</span></a>
+    <a class="sb-link" href="#s6"><span class="sb-n">06</span><span class="sb-t">Clock Uncertainty, Jitter & Skew</span></a>
+  </div>
+  <div class="sb-grp">
+    <div class="sb-grp-lbl">Fixing & Signoff</div>
+    <a class="sb-link" href="#s7"><span class="sb-n">07</span><span class="sb-t">Fixing Timing Violations — Full Toolkit</span></a>
+    <a class="sb-link" href="#s8"><span class="sb-n">08</span><span class="sb-t">Lab — OpenSTA Full Run</span></a>
+  </div>
+  <div class="sb-grp">
+    <div class="sb-grp-lbl">Assessment</div>
+    <a class="sb-link" href="#quiz"><span class="sb-n">Q</span><span class="sb-t">Day 5 Quiz · 10 Questions</span></a>
+    <a class="sb-link" href="#summary"><span class="sb-n">∑</span><span class="sb-t">Summary & Formula Sheet</span></a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ═══════════════════════════════════ -->
+<!-- S1: WHAT STA DOES                  -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s1">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">01</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Foundation</div>
+      <div class="sec-title">What STA Does & Why It Beats Simulation</div>
+    </div>
+  </div>
+
+  <p>Static Timing Analysis is the process of mathematically verifying that all timing paths in a design meet their setup and hold requirements — <em>without</em> running a single simulation vector. It is the cornerstone of every digital chip's verification sign-off, and the primary tool PD engineers use to judge the quality of their work at every stage.</p>
+
+  <h3>STA vs Dynamic Simulation</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Property</th><th>Dynamic Simulation</th><th>Static Timing Analysis</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Coverage</strong></td><td>Only paths exercised by test vectors — typically &lt;5% of all paths</td><td>Every timing path in the design — 100% coverage by definition</td></tr>
+      <tr><td><strong>Speed</strong></td><td>Hours to days for large designs</td><td>Minutes to hours for millions of paths</td></tr>
+      <tr class="hi"><td><strong>Input required</strong></td><td>Test vectors (stimulus) must be written</td><td>No vectors needed — only constraints (SDC)</td></tr>
+      <tr><td><strong>What it finds</strong></td><td>Functional bugs AND timing — but only on exercised paths</td><td>All timing violations, including those never stimulated</td></tr>
+      <tr><td><strong>False paths</strong></td><td>Naturally avoided if vectors don't exercise them</td><td>Must be explicitly declared in SDC with set_false_path</td></tr>
+      <tr class="hi"><td><strong>Used at</strong></td><td>RTL verification, gate-level verification</td><td>Synthesis, post-placement, post-CTS, post-route, final signoff</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-cr">
+    <div class="box-label">⚠ The Fundamental Guarantee of STA</div>
+    <p>If STA reports zero timing violations (WNS ≥ 0, TNS = 0) at all required PVT corners, and all constraints are correctly written, then the chip will meet its timing specification on silicon — regardless of what data patterns appear. This is the mathematical certainty that makes STA so powerful. A chip with simulation-passing but STA-failing timing will fail in the field.</p>
+  </div>
+
+  <h3>What STA Actually Computes</h3>
+
+  <p>STA traverses the entire netlist graph and computes, for every possible timing path:</p>
+
+  <ol>
+    <li><strong>Arrival time</strong> at every node — how long it takes for a signal to propagate from its source to that point</li>
+    <li><strong>Required time</strong> at every endpoint — the latest time data must arrive to satisfy setup (or earliest for hold)</li>
+    <li><strong>Slack</strong> = Required − Arrival for each endpoint — negative slack is a violation</li>
+  </ol>
+
+  <p>The tool does this simultaneously for all paths, using the timing arcs from Liberty files and wire parasitics from SPEF (post-route), giving a complete picture of the design's timing health in a single pass.</p>
+
+  <h3>When STA Is Run in the PD Flow</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Stage</th><th>STA Type</th><th>Wire Model</th><th>Clock Model</th><th>Accuracy</th></tr></thead>
+    <tbody>
+      <tr><td>Post-synthesis</td><td>Pre-layout STA</td><td>Estimated (ideal)</td><td>Ideal (no tree)</td><td>Low — rough baseline</td></tr>
+      <tr><td>Post-placement</td><td>In-design STA</td><td>RC estimation</td><td>Ideal (pre-CTS)</td><td>Medium</td></tr>
+      <tr class="hi"><td>Post-CTS</td><td>In-design STA</td><td>RC estimation</td><td>Propagated clock</td><td>Medium-high</td></tr>
+      <tr><td>Post-route</td><td>In-design STA</td><td>SPEF parasitics</td><td>Propagated clock</td><td>High</td></tr>
+      <tr class="hi"><td><strong>Final signoff</strong></td><td>PrimeTime / OpenSTA</td><td>SPEF (extracted)</td><td>Propagated + uncertainty</td><td>Highest — sign-off quality</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S2: TIMING PATH ANATOMY            -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s2">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">02</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Core Concept</div>
+      <div class="sec-title">Timing Paths — Anatomy & All Four Types</div>
+    </div>
+  </div>
+
+  <p>Every timing path has a <strong>startpoint</strong>, an <strong>endpoint</strong>, and logic between them. Understanding path anatomy at the granular level lets you read any timing report instantly and know exactly where to apply fixes.</p>
+
+  <h3>The Register-to-Register Path — Full Anatomy</h3>
+
+  <div class="diagram"><span class="cr">COMPLETE REG-TO-REG TIMING PATH ANATOMY</span>
+
+<span class="w">LAUNCH SIDE                              CAPTURE SIDE</span>
+<span class="w">────────────                             ────────────</span>
+<span class="b">CLK source</span>                              <span class="b">CLK source</span>
+    │                                         │
+    ▼ <span class="cr">source latency (Tsl_launch)</span>             ▼ <span class="cr">source latency (Tsl_capture)</span>
+<span class="b">CLK at launch FF pin</span>                     <span class="b">CLK at capture FF pin</span>
+    │                                         │
+    ▼ <span class="cr">Tcq (clock-to-Q delay)</span>                  │
+<span class="w">Launch FF Q output</span>                        │
+    │                                         │
+    ▼ <span class="g">Gate 1 propagation (t1)</span>                 │
+    ▼ <span class="g">Gate 2 propagation (t2)</span>                 │
+    ▼ <span class="g">Gate 3 propagation (t3)</span>                 │
+    ▼ <span class="cr">Net delay (Tnet) — wire RC parasitic</span>    │
+    │                                         │
+    ▼ arrives at Capture FF D pin             │
+<span class="b">Capture FF D input</span>  ←── must arrive by ──→ <span class="b">Capture CLK edge − Tsetup − Tuncertainty</span>
+
+<span class="g">SETUP SLACK = Required Arrival − Actual Arrival</span>
+<span class="g">           = (T_period + Tsl_capture − Tsetup − Tuncert) − (Tsl_launch + Tcq + Tlogic + Tnet)</span>
+
+<span class="d">Every line in the timing report corresponds to one segment of this path.</span></div>
+
+  <h3>All Four Path Types in STA</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Path Type</th><th>Startpoint</th><th>Endpoint</th><th>SDC Constraint</th><th>Frequency</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Reg-to-Reg</strong></td><td>FF clock pin (CK)</td><td>FF data pin (D)</td><td>create_clock defines both launch and capture</td><td>~90% of all paths</td></tr>
+      <tr><td><strong>Input-to-Reg</strong></td><td>Input port</td><td>FF data pin (D)</td><td>set_input_delay</td><td>~5% — interface paths</td></tr>
+      <tr><td><strong>Reg-to-Output</strong></td><td>FF clock pin (CK)</td><td>Output port</td><td>set_output_delay</td><td>~5% — interface paths</td></tr>
+      <tr><td><strong>Input-to-Output</strong></td><td>Input port</td><td>Output port</td><td>Both input and output delay</td><td>&lt;1% — combinational pass-through</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Understanding Timing Arc Direction: Unateness</h3>
+
+  <p>Every timing arc in the Liberty file has a <em>sense</em> — how input transitions propagate to the output. STA uses this to determine whether a rising or falling edge propagates through each gate:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Timing Sense</th><th>Meaning</th><th>Example Gates</th></tr></thead>
+    <tbody>
+      <tr class="pass"><td><strong>Positive_unate</strong></td><td>Input rise → Output rise. Monotonically increasing.</td><td>BUF, AND, OR, NAND (at inverted output)</td></tr>
+      <tr class="fail"><td><strong>Negative_unate</strong></td><td>Input rise → Output fall. Monotonically decreasing.</td><td>INV, NAND, NOR (at true output)</td></tr>
+      <tr><td><strong>Non_unate</strong></td><td>Input rise → Output can rise OR fall depending on other inputs</td><td>XOR, XNOR, MUX</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-note">
+    <div class="box-label">📌 Why Unateness Matters in STA</div>
+    <p>STA must track whether each node in a path is transitioning HIGH or LOW to look up the correct rise or fall delay from the Liberty table. A chain of inverters alternates between rise and fall arcs. XOR gates (non-unate) require STA to compute both rise and fall delays and take the worst case. This is why timing paths show "rise" and "fall" annotations on each arc.</p>
+  </div>
+
+  <!-- INTERACTIVE PATH CALCULATOR -->
+  <div class="path-builder">
+    <div class="pb-title">Setup Timing Path Calculator</div>
+    <div class="pb-sliders">
+      <div class="pb-field">
+        <div class="pb-label">Clock Period (ps)</div>
+        <input type="range" class="pb-input" id="pb-period" min="500" max="3000" step="50" value="1000" oninput="calcPath()">
+        <div class="pb-val" id="pb-period-v">1000 ps</div>
+      </div>
+      <div class="pb-field">
+        <div class="pb-label">Tcq — Clock-to-Q Delay (ps)</div>
+        <input type="range" class="pb-input" id="pb-tcq" min="50" max="400" step="10" value="180" oninput="calcPath()">
+        <div class="pb-val" id="pb-tcq-v">180 ps</div>
+      </div>
+      <div class="pb-field">
+        <div class="pb-label">T_logic — Combinational Delay (ps)</div>
+        <input type="range" class="pb-input" id="pb-logic" min="100" max="800" step="10" value="420" oninput="calcPath()">
+        <div class="pb-val" id="pb-logic-v">420 ps</div>
+      </div>
+      <div class="pb-field">
+        <div class="pb-label">T_net — Wire Parasitic Delay (ps)</div>
+        <input type="range" class="pb-input" id="pb-net" min="20" max="400" step="10" value="150" oninput="calcPath()">
+        <div class="pb-val" id="pb-net-v">150 ps</div>
+      </div>
+      <div class="pb-field">
+        <div class="pb-label">T_setup — FF Setup Time (ps)</div>
+        <input type="range" class="pb-input" id="pb-setup" min="30" max="200" step="5" value="80" oninput="calcPath()">
+        <div class="pb-val" id="pb-setup-v">80 ps</div>
+      </div>
+      <div class="pb-field">
+        <div class="pb-label">T_uncertainty — Clock Uncertainty (ps)</div>
+        <input type="range" class="pb-input" id="pb-unc" min="10" max="300" step="5" value="120" oninput="calcPath()">
+        <div class="pb-val" id="pb-unc-v">120 ps</div>
+      </div>
+    </div>
+    <div class="pb-result" id="pb-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S3: READING A TIMING REPORT        -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s3">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">03</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Critical Skill</div>
+      <div class="sec-title">Reading a Timing Report — Line by Line</div>
+    </div>
+  </div>
+
+  <p>Reading timing reports fluently is the most essential day-to-day PD skill. An STA tool generates thousands of paths — you must extract meaning instantly. Click through the tabs below to see setup, hold, and summary reports with full annotations.</p>
+
+  <div class="report-wrap">
+    <div class="report-tabs">
+      <button class="rt active" onclick="showReport('setup')">Setup Path</button>
+      <button class="rt" onclick="showReport('hold')">Hold Path</button>
+      <button class="rt" onclick="showReport('summary')">Timing Summary</button>
+      <button class="rt" onclick="showReport('check')">check_timing</button>
+    </div>
+
+    <div class="report-panel active" id="rp-setup">
+      <div class="code-block"><span class="cm">## report_timing -path_type full -delay_type max</span>
+<span class="cm">## (max = setup check)</span>
+
+<span class="va">Startpoint:</span> <span class="st">u_alu/result_reg[3]/CK</span>   <span class="cm"># launch FF — the clock pin is startpoint</span>
+<span class="va">Endpoint:</span>   <span class="st">u_ctrl/state_reg[1]/D</span>   <span class="cm"># capture FF — the data pin is endpoint</span>
+<span class="va">Path Group:</span> <span class="st">clk_main</span>
+<span class="va">Path Type:</span>  <span class="st">max</span>                      <span class="cm"># max = setup analysis</span>
+
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="va">Point                                  Incr      Path</span>
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="cm"># LAUNCH CLOCK PATH ──────────────────────────────────────────</span>
+<span class="va">clock clk_main (rise edge)             0.000     0.000</span>   <span class="cm"># launch edge at t=0</span>
+<span class="va">clock source latency                   0.000     0.000</span>   <span class="cm"># ideal clock at synthesis</span>
+<span class="fn">clk (in)                               0.000     0.000</span>   <span class="cm"># clock enters chip</span>
+<span class="fn">u_alu/result_reg[3]/CK (rise)          0.000     0.000</span>   <span class="cm"># clock arrives at launch FF</span>
+
+<span class="cm"># DATA PATH ───────────────────────────────────────────────────</span>
+<span class="fn">u_alu/result_reg[3]/Q  (rise)          0.180     0.180</span>   <span class="cm"># Tcq: 180ps, Q transitions</span>
+<span class="fn">u_alu/U_mux4/A         (rise)          0.000     0.180</span>   <span class="cm"># wire to mux input</span>
+<span class="fn">u_alu/U_mux4/Y         (fall)          0.095     0.275</span>   <span class="cm"># MUX propagation: rise→fall</span>
+<span class="fn">u_alu/U_xor3/A         (fall)          0.042     0.317</span>   <span class="cm"># net delay: 42ps wire RC</span>
+<span class="fn">u_alu/U_xor3/Y         (rise)          0.118     0.435</span>   <span class="cm"># XOR propagation: fall→rise</span>
+<span class="fn">u_alu/U_buf8/A         (rise)          0.088     0.523</span>   <span class="cm"># net delay: 88ps (long wire!)</span>
+<span class="fn">u_alu/U_buf8/Y         (rise)          0.065     0.588</span>   <span class="cm"># buffer propagation</span>
+<span class="fn">u_ctrl/U_and2/A        (rise)          0.052     0.640</span>   <span class="cm"># net delay: 52ps</span>
+<span class="fn">u_ctrl/U_and2/Y        (rise)          0.092     0.732</span>   <span class="cm"># AND2 propagation</span>
+<span class="fn">u_ctrl/state_reg[1]/D  (rise)          0.038     0.770</span>   <span class="cm"># net delay to capture FF D pin</span>
+<span class="cm">                                     ─────── ─────────</span>
+<span class="va">data arrival time                              0.770</span>   <span class="cm"># total data path = 770ps</span>
+
+<span class="cm"># CAPTURE CLOCK PATH ──────────────────────────────────────────</span>
+<span class="fn">clock clk_main (rise edge)             1.000     1.000</span>   <span class="cm"># capture edge = 1 period later</span>
+<span class="fn">u_ctrl/state_reg[1]/CK (rise)          0.000     1.000</span>   <span class="cm"># ideal clock: 0 skew pre-CTS</span>
+
+<span class="va">clock uncertainty                     -0.120     0.880</span>   <span class="cm"># subtract 120ps uncertainty</span>
+<span class="va">library setup time                    -0.080     0.800</span>   <span class="cm"># subtract 80ps FF setup time</span>
+<span class="cm">                                              ─────────</span>
+<span class="va">data required time                             0.800</span>   <span class="cm"># data must arrive by 800ps</span>
+
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="va">data required time                             0.800</span>
+<span class="va">data arrival time                             -0.770</span>
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="st">slack (MET)                                    0.030</span>   <span class="cm"># +30ps — BARELY passing!</span>
+<span class="cm">─────────────────────────────────────────────────────────────</span></div>
+    </div>
+
+    <div class="report-panel" id="rp-hold">
+      <div class="code-block"><span class="cm">## report_timing -delay_type min</span>
+<span class="cm">## (min = hold check — data must NOT arrive too early)</span>
+
+<span class="va">Startpoint:</span> <span class="fn">u_alu/count_reg[0]/CK</span>
+<span class="va">Endpoint:</span>   <span class="fn">u_alu/count_reg[1]/D</span>
+<span class="va">Path Type:</span>  <span class="st">min</span>                      <span class="cm"># min = hold analysis</span>
+
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="va">Point                                  Incr      Path</span>
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="fn">clock clk_main (rise edge)             0.000     0.000</span>
+<span class="fn">u_alu/count_reg[0]/CK                  0.000     0.000</span>
+
+<span class="cm"># DATA PATH — using MINIMUM delays (FF corner, best case = fastest)</span>
+<span class="fn">u_alu/count_reg[0]/Q   (rise)          0.120     0.120</span>   <span class="cm"># Tcq MIN (FF corner fast)</span>
+<span class="fn">u_alu/U_inv1/A         (rise)          0.015     0.135</span>   <span class="cm"># minimum wire delay</span>
+<span class="fn">u_alu/U_inv1/Y         (fall)          0.048     0.183</span>   <span class="cm"># INV propagation MIN</span>
+<span class="fn">u_alu/count_reg[1]/D   (fall)          0.012     0.195</span>   <span class="cm"># net delay MIN</span>
+<span class="cm">                                              ─────────</span>
+<span class="va">data arrival time                              0.195</span>   <span class="cm"># data arrives at 195ps</span>
+
+<span class="cm"># CAPTURE CLOCK — also at t=0 (same-edge hold check!)</span>
+<span class="fn">clock clk_main (rise edge)             0.000     0.000</span>   <span class="cm"># same edge as launch!</span>
+<span class="fn">u_alu/count_reg[1]/CK                  0.000     0.000</span>
+
+<span class="va">clock uncertainty                      0.050     0.050</span>   <span class="cm"># ADD uncertainty for hold</span>
+<span class="va">library hold time                      0.040     0.090</span>   <span class="cm"># ADD hold time</span>
+<span class="cm">                                              ─────────</span>
+<span class="va">data required time                             0.090</span>   <span class="cm"># data must NOT arrive before 90ps</span>
+
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="va">data arrival time                              0.195</span>
+<span class="va">data required time                            -0.090</span>
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="st">slack (MET)                                    0.105</span>   <span class="cm"># +105ps hold margin — passing</span>
+<span class="cm">─────────────────────────────────────────────────────────────</span>
+<span class="cm">
+KEY DIFFERENCES FROM SETUP REPORT:
+  - Path type: "min" (uses minimum delays from FF corner .lib)
+  - Capture edge: t=0 (same edge as launch — hold checks same cycle)
+  - Uncertainty: ADDED to required time (makes hold harder to meet)
+  - Hold time: ADDED to required time (not subtracted like setup time)
+  - Slack = arrival - required (data must arrive AFTER required time)</span></div>
+    </div>
+
+    <div class="report-panel" id="rp-summary">
+      <div class="code-block"><span class="cm">## report_timing_summary  (or report_qor in DC)</span>
+
+<span class="va">Design: top_chip</span>
+<span class="va">Corner: SS_0.9V_125C (worst setup corner)</span>
+
+<span class="cm">════════════════════════════════════════════</span>
+<span class="va">                 Setup Timing Summary</span>
+<span class="cm">════════════════════════════════════════════</span>
+<span class="st">WNS (Worst Negative Slack):     +0.030 ns</span>   <span class="cm"># ← positive = no violations</span>
+<span class="st">TNS (Total Negative Slack):      0.000 ns</span>   <span class="cm"># ← zero = all paths passing</span>
+<span class="st">Failing Endpoints (setup):           0</span>      <span class="cm"># ← zero failing paths</span>
+<span class="st">Total Endpoints analyzed:       84,231</span>      <span class="cm"># total FF D pins analyzed</span>
+
+<span class="cm">════════════════════════════════════════════</span>
+<span class="va">                 Hold Timing Summary</span>
+<span class="cm">════════════════════════════════════════════</span>
+<span class="fn">WNS (Worst Negative Slack):     -0.043 ns</span>   <span class="cm"># ← negative = VIOLATION</span>
+<span class="fn">TNS (Total Negative Slack):     -1.824 ns</span>   <span class="cm"># ← 1.824ns total violation</span>
+<span class="fn">Failing Endpoints (hold):           23</span>      <span class="cm"># ← 23 paths need hold fix</span>
+
+<span class="cm">════════════════════════════════════════════</span>
+<span class="va">                 Clock Summary</span>
+<span class="cm">════════════════════════════════════════════</span>
+<span class="va">Clock: clk_main   Period: 1.000ns   Freq: 1.0 GHz</span>
+<span class="va">  Skew (before CTS): 0.000ns (ideal)</span>
+<span class="va">  Latency:           0.000ns (ideal)</span>
+
+<span class="cm">INTERPRETATION:
+  Setup: CLEAN — WNS positive, zero violations. Ready for CTS.
+  Hold: 23 violations — EXPECTED at post-placement (pre-CTS).
+         After CTS inserts real clock buffers, hold violations
+         are fixed automatically by the PnR tool.
+         DO NOT manually fix holds before CTS!</span></div>
+    </div>
+
+    <div class="report-panel" id="rp-check">
+      <div class="code-block"><span class="cm">## check_timing — reports SDC completeness issues</span>
+<span class="cm">## Run this FIRST before trusting any timing numbers!</span>
+
+<span class="fn">Warning: Path 'in2reg'  (17 paths) is not constrained.</span>
+<span class="cm">  # input port 'data_in[3:0]' has no set_input_delay → unconstrained!</span>
+<span class="cm">  # Fix: add set_input_delay for all input ports</span>
+
+<span class="fn">Warning: Path 'reg2out' (8 paths) is not constrained.</span>
+<span class="cm">  # output port 'result[3:0]' has no set_output_delay → unconstrained!</span>
+
+<span class="fn">Warning: 2 ports are not driven by any clock domain.</span>
+<span class="cm">  # These ports will not be checked for timing</span>
+
+<span class="fn">Warning: Clock 'clk_fast' has no uncertainty set.</span>
+<span class="cm">  # Fix: set_clock_uncertainty -setup 0.1 [get_clocks clk_fast]</span>
+
+<span class="st">Info: Design has 3 clock domains.</span>
+<span class="st">Info: 84,231 endpoints found in constrained paths.</span>
+<span class="st">Info: 25 endpoints are in unconstrained paths (see warnings above).</span>
+
+<span class="cm">════════════════════════════════════════
+GOLDEN RULE: check_timing must report ZERO warnings before
+trusting ANY timing report. Unconstrained paths = hidden risks.
+A path not analyzed by STA may fail on silicon.
+Always resolve every check_timing warning before signoff.
+════════════════════════════════════════</span></div>
+    </div>
+
+  </div>
+
+  <div class="box box-cr">
+    <div class="box-label">⚠ The Most Important Number: WNS vs TNS</div>
+    <p><strong>WNS (Worst Negative Slack)</strong> tells you the severity of the worst single violation — how much timing improvement is needed on the hardest path. <strong>TNS (Total Negative Slack)</strong> tells you the total scope of work — how many path-picoseconds of violation exist across the entire design. A design with WNS=−5ps and TNS=−50ps is almost done (a few small violations). A design with WNS=−5ps and TNS=−50,000ps has thousands of paths all slightly failing — much more work to fix.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S4: MULTI-CORNER MMMC              -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s4">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">04</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Advanced</div>
+      <div class="sec-title">Multi-Corner Analysis & MMMC</div>
+    </div>
+  </div>
+
+  <p>Real chips must work correctly across a range of process, voltage, and temperature (PVT) conditions. A chip that passes timing at the nominal corner but fails at the slow corner will fail in the field when the temperature is high or the supply voltage dips. MMMC — <em>Multi-Mode Multi-Corner</em> — is the methodology that ensures correctness across all conditions simultaneously.</p>
+
+  <h3>Why Multiple Corners Are Required</h3>
+
+  <p>Silicon transistors are manufactured with inherent variability. Two identical chips from the same wafer may have Vt differing by ±50mV. Environmental conditions (temperature, voltage) further shift performance. The intersection of all these variations produces corners:</p>
+
+  <div class="diagram"><span class="cr">PVT CORNER SPACE</span>
+
+  <span class="w">Process:  Slow ←──────────────────────────→ Fast</span>
+  <span class="w">Voltage:  Low  ←──────────────────────────→ High</span>
+  <span class="w">Temp:     Hot  ←──────────────────────────→ Cold</span>
+
+  <span class="r">Worst Setup Corner: SS + Low VDD + Hot Temp</span>
+  <span class="r">  → Everything slow → data arrives late → setup hardest to meet</span>
+  <span class="r">  → Named: ss_0.9v_125c or "slow corner"</span>
+
+  <span class="g">Worst Hold Corner: FF + High VDD + Cold Temp</span>
+  <span class="g">  → Everything fast → data arrives too early → hold hardest to meet</span>
+  <span class="g">  → Named: ff_1.1v_n40c or "fast corner"</span>
+
+  <span class="b">Typical Corner: TT + Nom VDD + Room Temp</span>
+  <span class="b">  → Average conditions → used for power analysis and exploration</span>
+  <span class="b">  → Named: tt_1.0v_25c</span>
+
+  <span class="go">Special Corners:</span>
+  <span class="go">  sf_1.0v_25c → Slow NMOS, Fast PMOS → worst for some paths</span>
+  <span class="go">  fs_1.0v_25c → Fast NMOS, Slow PMOS → worst for complementary paths</span></div>
+
+  <h3>MMMC — Analyzing All Corners Simultaneously</h3>
+
+  <p>MMMC runs STA across all corners in a single session, ensuring no corner is neglected. Modern PnR tools (ICC2, Innovus) and signoff STA tools (PrimeTime) all support MMMC natively:</p>
+
+  <div class="code-wrap">
+    <div class="code-lang">MMMC / Tcl</div>
+    <div class="code-block"><span class="cm">## MMMC Setup in PrimeTime / OpenSTA</span>
+
+<span class="cm"># 1. Define library sets for each corner</span>
+<span class="fn">create_library_set</span> -<span class="va">name</span> <span class="va">libs_ss</span> \
+  -<span class="va">timing</span> {<span class="st">sky130_fd_sc_hd__ss_100C_1v60.lib</span>}
+
+<span class="fn">create_library_set</span> -<span class="va">name</span> <span class="va">libs_ff</span> \
+  -<span class="va">timing</span> {<span class="st">sky130_fd_sc_hd__ff_n40C_1v95.lib</span>}
+
+<span class="fn">create_library_set</span> -<span class="va">name</span> <span class="va">libs_tt</span> \
+  -<span class="va">timing</span> {<span class="st">sky130_fd_sc_hd__tt_025C_1v80.lib</span>}
+
+<span class="cm"># 2. Define RC parasitics for each layer condition</span>
+<span class="fn">create_rc_corner</span> -<span class="va">name</span> <span class="va">rc_worst</span> \
+  -<span class="va">spef_file</span> <span class="st">design_rcworst.spef</span>   <span class="cm"># max RC — for setup</span>
+
+<span class="fn">create_rc_corner</span> -<span class="va">name</span> <span class="va">rc_best</span> \
+  -<span class="va">spef_file</span> <span class="st">design_rcbest.spef</span>    <span class="cm"># min RC — for hold</span>
+
+<span class="cm"># 3. Define timing conditions (combine library + RC)</span>
+<span class="fn">create_timing_condition</span> -<span class="va">name</span> <span class="va">tc_setup</span> \
+  -<span class="va">library_sets</span> <span class="va">libs_ss</span> \
+  -<span class="va">rc_corner</span>    <span class="va">rc_worst</span>            <span class="cm"># slow libs + worst RC = hardest setup</span>
+
+<span class="fn">create_timing_condition</span> -<span class="va">name</span> <span class="va">tc_hold</span> \
+  -<span class="va">library_sets</span> <span class="va">libs_ff</span> \
+  -<span class="va">rc_corner</span>    <span class="va">rc_best</span>             <span class="cm"># fast libs + best RC = hardest hold</span>
+
+<span class="cm"># 4. Define analysis views (corner + mode)</span>
+<span class="fn">create_analysis_view</span> -<span class="va">name</span> <span class="va">view_func_setup</span> \
+  -<span class="va">constraint_mode</span> <span class="va">func_mode</span> \
+  -<span class="va">timing_condition</span> <span class="va">tc_setup</span>
+
+<span class="fn">create_analysis_view</span> -<span class="va">name</span> <span class="va">view_func_hold</span> \
+  -<span class="va">constraint_mode</span> <span class="va">func_mode</span> \
+  -<span class="va">timing_condition</span> <span class="va">tc_hold</span>
+
+<span class="cm"># 5. Set active analysis views</span>
+<span class="fn">set_analysis_view</span> \
+  -<span class="va">setup</span> {<span class="va">view_func_setup</span>} \
+  -<span class="va">hold</span>  {<span class="va">view_func_hold</span>}
+
+<span class="cm"># Now report_timing uses the correct corner automatically:</span>
+<span class="fn">report_timing</span> -<span class="va">delay_type max</span>   <span class="cm"># uses setup corner (SS + worst RC)</span>
+<span class="fn">report_timing</span> -<span class="va">delay_type min</span>   <span class="cm"># uses hold corner (FF + best RC)</span></div>
+  </div>
+
+  <h3>Modes in MMMC — Functional vs Scan</h3>
+
+  <p>Beyond corners, chips operate in different <em>modes</em> with different timing requirements:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Mode</th><th>Description</th><th>Active Paths</th><th>Clock Frequency</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Functional</strong></td><td>Normal chip operation — all logic active</td><td>All data paths</td><td>Full speed (1GHz)</td></tr>
+      <tr><td><strong>Scan / Test</strong></td><td>Manufacturing test mode — FF chain connected</td><td>Scan chain paths</td><td>Slower (100MHz typical)</td></tr>
+      <tr><td><strong>Sleep / Low power</strong></td><td>Some blocks gated or powered down</td><td>Subset of paths</td><td>Reduced or zero</td></tr>
+      <tr><td><strong>Boot / Init</strong></td><td>Startup sequence — different timing requirements</td><td>Boot paths only</td><td>Slow</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-note">
+    <div class="box-label">📌 PD Engineer MMMC Workflow</div>
+    <p>At the start of a PD project, the timing team provides an MMMC configuration file defining all corners and modes. PD engineers load this configuration into ICC2 or Innovus at the beginning of the flow. All placement, CTS, and routing optimizations run simultaneously across all active corners. Fixing timing in one corner must not break another — the tool automatically checks all corners after every optimization step. At signoff, PrimeTime re-runs all corners one final time with extracted SPEF.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S5: OCV & DERATING                 -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s5">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">05</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Advanced</div>
+      <div class="sec-title">On-Chip Variation (OCV) & Timing Derating</div>
+    </div>
+  </div>
+
+  <p>Even within a single chip, different regions experience different local conditions. A transistor in the center of the die sees different temperature, IR drop, and process variations than one at the corner. This intra-die variation is called <strong>On-Chip Variation (OCV)</strong>, and ignoring it leads to silicon failures even when global-corner STA passes.</p>
+
+  <h3>Sources of On-Chip Variation</h3>
+
+  <ul>
+    <li><strong>Process gradients</strong> — photolithography has slight focus and dose variations across the wafer → transistor sizes vary by 2–5% spatially</li>
+    <li><strong>Thermal gradients</strong> — power-hungry blocks (CPU core, GPU) heat their neighbors by 10–20°C above ambient</li>
+    <li><strong>IR drop</strong> — voltage drops across the power grid resistance mean far cells see lower VDD than cells near pads</li>
+    <li><strong>Aging</strong> — Hot Carrier Injection (HCI) and Bias Temperature Instability (BTI) degrade transistors over time → cells slow down by 5–15% over chip lifetime</li>
+  </ul>
+
+  <h3>OCV Derating — The Conservative Fix</h3>
+
+  <p>The simplest OCV modeling approach applies a <strong>derating factor</strong> to timing arcs: launch path delays are made pessimistically late, and capture path delays are made pessimistically early, modeling the worst-case OCV scenario:</p>
+
+  <div class="formula-box">
+    <div class="f-title">OCV Derating Applied to Timing</div>
+    <div class="formula"><span class="fc">For Setup analysis (worst case: data late, clock early):</span>
+  <span class="fv">T_launch_derated</span> = <span class="fv">T_launch_nominal</span> × (1 + <span class="fb">derate_data</span>)   <span class="fc">← make data slower</span>
+  <span class="fv">T_capture_derated</span>= <span class="fv">T_capture_nominal</span> × (1 − <span class="fb">derate_clock</span>)  <span class="fc">← make clock faster</span>
+
+<span class="fc">For Hold analysis (worst case: data early, clock late):</span>
+  <span class="fv">T_launch_derated</span> = <span class="fv">T_launch_nominal</span> × (1 − <span class="fb">derate_data</span>)   <span class="fc">← make data faster</span>
+  <span class="fv">T_capture_derated</span>= <span class="fv">T_capture_nominal</span> × (1 + <span class="fb">derate_clock</span>)  <span class="fc">← make clock slower</span>
+
+<span class="fc">Typical derate values:
+  OCV (basic):   5–10% on cell delays
+  AOCV:          varies by logic depth (deeper paths → less derate)
+  POCVM/SOCV:    statistical model — most accurate at 5nm and below</span></div>
+  </div>
+
+  <h3>Types of OCV Methodologies</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Method</th><th>Full Name</th><th>How It Works</th><th>Node Usage</th></tr></thead>
+    <tbody>
+      <tr><td><strong>OCV</strong></td><td>On-Chip Variation</td><td>Fixed derating % applied uniformly to all arcs</td><td>130nm–65nm</td></tr>
+      <tr class="hi"><td><strong>AOCV</strong></td><td>Advanced OCV</td><td>Derating varies by logic depth — longer paths have less relative variation (statistical averaging)</td><td>40nm–28nm</td></tr>
+      <tr><td><strong>POCVM</strong></td><td>Parametric OCV Model</td><td>Cell-specific derating based on distance, location, and parameterized variation model</td><td>20nm–14nm</td></tr>
+      <tr class="hi"><td><strong>SOCV</strong></td><td>Statistical OCV</td><td>Full statistical analysis — computes σ of path delay distribution for target yield</td><td>7nm and below</td></tr>
+    </tbody>
+  </table>
+
+  <!-- OCV SIMULATOR -->
+  <div class="ocv-demo">
+    <div class="ocv-title">OCV Derating Impact Calculator</div>
+    <div class="ocv-grid">
+      <div class="ocv-field">
+        <div class="ocv-label">Nominal Launch Path Delay (ps)</div>
+        <input type="range" class="ocv-range" id="ocv-launch" min="200" max="900" step="10" value="600" oninput="calcOCV()">
+        <div class="ocv-val" id="ocv-launch-v">600 ps</div>
+      </div>
+      <div class="ocv-field">
+        <div class="ocv-label">Nominal Capture Clock Delay (ps)</div>
+        <input type="range" class="ocv-range" id="ocv-capture" min="100" max="500" step="10" value="300" oninput="calcOCV()">
+        <div class="ocv-val" id="ocv-capture-v">300 ps</div>
+      </div>
+      <div class="ocv-field">
+        <div class="ocv-label">OCV Derate Factor (%)</div>
+        <input type="range" class="ocv-range" id="ocv-derate" min="2" max="20" step="1" value="8" oninput="calcOCV()">
+        <div class="ocv-val" id="ocv-derate-v">8%</div>
+      </div>
+      <div class="ocv-field">
+        <div class="ocv-label">Clock Period (ps)</div>
+        <input type="range" class="ocv-range" id="ocv-period" min="500" max="2000" step="50" value="1000" oninput="calcOCV()">
+        <div class="ocv-val" id="ocv-period-v">1000 ps</div>
+      </div>
+    </div>
+    <div class="ocv-result" id="ocv-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S6: CLOCK UNCERTAINTY              -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s6">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">06</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Clock Analysis</div>
+      <div class="sec-title">Clock Uncertainty, Jitter & Skew</div>
+    </div>
+  </div>
+
+  <p>The clock is not a perfect square wave. It has variability in its period, phase, and edge position. STA models this variability through the <em>clock uncertainty</em> budget, which is subtracted from the available timing margin. Understanding each component helps you write accurate SDC and diagnose timing problems correctly.</p>
+
+  <h3>Clock Uncertainty Budget — All Components</h3>
+
+  <div class="formula-box">
+    <div class="f-title">Clock Uncertainty Decomposition</div>
+    <div class="formula"><span class="fv">T_uncertainty</span> = <span class="fb">T_jitter</span> + <span class="fo">T_skew</span> + <span class="fv">T_margin</span>
+
+<span class="fc">Component breakdown:</span>
+
+<span class="fb">T_jitter</span> (Clock Source Jitter):
+  = Cycle-to-cycle variation in clock period from PLL/oscillator
+  = ±20–100ps for typical PLLs
+  Modeled in STA as: σ_jitter × target_sigma (e.g., 3σ for 99.7% yield)
+  Applied to: both setup and hold (adds uncertainty to both)
+
+<span class="fo">T_skew</span> (Pre-CTS Estimate):
+  = Expected clock arrival time difference between launch and capture FF
+  Before CTS: tool uses an estimate (e.g., 200ps)
+  After CTS: tool uses ACTUAL propagated clock delays → skew is real
+  Applied to: depends on sign — positive skew helps setup, hurts hold
+
+<span class="fv">T_margin</span> (Guardband):
+  = Extra safety margin for unmodeled effects: crosstalk on clock nets,
+    voltage noise, process corners beyond analyzed range
+  = 50–100ps typical
+
+<span class="fc">Typical total uncertainty values:</span>
+  Pre-CTS:  set_clock_uncertainty -setup 0.20  (200ps)
+  Pre-CTS:  set_clock_uncertainty -hold  0.05  (50ps)
+  Post-CTS: set_clock_uncertainty -setup 0.10  (100ps — skew now real)
+  Post-CTS: set_clock_uncertainty -hold  0.05  (50ps)</div>
+  </div>
+
+  <h3>Jitter Types</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Jitter Type</th><th>Definition</th><th>Effect on Timing</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Cycle-to-Cycle Jitter</strong></td><td>Variation in period between adjacent cycles. Period_n vs Period_(n+1)</td><td>Affects setup: data has less time if the previous cycle was shorter</td></tr>
+      <tr><td><strong>Period Jitter</strong></td><td>Deviation of any clock period from the ideal period</td><td>Worst case for timing — PLL specs define max period jitter</td></tr>
+      <tr><td><strong>Long-Term Jitter</strong></td><td>Accumulated phase error over many cycles</td><td>Critical for high-speed serial interfaces (PCIe, DDR)</td></tr>
+      <tr class="hi"><td><strong>Duty Cycle Distortion</strong></td><td>Deviation of HIGH pulse width from 50%</td><td>Affects timing in double-data-rate (DDR) systems</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Clock Skew — Positive vs Negative</h3>
+
+  <div class="diagram"><span class="cr">CLOCK SKEW EFFECTS</span>
+
+<span class="w">Positive Skew (capture gets clock LATER than launch):</span>
+
+  Launch FF ──[clock]──→ at t=0
+  Capture FF ──[clock]──→ at t=+100ps (skew = +100ps)
+
+  Setup check: capture edge is at (T_period + 100ps)
+  <span class="g">→ Setup HELPED: 100ps more time for data to travel</span>
+  Hold check:  capture edge is at (0 + 100ps)
+  <span class="r">→ Hold HURT: data must stay stable 100ps longer after launch CK</span>
+
+<span class="w">Negative Skew (capture gets clock EARLIER than launch):</span>
+
+  Launch FF ──[clock]──→ at t=0
+  Capture FF ──[clock]──→ at t=−100ps (skew = −100ps)
+
+  Setup check: capture edge is at (T_period − 100ps)
+  <span class="r">→ Setup HURT: 100ps less time for data to travel</span>
+  Hold check:  capture edge is at (0 − 100ps)
+  <span class="g">→ Hold HELPED: data can change 100ps sooner</span>
+
+<span class="go">USEFUL SKEW: Deliberately creating positive skew on critical paths
+  → allows more time for data on setup-critical paths
+  → PD tool does this automatically via "useful skew optimization"</span></div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S7: FIXING TIMING VIOLATIONS       -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s7">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">07</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag pass">Fix Toolkit</div>
+      <div class="sec-title">Fixing Timing Violations — The Complete Toolkit</div>
+    </div>
+  </div>
+
+  <p>Timing closure is the iterative process of eliminating all timing violations across all corners and modes. It is the most demanding part of the PD job and where experience separates good engineers from great ones. This section gives you the complete mental model for systematic timing closure.</p>
+
+  <h3>Setup Violation Fixes — Ordered by Impact</h3>
+
+  <table class="tbl">
+    <thead><tr><th>Fix Technique</th><th>Mechanism</th><th>Impact</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>1. Cell upsizing</strong></td><td>Replace NAND2X1 → NAND2X2/X4. Higher drive strength → faster Q transition (less Tcq and less output slew for fan-out)</td><td>High — 50–200ps improvement per cell</td><td>Area, power</td></tr>
+      <tr><td><strong>2. Vt swapping (HVT→SVT→LVT)</strong></td><td>Lower Vt → faster switching. Same function, different speed/leakage trade-off</td><td>High — 20–100ps per swap</td><td>Leakage power</td></tr>
+      <tr class="hi"><td><strong>3. Buffer/repeater insertion</strong></td><td>Break long net into segments → each segment has lower C_load → faster transitions</td><td>Medium — reduces net delay by restoring slew</td><td>Area, power, routing resources</td></tr>
+      <tr><td><strong>4. Placement improvement</strong></td><td>Move critical-path cells closer together → shorter wires → less T_net</td><td>Medium — each mm of wire ≈ 50–100ps RC delay</td><td>May cause congestion elsewhere</td></tr>
+      <tr class="hi"><td><strong>5. Logic restructuring</strong></td><td>Reduce number of logic levels on critical path (gate reordering, factoring)</td><td>High but complex — reduces T_logic fundamentally</td><td>Netlist changes — requires synthesis re-run</td></tr>
+      <tr><td><strong>6. Useful skew</strong></td><td>Deliberately delay capture clock relative to launch → more time for data</td><td>Medium — can recover 50–200ps on targeted paths</td><td>May create hold violations on other paths</td></tr>
+      <tr><td><strong>7. Reroute critical nets</strong></td><td>Route on lower-resistance metal layer (M5 vs M2) → less RC delay</td><td>Low-medium — 20–50ps improvement on long nets</td><td>Routing resources on upper metals</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Hold Violation Fixes</h3>
+
+  <div class="box box-cr">
+    <div class="box-label">⚠ The Immutable Rule of Hold Fixing</div>
+    <p><strong>NEVER modify the clock path to fix a hold violation.</strong> Always add delay to the DATA path only. Adding clock delay to the capture FF seems logical (make clock arrive later = more time for hold) but it creates new hold violations on every other path that captures from that clock node — a cascade failure. The correct fix is always: insert delay cells (DLYND, BUFD, INV+INV pairs) directly on the data path between the launch and capture flip-flops.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Fix Technique</th><th>Mechanism</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Delay cell insertion</strong></td><td>Insert dedicated delay cells (DLYND1, DLYND2) on data path — adds fixed ps of delay</td><td>Cleanest fix. Many libraries include delay-tuned cells specifically for hold fixing.</td></tr>
+      <tr><td><strong>Inverter pair insertion</strong></td><td>Insert INV+INV on data path — logical no-op but adds ~80–120ps delay</td><td>Common quick fix during ECO. Less elegant but effective.</td></tr>
+      <tr class="hi"><td><strong>Cell downsizing</strong></td><td>Replace X4/X8 cells with X1/X2 on the data path — smaller cells drive more slowly</td><td>Use only if the path has large positive setup slack — must check setup isn't broken</td></tr>
+      <tr><td><strong>Vt swap (LVT→SVT→HVT)</strong></td><td>Higher Vt cells switch more slowly → data arrives later at capture D</td><td>Effective but reduces drive strength — verify setup timing afterward</td></tr>
+      <tr><td><strong>Route on higher resistance layer</strong></td><td>Route hold-violating net on thin metal (M1/M2) instead of wide metal → more RC delay</td><td>Used for fine-tuning hold margin. Router ECO can target specific nets.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Systematic Timing Closure Methodology</h3>
+
+  <div class="diagram"><span class="cr">TIMING CLOSURE LOOP — PD ENGINEER'S WORKFLOW</span>
+
+  <span class="w">1. Run STA (PrimeTime / OpenSTA)</span>
+     ↓
+  <span class="w">2. Check: WNS ≥ 0? TNS = 0? Both corners?</span>
+     ↓
+     ├──<span class="g"> YES →</span> Timing CLEAN → proceed to next PD stage
+     │
+     └──<span class="r"> NO  →</span> Timing violations exist
+           ↓
+     <span class="w">3. Sort failing paths by slack (most negative first)</span>
+           ↓
+     <span class="w">4. Identify violation type:</span>
+           <span class="r">Setup?</span> → analyze critical path → upsize/swap cells → reroute
+           <span class="g">Hold? </span> → identify short path → insert delay buffers on DATA path
+           ↓
+     <span class="w">5. Apply ECO (Engineering Change Order)</span>
+           - Cell size change
+           - Buffer insertion / deletion
+           - Net rerouting
+           ↓
+     <span class="w">6. Re-run STA on modified design</span>
+           ↓
+     <span class="w">7. Verify fix didn't create new violations elsewhere</span>
+           ↓
+     <span class="go">Loop back to step 2 until clean</span>
+
+  <span class="d">NOTE: Each ECO round typically fixes the worst 10-20% of violations.
+  A design with 500 violations typically requires 5-10 ECO iterations.</span></div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S8: LAB — OPENSTA                  -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s8">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">08</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag blue">Lab</div>
+      <div class="sec-title">Lab — Full OpenSTA Run on Day 4 ALU</div>
+    </div>
+  </div>
+
+  <p>You will now run a complete STA analysis on the ALU netlist synthesized in Day 4's lab. You will write the SDC, run OpenSTA, interpret every line of the timing report, and practice fixing one violation manually.</p>
+
+  <h3>Step 1: Write a Complete SDC File</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">SDC</div>
+    <div class="code-block"><span class="cm"># File: alu_constraints.sdc
+# Constraints for alu_simple — 8-bit 4-operation ALU</span>
+
+<span class="cm"># ── Primary Clock: 500MHz (2ns period) ──</span>
+<span class="fn">create_clock</span> -<span class="va">name</span> <span class="va">sys_clk</span> \
+             -<span class="va">period</span> <span class="nm">2.000</span> \
+             -<span class="va">waveform</span> {<span class="nm">0.000</span> <span class="nm">1.000</span>} \
+             [<span class="fn">get_ports</span> <span class="va">clk</span>]
+
+<span class="cm"># ── Clock Quality ──</span>
+<span class="fn">set_clock_uncertainty</span> -<span class="va">setup</span> <span class="nm">0.100</span> [<span class="fn">get_clocks</span> <span class="va">sys_clk</span>]
+<span class="fn">set_clock_uncertainty</span> -<span class="va">hold</span>  <span class="nm">0.050</span> [<span class="fn">get_clocks</span> <span class="va">sys_clk</span>]
+
+<span class="cm"># ── Input Delays ──
+# Assume external logic provides inputs 0.5ns after rising edge</span>
+<span class="fn">set_input_delay</span> -<span class="va">max</span> <span class="nm">0.5</span> -<span class="va">clock</span> <span class="va">sys_clk</span> [<span class="fn">get_ports</span> {<span class="va">a[*] b[*] op[*]</span>}]
+<span class="fn">set_input_delay</span> -<span class="va">min</span> <span class="nm">0.1</span> -<span class="va">clock</span> <span class="va">sys_clk</span> [<span class="fn">get_ports</span> {<span class="va">a[*] b[*] op[*]</span>}]
+
+<span class="cm"># Reset: false path (async reset, no timing requirement)</span>
+<span class="fn">set_false_path</span> -<span class="va">from</span> [<span class="fn">get_ports</span> <span class="va">rst_n</span>]
+
+<span class="cm"># ── Output Delays ──
+# Downstream logic must receive outputs 0.4ns before next edge</span>
+<span class="fn">set_output_delay</span> -<span class="va">max</span> <span class="nm">0.4</span> -<span class="va">clock</span> <span class="va">sys_clk</span> [<span class="fn">get_ports</span> {<span class="va">result[*] carry</span>}]
+<span class="fn">set_output_delay</span> -<span class="va">min</span> <span class="nm">0.0</span> -<span class="va">clock</span> <span class="va">sys_clk</span> [<span class="fn">get_ports</span> {<span class="va">result[*] carry</span>}]
+
+<span class="cm"># ── Environment ──</span>
+<span class="fn">set_driving_cell</span> -<span class="va">lib_cell</span> <span class="va">sky130_fd_sc_hd__buf_4</span> [<span class="fn">all_inputs</span>]
+<span class="fn">set_load</span> <span class="nm">0.02</span> [<span class="fn">all_outputs</span>]           <span class="cm"># 20fF output load</span>
+
+<span class="cm"># ── Physical Constraints ──</span>
+<span class="fn">set_max_fanout</span> <span class="nm">20</span> [<span class="fn">current_design</span>]
+<span class="fn">set_max_transition</span> <span class="nm">0.5</span> [<span class="fn">current_design</span>]  <span class="cm"># 500ps max slew</span></div>
+  </div>
+
+  <h3>Step 2: Run OpenSTA</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">OpenSTA Session</div>
+    <div class="code-block"><span class="cm"># Launch OpenSTA</span>
+opensta
+
+<span class="cm"># ── Read design ──</span>
+<span class="fn">read_liberty</span> <span class="st">sky130_fd_sc_hd__tt_025C_1v80.lib</span>
+<span class="fn">read_verilog</span>  <span class="st">alu_netlist.v</span>
+<span class="fn">link_design</span>   <span class="st">alu_simple</span>
+<span class="fn">read_sdc</span>      <span class="st">alu_constraints.sdc</span>
+
+<span class="cm"># ── Always run check_timing first! ──</span>
+<span class="fn">check_timing</span>
+<span class="cm"># Fix any unconstrained paths before proceeding</span>
+
+<span class="cm"># ── Setup Analysis (max delay) ──</span>
+<span class="fn">report_timing</span> -<span class="va">delay_type max</span> -<span class="va">path_type full</span>
+<span class="fn">report_wns</span>                               <span class="cm"># single number: worst setup slack</span>
+<span class="fn">report_tns</span>                               <span class="cm"># single number: total setup violation</span>
+
+<span class="cm"># ── Hold Analysis (min delay) ──</span>
+<span class="fn">report_timing</span> -<span class="va">delay_type min</span> -<span class="va">path_type full</span>
+<span class="fn">report_wns</span>    -<span class="va">delay_type min</span>
+<span class="fn">report_tns</span>    -<span class="va">delay_type min</span>
+
+<span class="cm"># ── Detailed path reports ──</span>
+<span class="fn">report_timing</span> -<span class="va">nworst</span> <span class="nm">5</span>    <span class="cm"># top 5 worst setup paths</span>
+<span class="fn">report_timing</span> -<span class="va">nworst</span> <span class="nm">5</span> -<span class="va">delay_type min</span>  <span class="cm"># top 5 worst hold paths</span>
+
+<span class="cm"># ── Specific path between two points ──</span>
+<span class="fn">report_timing</span> \
+  -<span class="va">from</span> [<span class="fn">get_pins</span> <span class="st">result_reg[7]/CK</span>] \
+  -<span class="va">to</span>   [<span class="fn">get_pins</span> result_reg[7]/D]
+
+<span class="cm"># ── Check all constraints are loaded ──</span>
+<span class="fn">report_constraints</span>             <span class="cm"># shows all active SDC constraints</span>
+<span class="fn">report_clock_properties</span>        <span class="cm"># frequency, uncertainty, latency</span></div>
+  </div>
+
+  <h3>Step 3: Interpret Results — What You Should See</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Expected Output</div>
+    <div class="code-block"><span class="cm"># At 500MHz (2ns period), the ALU should comfortably pass setup.</span>
+<span class="cm"># If timing fails, try 1GHz (1ns period) and observe violations.</span>
+
+<span class="cm"># Expected setup WNS at 500MHz: approximately +0.3 to +0.8ns (passing)</span>
+<span class="cm"># Critical path: through the adder carry chain (longest logic depth)</span>
+<span class="cm">#   result_reg[X]/CK → Tcq → XOR chain → AND carry → result_reg[7]/D</span>
+
+<span class="cm"># Try tightening the clock to find the maximum frequency:</span>
+<span class="fn">create_clock</span> -<span class="va">name</span> <span class="va">sys_clk</span> -<span class="va">period</span> <span class="nm">1.0</span> [<span class="fn">get_ports</span> <span class="va">clk</span>]   <span class="cm"># try 1GHz</span>
+<span class="fn">report_wns</span>
+<span class="cm"># If WNS ≈ -0.2ns → you're 200ps from 1GHz closure</span>
+
+<span class="fn">create_clock</span> -<span class="va">name</span> <span class="va">sys_clk</span> -<span class="va">period</span> <span class="nm">1.2</span> [<span class="fn">get_ports</span> <span class="va">clk</span>]   <span class="cm"># try 833MHz</span>
+<span class="fn">report_wns</span>
+<span class="cm"># Binary search to find the fastest clean frequency</span>
+
+<span class="cm"># RECORD IN YOUR LAB NOTEBOOK:</span>
+<span class="cm">#   Maximum clean frequency: _______ MHz</span>
+<span class="cm">#   Critical path: _______ → _______ (start → end)</span>
+<span class="cm">#   Critical path total delay: _______ ps</span>
+<span class="cm">#   Number of logic levels: _______</span>
+<span class="cm">#   Hold violations at 500MHz: _______ (likely 0 at pre-route)</span></div>
+  </div>
+
+  <h3>Step 4: Practice Fixing One Violation</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">ECO Tcl</div>
+    <div class="code-block"><span class="cm"># If you find a setup violation at your target frequency:</span>
+<span class="cm"># 1. Find the worst path's critical cell:</span>
+<span class="fn">report_timing</span> -<span class="va">nworst</span> <span class="nm">1</span> -<span class="va">path_type full</span>
+
+<span class="cm"># 2. Identify the cell with the largest incremental delay</span>
+<span class="cm"># Look for lines with Incr > 0.100 (100ps) in the report</span>
+
+<span class="cm"># 3. In OpenSTA, resize that cell:</span>
+<span class="fn">replace_cell</span> [<span class="fn">get_cells</span> <span class="st">u_alu/U_xor3</span>] <span class="st">sky130_fd_sc_hd__xor2_2</span>
+<span class="cm">#                                              ↑ changed from _1 to _2 (2× drive)</span>
+
+<span class="cm"># 4. Re-run timing after the change:</span>
+<span class="fn">report_timing</span> -<span class="va">nworst</span> <span class="nm">1</span>
+<span class="fn">report_wns</span>
+<span class="cm"># Observe how much the WNS improved</span>
+
+<span class="cm"># 5. Check that setup improvement didn't cause hold violation:</span>
+<span class="fn">report_timing</span> -<span class="va">delay_type min</span> -<span class="va">nworst</span> <span class="nm">3</span>
+<span class="cm"># Should still have positive hold slack</span></div>
+  </div>
+
+  <div class="box box-pass">
+    <div class="box-label">✅ Lab Success Criteria</div>
+    <p>You have completed this lab when you can: (1) Run OpenSTA and interpret every line of a setup and hold report, (2) Find the clock frequency at which the ALU just barely meets timing, (3) Successfully perform one cell-upsizing ECO and observe its timing impact, (4) Explain WHY each number in the timing report exists in physical terms. Save all results — this ALU design continues through the PnR labs in Days 8–20.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- QUIZ                               -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="quiz">
+<div class="quiz-wrap">
+  <div class="quiz-hdr">
+    <div class="quiz-icon">§</div>
+    <div>
+      <div class="quiz-title">Day 5 Assessment</div>
+      <div class="quiz-sub">STA Fundamentals · Multi-Corner · OCV · Timing Reports · Violation Fixing · 10 Questions</div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 01 / 10</div>
+    <div class="q-text">STA reports WNS = +0.030ns (setup) and WNS = −0.043ns (hold) at post-placement. What is the correct action for each, and why?</div>
+    <button class="opt" onclick="qa(this,false,'Hold violations should NOT be fixed before CTS. The holds are expected to change dramatically after CTS inserts real clock delays.')">A. Fix the hold violation immediately by inserting delay buffers, then proceed to CTS</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Setup WNS = +0.030ns means setup is barely passing — acceptable but tight. This is the right moment to proceed to CTS; if setup gets worse after CTS, you revisit. Hold WNS = −0.043ns is expected and NORMAL at post-placement (pre-CTS). Hold analysis at this stage uses ideal (zero-delay) clock, which creates artificial hold violations that disappear or change after CTS inserts real clock buffers with actual delays. Fixing holds before CTS is wasted effort — CTS changes everything. The PnR tool handles hold fixing automatically after CTS. Proceed to CTS now.')">B. Setup is barely passing — acceptable to proceed to CTS. Hold violation is expected pre-CTS with ideal clock — do NOT fix now; CTS will change hold timing completely.</button>
+    <button class="opt" onclick="qa(this,false,'Setup WNS = +0.030ns is passing (positive), not a violation. The design is ready to proceed.')">C. Fix the setup violation first since +0.030ns means the path is failing</button>
+    <button class="opt" onclick="qa(this,false,'Both timing checks need attention — ignoring any violation risks tapeout failure.')">D. Ignore both — timing at post-placement is never accurate enough to act on</button>
+    <div class="q-fb" id="qf1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 02 / 10</div>
+    <div class="q-text">A timing report shows "data arrival time: 0.770ns" and "data required time: 0.800ns" for a setup check. What is the slack and what does each number physically mean?</div>
+    <button class="opt" onclick="qa(this,false,'Slack = required − arrival = 0.800 − 0.770 = +0.030ns, not -0.030ns. Positive slack means timing is MET.')">A. Slack = −0.030ns, timing fails — data arrives 30ps too late</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Slack = data required time − data arrival time = 0.800 − 0.770 = +0.030ns. Positive slack = timing MET. Data arrival = 0.770ns: total time for the signal to travel from the launch FF clock edge through Tcq + all combinational gates + wire delays to the capture FF D pin. Data required = 0.800ns: the latest the data can arrive = capture clock edge (1.000ns) − setup time (0.080ns) − clock uncertainty (0.120ns) = 0.800ns. The 30ps positive slack is the margin remaining — thin but passing.')">B. Slack = +0.030ns, timing MET — arrival (0.770ns = Tcq+logic+net total) is 30ps before required (0.800ns = period−setup−uncertainty)</button>
+    <button class="opt" onclick="qa(this,false,'Slack = required − arrival = 0.800 − 0.770 = +0.030ns. The timing is passing.')">C. Slack = +1.570ns — the path passes by nearly 1.6ns</button>
+    <button class="opt" onclick="qa(this,false,'Timing uncertainty does not directly equal the slack. Slack = required − arrival.')">D. Slack = 0.120ns — equal to the clock uncertainty applied</button>
+    <div class="q-fb" id="qf2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 03 / 10</div>
+    <div class="q-text">Why does OCV derating worsen timing margins even when the nominal corner already passes? What does it model?</div>
+    <button class="opt" onclick="qa(this,false,'OCV derating is applied during STA as a modeling technique, not during silicon manufacturing.')">A. OCV derating is applied during silicon manufacturing to compensate for process defects</button>
+    <button class="opt" onclick="qa(this,true,'Correct! OCV derating models intra-die spatial variation — the fact that different physical locations on the same chip experience different local conditions (temperature, voltage from IR drop, process gradients). Standard corner analysis assumes all cells experience the same corner simultaneously. OCV corrects this by applying pessimistic derating: for setup, the data path cells are assumed to be at worst-case slow (derated slower) while the clock path cells are assumed to be at best-case fast (derated faster). This creates a spread larger than any single corner, more accurately modeling worst-case timing across the chip area. Without OCV, chips designed using only corner analysis may fail in silicon where some regions are slower than others.')">B. OCV derating models spatial variation within a single die — different cells at different locations experience different local temperature/voltage/process conditions simultaneously, creating larger effective spread than single-corner analysis</button>
+    <button class="opt" onclick="qa(this,false,'OCV models spatial variation on-chip, not variation between different chips (that is captured by process corners).')">C. OCV models the variation between chips on different wafers to ensure yield</button>
+    <button class="opt" onclick="qa(this,false,'OCV accounts for both systematic and random variation. Its primary purpose is modeling spatial variation within a die.')">D. OCV only accounts for random manufacturing defects that cause chip failure</button>
+    <div class="q-fb" id="qf3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 04 / 10</div>
+    <div class="q-text">check_timing reports "17 paths are not constrained." How serious is this, and what could go wrong if you proceed to tapeout without fixing it?</div>
+    <button class="opt" onclick="qa(this,false,'Unconstrained paths are a serious issue — they represent timing paths that STA never analyzes, which means violations can go undetected.')">A. Not serious — unconstrained paths are automatically assumed to have infinite margin</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Unconstrained paths are paths that STA completely skips — no setup or hold analysis is performed on them. If any of those 17 paths have real timing violations, they will not be caught by STA and will NOT be fixed by synthesis or PD optimizations (because tools only optimize constrained paths). The chip will then fail in silicon on those paths. Common causes: missing set_input_delay for some input ports, missing set_output_delay for some output ports, or a generated clock that is not properly propagated. Every constrained endpoint matters — a single unconstrained failing path can result in a chip re-spin worth millions of dollars. Always resolve all check_timing warnings before proceeding to tapeout.')">B. Very serious — unconstrained paths receive zero timing analysis. Any violations on those paths go undetected and unfixed, risking silicon failure on those paths at tapeout.</button>
+    <button class="opt" onclick="qa(this,false,'Unconstrained paths receive no timing analysis — they are not assumed to be clean.')">C. Mildly concerning — unconstrained paths are analyzed with a relaxed 10% margin</button>
+    <button class="opt" onclick="qa(this,false,'Unconstrained paths are a real risk. They must be resolved before signoff.')">D. Only a documentation issue — the silicon will still be correct even with unconstrained paths</button>
+    <div class="q-fb" id="qf4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 05 / 10</div>
+    <div class="q-text">A timing report shows net delay of 0.088ns (88ps) between U_xor3/Y and U_buf8/A. What physical factor primarily determines this delay, and what can a PD engineer do to reduce it?</div>
+    <button class="opt" onclick="qa(this,false,'Net delay is determined by the RC parasitics of the routing wire, not the cell\'s internal logic function.')">A. The logic function of U_xor3 — XOR gates have higher net delay than AND gates</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Net delay (0.088ns = 88ps) is the delay of the physical wire between the output of U_xor3 and the input of U_buf8. This delay = R × C of the wire, where R is the metal resistance (proportional to wire length and layer resistivity) and C is the wire capacitance (proportional to length, width, and coupling to neighboring wires). Pre-route, this is estimated. Post-route, it comes from SPEF extraction. A PD engineer can reduce this by: (1) placing U_xor3 and U_buf8 closer together in placement (shorter wire → less RC), (2) routing the net on a lower-resistance upper metal layer (M5/M6 have lower resistance than M1/M2), (3) inserting a buffer closer to U_xor3 to drive the long wire. 88ps is significant — this net is likely a long wire worth targeting.')">B. Wire length and metal layer RC parasitics — longer wire and thinner layers → higher delay. Fix: move cells closer (shorter wire) or route on lower-resistance upper metal layer.</button>
+    <button class="opt" onclick="qa(this,false,'Net delay is about the WIRE between cells, not the cell capacitance. Cell input capacitance affects Tcq, not the net delay segment shown here.')">C. The input capacitance of U_buf8 — larger buffers cause more net delay</button>
+    <button class="opt" onclick="qa(this,false,'Net delay is a physical routing property, not directly related to clock uncertainty.')">D. Clock uncertainty — higher jitter increases net delay on all paths</button>
+    <div class="q-fb" id="qf5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 06 / 10</div>
+    <div class="q-text">What is the difference between "path type: max" and "path type: min" in a timing report, and which library corner is used for each?</div>
+    <button class="opt" onclick="qa(this,false,'Max and min path types correspond to setup and hold checks respectively, not best-case and worst-case absolute timing.')">A. Max = best-case timing, Min = worst-case timing — both use the TT corner</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Path type max = setup check: uses MAXIMUM delays (slowest possible) to find the worst-case data arrival. Maximum delays come from the SS (Slow-Slow) corner library — slow cells, low voltage, hot temperature. This gives the largest delay values, representing the scenario where data is most likely to arrive late (setup violation). Path type min = hold check: uses MINIMUM delays (fastest possible) to find the fastest data arrival. Minimum delays come from the FF (Fast-Fast) corner library — fast cells, high voltage, cold temperature. This gives the smallest delay values, representing the scenario where data arrives earliest (hold violation). Using max delays for both would incorrectly overestimate hold margins (hold is HARDER when data is FAST, not slow).')">B. Max = setup check using maximum (worst-case) delays from SS corner. Min = hold check using minimum (best-case) delays from FF corner. Different corners because setup fails when data is slow; hold fails when data is fast.</button>
+    <button class="opt" onclick="qa(this,false,'Max path type uses maximum delays (SS corner), not minimum. The distinction matters for timing closure.')">C. Max = uses minimum delays for setup; Min = uses maximum delays for hold — inverted naming</button>
+    <button class="opt" onclick="qa(this,false,'Max and min path types use different corners — both using TT misses worst-case corners.')">D. Both max and min use the TT corner — the difference is only in how slack is reported</button>
+    <div class="q-fb" id="qf6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 07 / 10</div>
+    <div class="q-text">A path has setup WNS = −80ps. A PD engineer proposes swapping the critical-path cell from SVT to LVT. Another engineer proposes inserting a buffer on the long net before that cell. Which fix is more appropriate and why?</div>
+    <button class="opt" onclick="qa(this,false,'Both fixes can work, but the appropriateness depends on the nature of the violation — is it logic delay or net delay that dominates?')">A. Always swap to LVT — it is faster and the correct solution for any setup violation</button>
+    <button class="opt" onclick="qa(this,false,'Buffers always increase area and power. Whether to use them depends on where the delay problem is.')">B. Always insert buffers — they always reduce net delay without leakage penalty</button>
+    <button class="opt" onclick="qa(this,true,'Correct! The right fix depends on WHERE the delay comes from. If the timing report shows large net delay (the wire between cells contributing 200ps+ of the path total), then buffer insertion is the right fix — it breaks the long RC wire, restoring slew and reducing effective C_load. If the report shows the cell itself has high propagation delay (Tcq or internal gate delay is large), then LVT swap is better — it reduces intrinsic cell delay. Good engineers look at the timing report breakdown: if net delay > 40% of path delay, target the wire. If cell delay > 60% of path, target the cell. Blind application of any one technique wastes time and resources.')">C. Diagnose first: if net delay dominates the path (long wire), buffer insertion is better. If cell delay dominates, LVT swap is better. The timing report breakdown shows which component to target.</button>
+    <button class="opt" onclick="qa(this,false,'80ps is a real violation that must be fixed. Ignoring it means tapeout failure.')">D. Neither — 80ps is too small to fix. Accept the violation and move on.</button>
+    <div class="q-fb" id="qf7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 08 / 10</div>
+    <div class="q-text">What is "useful skew" and how can a PD engineer use it to fix a setup violation without changing any cells?</div>
+    <button class="opt" onclick="qa(this,false,'Useful skew manipulates clock arrival times, not cell sizes. It is a timing optimization, not a power reduction technique.')">A. Reducing the clock frequency on non-critical paths to save power while maintaining performance</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Useful skew intentionally creates clock skew between a launch and capture flip-flop pair to improve timing on a specific path. For a setup-violating path: if the capture FF clock is deliberately delayed (arrives later), the capture clock edge moves to T_period + δ_skew. This gives the data path an additional δ_skew of time to travel — directly improving setup slack by δ_skew without changing any cells or logic. The PD tool achieves this by adjusting clock buffer delays along specific branches of the clock tree. Caution: positive skew on one path simultaneously creates negative skew on the reverse path (if data flows the other direction), potentially hurting hold. Good tools (ICC2, Innovus) apply useful skew as a global optimization ensuring no net degradation.')">B. Deliberately delaying the capture FF's clock relative to the launch FF — gives the data path more time (setup slack = path delay budget + skew δ). Achieved by adjusting clock tree buffer delays on specific clock branches.</button>
+    <button class="opt" onclick="qa(this,false,'Useful skew adjusts clock delays, not cell sizes. Upsizing cells is a separate technique.')">C. Upsizing the clock buffer driving the critical capture FF to make the clock arrive faster</button>
+    <button class="opt" onclick="qa(this,false,'Useful skew is applied during PD (CTS and post-CTS optimization), not at RTL synthesis stage.')">D. Rewriting the RTL to insert pipeline registers that reduce logic depth</button>
+    <div class="q-fb" id="qf8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 09 / 10</div>
+    <div class="q-text">After fixing a hold violation by upsizing the data-path cell from X1 to X4 (making it faster), what new timing problem must the engineer check for?</div>
+    <button class="opt" onclick="qa(this,false,'Making the cell larger (X4) increases its drive strength and speed — this could cause it to arrive too fast on an adjacent path, creating hold violations elsewhere.')">A. The X4 cell may cause crosstalk glitches on adjacent nets due to faster switching</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Upsizing a cell to fix a hold violation (making data arrive LATER by... wait, upsizing makes data arrive EARLIER, not later — this is actually the WRONG direction for hold fixing). But if the question assumes the engineer made a mistake: making the data path faster (X4 = faster) would make a hold violation WORSE (data arrives even earlier). However, if we interpret the question as: a cell on the hold-violating path was swapped from a very slow cell to X4 hoping to create more delay through some path restructuring, then the concern is: X4 cells drive faster, so on paths going FORWARD from this cell, the faster signal may now violate SETUP timing on paths that were previously meeting setup. Anytime you speed up part of a circuit, check setup on all fanout paths of that cell. Note: correct hold fixes use delay insertion, NOT cell upsizing (which speeds things up).')">B. Setup violations on paths driven by the X4 cell — faster driving means data arrives sooner at downstream FFs, potentially violating setup on other paths that relied on the slower X1 timing</button>
+    <button class="opt" onclick="qa(this,false,'Cell upsizing increases power consumption slightly, but power budget checking is separate from timing checks.')">C. Power budget violation — X4 cells consume 4× more power and may exceed the design power budget</button>
+    <button class="opt" onclick="qa(this,false,'Cell upsizing does not affect DRC directly (the PnR tool handles legalization automatically).')">D. DRC violation — X4 cells are physically larger and may not fit in the placement row</button>
+    <div class="q-fb" id="qf9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 10 / 10</div>
+    <div class="q-text">What is AOCV (Advanced OCV) and why does it give less pessimistic results than basic OCV for long timing paths?</div>
+    <button class="opt" onclick="qa(this,false,'AOCV is more accurate than basic OCV, but it is not less conservative because it uses faster corners.')">A. AOCV uses the FF corner instead of SS — less pessimistic because fast cells have less variation</button>
+    <button class="opt" onclick="qa(this,true,'Correct! AOCV exploits a statistical principle: as the number of cells in a timing path grows, individual cell variations partially cancel out (statistical averaging). If each cell independently varies by ±10%, a path with 1 cell has ±10% variation, but a path with 25 cells has roughly ±10%/√25 = ±2% aggregate variation (approximately, for uncorrelated variation). Basic OCV applies the same flat derate percentage to ALL paths regardless of depth — short 2-cell paths and long 20-cell paths both get 8% derate. AOCV uses a depth table: short paths (1–3 cells) get the full 8% derate because single-cell variation dominates; long paths (15+ cells) get only 2–3% derate because statistical averaging reduces aggregate path variation. This gives less guardband on long paths that don\'t need as much, allowing more achievable timing targets without sacrificing silicon correctness.')">B. AOCV uses depth-dependent derating: long paths with many cells get LESS derating because statistical averaging of individual cell variations reduces aggregate path uncertainty — shorter paths with fewer cells still receive full derating</button>
+    <button class="opt" onclick="qa(this,false,'AOCV reduces pessimism through statistical averaging of path depth, not through correlation assumptions.')">C. AOCV assumes all cells on a path are perfectly correlated — they all vary in the same direction simultaneously</button>
+    <button class="opt" onclick="qa(this,false,'AOCV is not specific to memory — it applies to all logic paths throughout the design.')">D. AOCV only applies to memory paths — for logic paths, basic OCV is always used</button>
+    <div class="q-fb" id="qf10"></div>
+  </div>
+
+</div><!-- /quiz -->
+</div>
+
+<!-- CHECKLIST -->
+<div class="ls">
+<div class="cl-wrap">
+  <div class="cl-title">Day 5 — Completion Checklist</div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 1: STA vs simulation — understood 100% coverage guarantee and why STA is the signoff authority</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 2: All 4 path types — reg-to-reg, in-to-reg, reg-to-out, in-to-out — and unateness</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Used the Setup Timing Calculator — varied all 6 parameters and understood their effects</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 3: All 4 report tabs — setup, hold, summary, check_timing — can interpret every line</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Understood check_timing — know that unconstrained paths must be zero before trusting any timing number</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 4: MMMC — corners, modes, analysis views — understand why SS for setup, FF for hold</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 5: OCV, AOCV — used the OCV calculator and understood derate impact on margins</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 6: Clock uncertainty components — jitter, skew, guardband — and positive vs negative skew</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 7: Complete fix toolkit — all setup AND hold fix techniques and the immutable hold fixing rule</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Completed Section 8 Lab: Ran OpenSTA on Day 4 ALU — recorded WNS, critical path, max clean frequency</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Successfully performed one cell-upsizing ECO in OpenSTA and verified timing improvement</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Completed all 10 quiz questions — reviewed explanations for any wrong answers</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Can write the complete setup slack formula from memory and explain every term physically</div></div>
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="ls" id="summary">
+  <div class="sec-hdr">
+    <div class="sec-num-col"><div class="sec-num">∑</div><div class="sec-num-line"></div></div>
+    <div class="sec-title-col">
+      <div class="sec-tag">Summary</div>
+      <div class="sec-title">Day 5 — What to Remember Forever</div>
+    </div>
+  </div>
+
+  <div class="sum-grid">
+    <div class="sum-card"><div class="sum-t">STA Power</div><div class="sum-b">100% path coverage. No vectors needed. Runs in minutes. The only timing method that can guarantee silicon correctness.</div></div>
+    <div class="sum-card"><div class="sum-t">Slack Formula</div><div class="sum-b">Setup: Required − Arrival = (T_period − Tsetup − Tunc) − (Tcq + Tlogic + Tnet). Must be ≥ 0.</div></div>
+    <div class="sum-card"><div class="sum-t">WNS vs TNS</div><div class="sum-b">WNS = single worst path. TNS = total violation sum. Both must be 0 at tapeout. TNS reveals scope of work.</div></div>
+    <div class="sum-card"><div class="sum-t">check_timing</div><div class="sum-b">Always run first. Zero unconstrained paths mandatory before trusting any timing number. One unconstrained path = one potential silicon failure.</div></div>
+    <div class="sum-card"><div class="sum-t">MMMC Corners</div><div class="sum-b">Setup → SS corner (slow, hot, low V). Hold → FF corner (fast, cold, high V). Both simultaneously via MMMC. Never TT-only signoff.</div></div>
+    <div class="sum-card"><div class="sum-t">OCV Derating</div><div class="sum-b">Spatial intra-die variation. Launch path derated slow, capture path derated fast (for setup). AOCV: longer paths get less derate (statistical averaging).</div></div>
+    <div class="sum-card"><div class="sum-t">Clock Uncertainty</div><div class="sum-b">= Jitter + estimated skew + guardband. Pre-CTS: 200ps setup. Post-CTS: 100ps setup (skew now real from propagated clock).</div></div>
+    <div class="sum-card"><div class="sum-t">Hold Fix Rule</div><div class="sum-b">NEVER touch clock path for hold. ALWAYS add delay to DATA path. Delay buffers, INV pairs, cell downsizing, HVT swap — all on data path only.</div></div>
+  </div>
+
+  <div class="formula-box" style="margin-top:24px">
+    <div class="f-title">Day 5 Complete STA Formula Reference</div>
+    <div class="formula"><span class="fo">SETUP SLACK</span>  = (<span class="fv">T_period</span> + <span class="fv">Tsl_cap</span> − <span class="fv">Tsetup</span> − <span class="fv">Tuncertainty</span>)  −  (<span class="fv">Tsl_launch</span> + <span class="fv">Tcq</span> + <span class="fv">Tlogic</span> + <span class="fv">Tnet</span>)
+<span class="fb">HOLD  SLACK</span>  = (<span class="fv">Tcq</span> + <span class="fv">Tlogic</span> + <span class="fv">Tnet</span>)  −  (<span class="fv">Thold</span> + <span class="fv">Tuncertainty</span> + <span class="fv">Tskew_cap</span>)
+
+<span class="fc">With OCV derating (setup):</span>
+  <span class="fv">T_launch_eff</span> = <span class="fv">T_nominal</span> × (1 + <span class="fb">derate</span>)    <span class="fc">← data path: pessimistically slow</span>
+  <span class="fv">T_capture_eff</span>= <span class="fv">T_nominal</span> × (1 − <span class="fb">derate</span>)    <span class="fc">← clock path: pessimistically fast</span>
+
+<span class="fc">Fix priority order:</span>
+  <span class="fo">Setup</span>: cell upsize → LVT swap → buffer insertion → placement → useful skew
+  <span class="fb">Hold</span>:  delay buffer → INV pair → cell downsize → HVT swap  ← DATA PATH ONLY</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- NEXT DAY -->
+<div class="next-banner">
+  <div class="nb-chapter">Chapter VI</div>
+  <div class="nb-title">Day 6 — Floorplanning</div>
+  <div class="nb-sub">Phase 2 closes, Phase 3 opens. You now hold the timing tools fluently. Day 6 begins Physical Design proper — floorplanning. You will learn how to define the die, place macros, plan the IO ring, and establish the physical skeleton that every subsequent PD stage builds upon.</div>
+  <div class="nb-chips">
+    <span class="nb-chip">Die & Core Area</span>
+    <span class="nb-chip">Utilization</span>
+    <span class="nb-chip">Aspect Ratio</span>
+    <span class="nb-chip">Macro Placement</span>
+    <span class="nb-chip">Placement Blockages</span>
+    <span class="nb-chip">IO Placement</span>
+    <span class="nb-chip">Tap & End-Cap Cells</span>
+    <span class="nb-chip">Lab: OpenROAD Floorplan</span>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+// ── QUIZ ──────────────────────────────
+function qa(btn, correct, msg) {
+  const block = btn.closest('.q-block');
+  block.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const fb = block.querySelector('.q-fb');
+  if (fb) {
+    fb.textContent = (correct ? '✓ ' : '✗ ') + msg;
+    fb.className = 'q-fb show ' + (correct ? 'pass' : 'fail');
+  }
+}
+
+// ── CHECKLIST ─────────────────────────
+function ck(el) {
+  el.classList.toggle('done');
+  el.querySelector('.cl-box').textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── REPORT TABS ───────────────────────
+function showReport(id) {
+  document.querySelectorAll('.report-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rt').forEach(t => t.classList.remove('active'));
+  document.getElementById('rp-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── SETUP PATH CALCULATOR ─────────────
+function calcPath() {
+  const period = parseInt(document.getElementById('pb-period').value);
+  const tcq    = parseInt(document.getElementById('pb-tcq').value);
+  const logic  = parseInt(document.getElementById('pb-logic').value);
+  const net    = parseInt(document.getElementById('pb-net').value);
+  const setup  = parseInt(document.getElementById('pb-setup').value);
+  const unc    = parseInt(document.getElementById('pb-unc').value);
+
+  document.getElementById('pb-period-v').textContent = period + ' ps';
+  document.getElementById('pb-tcq-v').textContent    = tcq    + ' ps';
+  document.getElementById('pb-logic-v').textContent  = logic  + ' ps';
+  document.getElementById('pb-net-v').textContent    = net    + ' ps';
+  document.getElementById('pb-setup-v').textContent  = setup  + ' ps';
+  document.getElementById('pb-unc-v').textContent    = unc    + ' ps';
+
+  const arrival  = tcq + logic + net;
+  const required = period - setup - unc;
+  const slack    = required - arrival;
+  const pass     = slack >= 0;
+  const pct_tcq  = ((tcq / arrival) * 100).toFixed(0);
+  const pct_log  = ((logic / arrival) * 100).toFixed(0);
+  const pct_net  = ((net / arrival) * 100).toFixed(0);
+
+  const el = document.getElementById('pb-result');
+  el.innerHTML =
+`<span style="color:var(--crimson);font-size:0.6rem;letter-spacing:2px;display:block;margin-bottom:8px">SETUP TIMING ANALYSIS RESULT</span>
+<span style="font-size:0.7rem;color:var(--chalk3);display:block">Data arrival  = Tcq + T_logic + T_net = ${tcq} + ${logic} + ${net} = <strong style="color:var(--chalk)">${arrival} ps</strong></span>
+<span style="font-size:0.7rem;color:var(--chalk3);display:block">Data required = Period − T_setup − T_unc = ${period} − ${setup} − ${unc} = <strong style="color:var(--chalk)">${required} ps</strong></span>
+<span style="display:block;margin-top:8px;font-size:1rem;font-weight:700;color:${pass ? 'var(--pass)' : 'var(--fail)'}">Slack = ${required} − ${arrival} = ${slack >= 0 ? '+' : ''}${slack} ps  ${pass ? '✓ SETUP MET' : '✗ SETUP VIOLATION'}</span>
+<span style="display:block;margin-top:8px;font-size:0.67rem;color:var(--muted)">Path budget: Tcq ${pct_tcq}% · Logic ${pct_log}% · Net ${pct_net}%  ${!pass ? '→ Target the largest contributor (' + (tcq>logic && tcq>net ? 'Tcq — upsize FF' : logic>net ? 'Logic — upsize cells / LVT swap' : 'Net delay — buffer or place closer') + ')' : ''}</span>`;
+}
+
+calcPath();
+
+// ── OCV CALCULATOR ────────────────────
+function calcOCV() {
+  const launch  = parseInt(document.getElementById('ocv-launch').value);
+  const capture = parseInt(document.getElementById('ocv-capture').value);
+  const derate  = parseInt(document.getElementById('ocv-derate').value);
+  const period  = parseInt(document.getElementById('ocv-period').value);
+
+  document.getElementById('ocv-launch-v').textContent  = launch  + ' ps';
+  document.getElementById('ocv-capture-v').textContent = capture + ' ps';
+  document.getElementById('ocv-derate-v').textContent  = derate  + '%';
+  document.getElementById('ocv-period-v').textContent  = period  + ' ps';
+
+  const d = derate / 100;
+  const launchDerated  = Math.round(launch  * (1 + d));  // data slow
+  const captureDerated = Math.round(capture * (1 - d));  // clock fast
+
+  const slackNominal = (period - capture) - launch;
+  const slackDerated = (period - captureDerated) - launchDerated;
+  const guardband    = slackNominal - slackDerated;
+
+  const el = document.getElementById('ocv-result');
+  el.innerHTML =
+`<span style="color:var(--gold);font-size:0.6rem;letter-spacing:2px;display:block;margin-bottom:8px">OCV DERATING IMPACT (${derate}% DERATE)</span>
+<span style="font-size:0.69rem;color:var(--chalk3);display:block">Nominal launch delay  : ${launch} ps  →  Derated (×${(1+d).toFixed(2)}): <strong style="color:var(--fail)">${launchDerated} ps</strong></span>
+<span style="font-size:0.69rem;color:var(--chalk3);display:block">Nominal capture delay : ${capture} ps  →  Derated (×${(1-d).toFixed(2)}): <strong style="color:var(--pass)">${captureDerated} ps</strong></span>
+<span style="font-size:0.69rem;color:var(--chalk3);display:block;margin-top:6px">Slack without OCV: ${slackNominal >= 0 ? '+' : ''}${slackNominal} ps</span>
+<span style="font-size:0.69rem;color:var(--chalk3);display:block">Slack with ${derate}% OCV:  <strong style="color:${slackDerated >= 0 ? 'var(--pass)' : 'var(--fail)'}">${slackDerated >= 0 ? '+' : ''}${slackDerated} ps</strong></span>
+<span style="font-size:0.69rem;color:var(--muted);display:block;margin-top:6px">OCV guardband consumed: ${guardband} ps  (${((guardband/Math.abs(slackNominal))*100).toFixed(0)}% of nominal slack)</span>`;
+}
+
+calcOCV();
+
+// ── SIDEBAR ACTIVE STATE ──────────────
+const sections = document.querySelectorAll('.ls[id]');
+const sbLinks  = document.querySelectorAll('.sb-link');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      sbLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-10% 0px -60% 0px' });
+
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

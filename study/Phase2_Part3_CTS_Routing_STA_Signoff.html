@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Phase 2 · Part 3 — CTS, Routing, STA &amp; Signoff</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#0a0d14;--bg2:#0e1220;--bg3:#131828;--bg4:#192030;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --text:#dce6f5;--muted:#5a6a8a;--muted2:#303d58;
+  --blue:#60a5fa;--indigo:#818cf8;--violet:#a78bfa;--cyan:#22d3ee;
+  --green:#4ade80;--amber:#fbbf24;--orange:#fb923c;--red:#f87171;--teal:#2dd4bf;
+  --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;--body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.65}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 10% 30%,rgba(96,165,250,.03) 0%,transparent 50%),radial-gradient(circle at 90% 70%,rgba(167,139,250,.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,13,20,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;overflow-x:auto;padding:0 28px;gap:0}
+.nav-brand{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--indigo);letter-spacing:.05em;padding:14px 0;margin-right:20px;white-space:nowrap;flex-shrink:0}
+.nav a{display:block;padding:13px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.nav a:hover{color:var(--text)}
+.nav a.on{color:var(--indigo);border-bottom-color:var(--indigo)}
+
+/* ── HERO ── */
+.hero{padding:56px 28px 44px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(129,140,248,.06),transparent 60%);pointer-events:none}
+.wrap{max-width:1080px;margin:0 auto;position:relative}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--indigo);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--indigo);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(129,140,248,.4)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(129,140,248,0)}}
+.hero h1{font-family:var(--display);font-size:clamp(28px,5vw,52px);font-weight:800;color:#fff;line-height:1.05;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--indigo)}
+.hero-sub{font-size:14px;color:var(--muted);max-width:600px;line-height:1.75;margin-bottom:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:4px;border:1px solid var(--border);color:var(--muted);background:var(--bg2)}
+.chip b{color:var(--text)}
+
+/* ── PAGE ── */
+.page{max-width:1080px;margin:0 auto;padding:36px 28px}
+
+/* ── PAST LEARNINGS RECAP ── */
+.recap-section{margin-bottom:56px}
+.recap-title{font-family:var(--display);font-size:20px;font-weight:700;color:#fff;margin-bottom:6px}
+.recap-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.recap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.recap-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;position:relative;overflow:hidden}
+.recap-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0}
+.rc-p1::before{background:var(--green)}
+.rc-p2a::before{background:var(--cyan)}
+.rc-p2b::before{background:var(--teal)}
+.rc-phase{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.rc-phase.green{color:var(--green)}.rc-phase.cyan{color:var(--cyan)}.rc-phase.teal{color:var(--teal)}.rc-phase.amber{color:var(--amber)}.rc-phase.blue{color:var(--blue)}
+.rc-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:6px}
+.rc-items{list-style:none;display:flex;flex-direction:column;gap:3px}
+.rc-items li{font-size:11.5px;color:var(--muted);display:flex;align-items:flex-start;gap:6px}
+.rc-items li::before{content:'→';color:var(--muted2);flex-shrink:0;font-family:var(--mono);font-size:11px}
+.rc-tag{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;margin-top:8px}
+.tag-done{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.tag-now{background:rgba(129,140,248,.15);color:var(--indigo);border:1px solid rgba(129,140,248,.3);animation:tagpulse 2s infinite}
+@keyframes tagpulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ── FLOW PROGRESS BAR ── */
+.flow-bar{display:flex;align-items:center;gap:0;margin-bottom:40px;overflow-x:auto;padding:2px 0}
+.fb-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:80px}
+.fb-node{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;flex-shrink:0}
+.fb-done{background:rgba(74,222,128,.15);border:1px solid var(--green);color:var(--green)}
+.fb-now{background:rgba(129,140,248,.2);border:2px solid var(--indigo);color:var(--indigo);animation:nodeglw 2s infinite}
+@keyframes nodeglw{0%,100%{box-shadow:0 0 0 0 rgba(129,140,248,.4)}50%{box-shadow:0 0 0 4px rgba(129,140,248,0)}}
+.fb-next{background:var(--bg3);border:1px solid var(--muted2);color:var(--muted2)}
+.fb-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-align:center;letter-spacing:.05em;max-width:70px}
+.fb-label.active{color:var(--indigo)}
+.fb-line{flex:1;height:2px;background:var(--muted2);min-width:20px;align-self:flex-start;margin-top:17px}
+.fb-line.done{background:var(--green)}
+
+/* ── DAY SECTIONS ── */
+.day{scroll-margin-top:58px;margin-bottom:64px}
+.day-hd{display:flex;align-items:flex-start;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.day-badge{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;padding:4px 11px;border-radius:4px;white-space:nowrap;margin-top:3px;flex-shrink:0}
+.db-blue{background:rgba(96,165,250,.13);color:var(--blue);border:1px solid rgba(96,165,250,.28)}
+.db-violet{background:rgba(167,139,250,.13);color:var(--violet);border:1px solid rgba(167,139,250,.28)}
+.db-indigo{background:rgba(129,140,248,.13);color:var(--indigo);border:1px solid rgba(129,140,248,.28)}
+.day-ttl{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;line-height:1.15}
+.day-desc{font-size:13px;color:var(--muted);max-width:680px;line-height:1.7}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.card-hd{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.018)}
+.ci{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.ci-b{background:rgba(96,165,250,.12);color:var(--blue)}
+.ci-i{background:rgba(129,140,248,.12);color:var(--indigo)}
+.ci-v{background:rgba(167,139,250,.12);color:var(--violet)}
+.ci-g{background:rgba(74,222,128,.12);color:var(--green)}
+.ci-a{background:rgba(251,191,36,.12);color:var(--amber)}
+.ci-c{background:rgba(34,211,238,.12);color:var(--cyan)}
+.ci-r{background:rgba(248,113,113,.12);color:var(--red)}
+.ci-t{background:rgba(45,212,191,.12);color:var(--teal)}
+.card-ttl{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.card-body{padding:18px}
+
+/* ── CONCEPTS ── */
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.cc{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:13px 15px}
+.cc-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.lb{color:var(--blue)}.li{color:var(--indigo)}.lv{color:var(--violet)}.lg{color:var(--green)}.la{color:var(--amber)}.lc{color:var(--cyan)}.lr{color:var(--red)}.lt{color:var(--teal)}.lo{color:var(--orange)}
+.cc-ttl{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.cc-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ── TABLES ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl tr{border-bottom:1px solid var(--border)}
+.tbl tr:last-child{border-bottom:none}
+.tbl tr:hover{background:rgba(129,140,248,.02)}
+.tbl td{padding:10px 12px;vertical-align:top}
+.tbl td:first-child{width:35%;min-width:160px}
+.tc{font-family:var(--mono);font-size:11.5px;padding:3px 8px;border-radius:3px;display:inline-block;white-space:nowrap}
+.tcb{color:var(--blue);background:rgba(96,165,250,.08)}
+.tci{color:var(--indigo);background:rgba(129,140,248,.08)}
+.tcv{color:var(--violet);background:rgba(167,139,250,.08)}
+.tcg{color:var(--green);background:rgba(74,222,128,.08)}
+.tca{color:var(--amber);background:rgba(251,191,36,.08)}
+.tcc{color:var(--cyan);background:rgba(34,211,238,.08)}
+.tcr{color:var(--red);background:rgba(248,113,113,.08)}
+.tct{color:var(--teal);background:rgba(45,212,191,.08)}
+.td{font-size:13px;color:var(--text);line-height:1.5}
+.td-pd{font-size:11.5px;color:var(--teal);margin-top:3px;font-style:italic}
+.td-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* ── CODE ── */
+.codeblock{background:#060810;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.cb-hd{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}.dots span{width:9px;height:9px;border-radius:50%}
+.dots span:nth-child(1){background:#ff5f57}.dots span:nth-child(2){background:#febc2e}.dots span:nth-child(3){background:#28c840}
+.cb-fn{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:4px}
+.cb-body{padding:18px;font-family:var(--mono);font-size:12px;line-height:1.85;overflow-x:auto;white-space:pre;color:#b0c4e8}
+.ck{color:#f472b6}.cs{color:#a5f3fc}.cn{color:#fde68a}.cf{color:#c4b5fd}.cm{color:#374a6e}.cv{color:#fdba74}.co{color:#93c5fd}.cg2{color:#6ee7b7}
+
+/* ── LAB ── */
+.lab-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.lab-item{display:flex;gap:13px;align-items:flex-start}
+.lab-n{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:2px;color:#06080f}
+.ln-b{background:var(--blue)}.ln-i{background:var(--indigo)}.ln-v{background:var(--violet)}
+.lab-txt{font-size:13px;color:var(--muted);line-height:1.65}
+.lab-txt code{font-family:var(--mono);font-size:11px;color:var(--orange);background:rgba(251,146,60,.1);padding:1px 5px;border-radius:3px}
+.lab-txt strong{color:var(--text);font-weight:500}
+
+/* ── CALLOUTS ── */
+.cbox{display:flex;gap:11px;border-radius:6px;padding:13px 15px;margin-bottom:14px;font-size:13px;line-height:1.65}
+.cbox-tip{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);color:#c4970f}
+.cbox-win{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.2);color:var(--green)}
+.cbox-info{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);color:#80b0f0}
+.cbox-warn{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);color:#d07070}
+.cbox-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ── ANALOGY ── */
+.analogy{background:linear-gradient(135deg,rgba(129,140,248,.06),rgba(96,165,250,.04));border:1px solid rgba(129,140,248,.18);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+.an-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--indigo);margin-bottom:6px;text-transform:uppercase}
+.an-txt{font-size:13px;color:var(--text);line-height:1.7}
+
+/* ── STA TABLE SPECIAL ── */
+.sta-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11.5px}
+.sta-table th{background:var(--bg3);color:var(--indigo);padding:8px 12px;text-align:left;font-size:10px;letter-spacing:.1em;border-bottom:1px solid var(--border)}
+.sta-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.sta-table tr:last-child td{border-bottom:none}
+.sta-table tr:hover td{background:rgba(129,140,248,.03)}
+.slack-pos{color:var(--green)}.slack-neg{color:var(--red)}.slack-marg{color:var(--amber)}
+
+/* ── SIGNOFF CHECKLIST ── */
+.checklist{display:flex;flex-direction:column;gap:8px}
+.cl-item{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:6px}
+.cl-box{width:20px;height:20px;border-radius:4px;border:1px solid var(--muted2);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s}
+.cl-box.checked{background:rgba(74,222,128,.15);border-color:var(--green);color:var(--green)}
+.cl-cat{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.cl-cat.drc{color:var(--red)}.cl-cat.lvs{color:var(--amber)}.cl-cat.sta{color:var(--blue)}.cl-cat.erc{color:var(--violet)}.cl-cat.ant{color:var(--teal)}
+.cl-title{font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px}
+.cl-desc{font-size:12px;color:var(--muted);line-height:1.55}
+
+/* ── ROUTING LAYER VIZ ── */
+.layer-stack{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
+.layer{display:flex;align-items:center;gap:12px;padding:8px 14px;border-radius:5px;border:1px solid var(--border)}
+.layer-name{font-family:var(--mono);font-size:11px;font-weight:600;min-width:55px}
+.layer-bar{height:8px;border-radius:3px;flex:1}
+.layer-info{font-size:11.5px;color:var(--muted);text-align:right;min-width:200px}
+.layer-dir{font-family:var(--mono);font-size:10px;min-width:14px;text-align:center}
+
+/* ── QUIZ ── */
+.quiz-wrap{display:flex;flex-direction:column;gap:14px}
+.qcard{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:16px}
+.qtxt{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:7px}
+.qopt{padding:9px 14px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;text-align:left;font-family:var(--body);transition:all .15s;width:100%}
+.qopt:hover:not(:disabled){border-color:rgba(129,140,248,.4);color:var(--text);background:rgba(129,140,248,.04)}
+.qopt.ok{border-color:var(--green)!important;color:var(--green)!important;background:rgba(74,222,128,.07)!important}
+.qopt.no{border-color:var(--red)!important;color:var(--red)!important;background:rgba(248,113,113,.07)!important}
+.qexp{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.6;display:none;padding:10px 13px;background:rgba(74,222,128,.05);border-radius:5px;border-left:2px solid var(--green)}
+.qexp.show{display:block}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:48px 0}
+
+/* ── PHASE COMPLETE BANNER ── */
+.phase-complete{background:linear-gradient(135deg,rgba(74,222,128,.08),rgba(129,140,248,.06));border:1px solid rgba(74,222,128,.25);border-radius:12px;padding:28px 32px;margin-bottom:48px;text-align:center}
+.pc-badge{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--green);text-transform:uppercase;margin-bottom:10px}
+.pc-title{font-family:var(--display);font-size:26px;font-weight:800;color:#fff;margin-bottom:10px}
+.pc-desc{font-size:13.5px;color:var(--muted);max-width:600px;margin:0 auto 18px;line-height:1.7}
+.pc-next{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--indigo);border:1px solid rgba(129,140,248,.3);padding:8px 18px;border-radius:6px;margin-top:4px}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:28px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted2)}
+footer em{color:var(--indigo);font-style:normal}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:99px}
+@media(max-width:680px){.page,.hero{padding-left:16px;padding-right:16px}.nav{padding:0 12px}.cg{grid-template-columns:1fr}.layer-info{display:none}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">PD · Phase 2 · Part 3</div>
+  <a href="#recap" onclick="hl(this)">Recap</a>
+  <a href="#day22" onclick="hl(this)">Day 22 — CTS</a>
+  <a href="#day23" onclick="hl(this)">Day 23 — Routing</a>
+  <a href="#day24" onclick="hl(this)">Day 24 — STA &amp; Signoff</a>
+  <a href="#quiz" onclick="hl(this)">Final Quiz</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Phase 2 · Part 3 · Week 5 · Final Week</div>
+    <h1>CTS · Routing<br><em>STA &amp; Signoff</em></h1>
+    <p class="hero-sub">Days 22–24 — The final three steps of physical design. Clock Tree Synthesis closes the clock skew gap. Routing physically connects every net. STA and Signoff prove the chip will work — legally, electrically, and temporally. This is where PD engineers earn their title.</p>
+    <div class="chips">
+      <div class="chip">Days <b>22–24</b></div>
+      <div class="chip">Week <b>5 of 5</b></div>
+      <div class="chip">Topics <b>CTS · Routing · STA · DRC · LVS · Tapeout</b></div>
+      <div class="chip">Phase 2 <b>Complete after Day 24</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══════════════════════════════ PAST LEARNINGS RECAP ══════════════════════════════ -->
+<section class="day" id="recap">
+  <div class="day-hd">
+    <div class="day-badge" style="background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25)">RECAP</div>
+    <div>
+      <div class="day-ttl">Everything You Have Learned So Far</div>
+      <div class="day-desc">Before the final week begins, lock in the complete journey. Every concept below feeds directly into CTS, Routing, and Signoff. If any topic feels fuzzy, re-read that day's HTML before continuing.</div>
+    </div>
+  </div>
+
+  <!-- FLOW PROGRESS BAR -->
+  <div class="flow-bar">
+    <div class="fb-step">
+      <div class="fb-node fb-done">P1</div>
+      <div class="fb-label">Phase 1<br>Tools</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-done">15</div>
+      <div class="fb-label">CMOS &amp;<br>Logic</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-done">16</div>
+      <div class="fb-label">FFs &amp;<br>Timing</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-done">17</div>
+      <div class="fb-label">RTL→GDS<br>Flow</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-done">18</div>
+      <div class="fb-label">Floor-<br>plan</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-done">19</div>
+      <div class="fb-label">Power<br>Plan</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-done">20</div>
+      <div class="fb-label">Place-<br>ment</div>
+    </div>
+    <div class="fb-line done"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-now">22</div>
+      <div class="fb-label active">CTS</div>
+    </div>
+    <div class="fb-line"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-next">23</div>
+      <div class="fb-label">Routing</div>
+    </div>
+    <div class="fb-line"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-next">24</div>
+      <div class="fb-label">STA &amp;<br>Signoff</div>
+    </div>
+    <div class="fb-line"></div>
+    <div class="fb-step">
+      <div class="fb-node fb-next">GDS</div>
+      <div class="fb-label">Tape-<br>out</div>
+    </div>
+  </div>
+
+  <!-- RECAP CARDS -->
+  <div class="recap-grid">
+
+    <div class="recap-card rc-p1">
+      <div class="rc-phase green">Phase 1 — Weeks 1–2</div>
+      <div class="rc-title">Linux · GVIM · TCL</div>
+      <ul class="rc-items">
+        <li>WSL2 + Ubuntu 22.04 environment</li>
+        <li>grep, find, bash scripting, process control</li>
+        <li>GVIM modal editing, macros, split windows, .vimrc</li>
+        <li>TCL: variables, loops, procs, lists, file I/O</li>
+        <li>TCL error handling &amp; production flow scripts</li>
+        <li>Report parsing, timing analyser in TCL</li>
+      </ul>
+      <div><span class="rc-tag tag-done">✓ Complete</span></div>
+    </div>
+
+    <div class="recap-card rc-p2a">
+      <div class="rc-phase cyan">Phase 2 · Part 1 — Days 15–17</div>
+      <div class="rc-title">VLSI &amp; Digital Fundamentals</div>
+      <ul class="rc-items">
+        <li>NMOS/PMOS transistors — how CMOS works</li>
+        <li>CMOS inverter — the fundamental gate</li>
+        <li>Logic gates: NAND, NOR, INV, BUF, XOR, MUX</li>
+        <li>Drive strength: X1 / X2 / X4 — speed vs area</li>
+        <li>D flip-flop: setup time, hold time, tCQ</li>
+        <li>Timing paths — slack, WNS, TNS</li>
+        <li>RTL-to-GDSII full flow overview</li>
+        <li>Every PD file type: .v .sdc .lef .lib .def .gds .spef</li>
+        <li>Commercial tools: Innovus, ICC2, PrimeTime, Calibre</li>
+      </ul>
+      <div><span class="rc-tag tag-done">✓ Complete</span></div>
+    </div>
+
+    <div class="recap-card rc-p2b">
+      <div class="rc-phase teal">Phase 2 · Part 2 — Days 18–21</div>
+      <div class="rc-title">Floorplan · Power · Placement</div>
+      <ul class="rc-items">
+        <li>Die area calc: cell_area / utilization → sqrt</li>
+        <li>Macro placement — why it determines timing</li>
+        <li>I/O ring, core area, placement rows</li>
+        <li>Power rings, stripes, rails, well taps</li>
+        <li>IR drop (V=I×R) — causes and fixes</li>
+        <li>Electromigration (EM) current density limits</li>
+        <li>Global → legalization → detail placement phases</li>
+        <li>WNS / TNS / congestion metrics post-placement</li>
+        <li>Golden rule: fix WNS≈0 before routing</li>
+        <li>OpenLane / OpenROAD real flow lab</li>
+      </ul>
+      <div><span class="rc-tag tag-done">✓ Complete</span></div>
+    </div>
+
+    <div class="recap-card" style="border-color:rgba(129,140,248,.2)">
+      <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:var(--indigo);border-radius:0"></div>
+      <div class="rc-phase" style="color:var(--indigo)">Phase 2 · Part 3 — Days 22–24</div>
+      <div class="rc-title">CTS · Routing · STA · Signoff</div>
+      <ul class="rc-items">
+        <li>Clock tree synthesis — skew, latency, buffers</li>
+        <li>CTS targets — skew, insertion delay, max cap</li>
+        <li>Global routing — track assignment overview</li>
+        <li>Detail routing — DRC-clean metal connections</li>
+        <li>Routing layers — H/V alternation, pitch, resistance</li>
+        <li>Static Timing Analysis — MCMM, corners, CPPR</li>
+        <li>Design Rule Check (DRC) — every violation type</li>
+        <li>Layout vs Schematic (LVS) — connectivity check</li>
+        <li>Tapeout checklist and sign-off criteria</li>
+      </ul>
+      <div><span class="rc-tag tag-now">▶ Starting now</span></div>
+    </div>
+
+  </div>
+
+  <!-- KEY CONNECTIONS -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-hd"><div class="ci ci-i">⟳</div><div class="card-ttl">How past learnings feed directly into Week 5</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tci">Setup/hold time (Day 16)</span></td><td><span class="td">CTS must balance clock arrival so setup and hold slack are positive at every flip-flop. Every CTS target you set comes directly from the tsu and th values in the .lib file.</span></td></tr>
+        <tr><td><span class="tc tci">WNS ≈ 0 post-placement (Day 20)</span></td><td><span class="td">Routing adds 15–30% more wire delay. If WNS was 0 post-placement, post-routing WNS will be mildly negative — fixable. If WNS was -2ns post-placement, routing makes it -2.5ns — often fatal.</span></td></tr>
+        <tr><td><span class="tc tci">Power grid (Day 19)</span></td><td><span class="td">CTS buffers draw switching current in bursts. The power grid you built must handle this — CTS adds decap cells near clock buffers to prevent local IR drop on the clock network.</span></td></tr>
+        <tr><td><span class="tc tci">LEF / .lib files (Day 17)</span></td><td><span class="td">Routing uses LEF to know which metal layers each cell can connect to. STA uses the .lib timing models to compute path delays. Signoff uses both to verify the full implementation.</span></td></tr>
+        <tr><td><span class="tc tci">TCL scripting (Phase 1)</span></td><td><span class="td">Every command in this week — create_clock, route_design, report_checks, write_gds — is a TCL command. Your Phase 1 scripting skills now control a real PD tool.</span></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════ DAY 22 — CTS -->
+<section class="day" id="day22">
+  <div class="day-hd">
+    <div class="day-badge db-blue">DAY 22</div>
+    <div>
+      <div class="day-ttl">Clock Tree Synthesis (CTS)</div>
+      <div class="day-desc">Every flip-flop in your design must receive the clock signal at almost exactly the same moment. CTS builds the buffer tree that makes this happen. Clock skew — the difference in arrival times across the chip — is the PD parameter that determines if you can meet timing at all. Master CTS and you master half of timing closure.</div>
+    </div>
+  </div>
+
+  <!-- WHY CTS EXISTS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-b">~</div><div class="card-ttl">Why Clock Tree Synthesis Is Necessary</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl lb">THE PROBLEM</div>
+          <div class="cc-ttl">One driver cannot reach 100,000 FFs</div>
+          <div class="cc-body">A clock signal starts at one source (PLL output or I/O pin). It must reach every flip-flop — potentially 50,000–500,000 of them. Wire resistance means the last FF sees the clock 10–50 ns later than the first. This clock skew destroys timing.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lb">THE SOLUTION</div>
+          <div class="cc-ttl">A balanced buffer tree</div>
+          <div class="cc-body">CTS inserts clock buffers (CLKBUF) in a tree structure — like a tournament bracket in reverse. Each level fans out to more buffers. The tree is balanced so every leaf (FF clock pin) has equal total path delay from the clock source.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl la">CLOCK SKEW</div>
+          <div class="cc-ttl">Difference in clock arrival times</div>
+          <div class="cc-body">Skew = max(arrival_time) - min(arrival_time) across all clock sinks. Target: &lt;50–100ps for typical designs, &lt;20ps for high-frequency. Large skew = setup violations on one side, hold violations on the other.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lb">INSERTION DELAY</div>
+          <div class="cc-ttl">Clock latency from source to sinks</div>
+          <div class="cc-body">The time for the clock to travel from source to all FFs. Typically 0.5–2ns. Must be accounted for in STA — the clock arrives at FFs later than at the source. SDC command: set_clock_latency is set automatically post-CTS.</div>
+        </div>
+      </div>
+      <div class="analogy">
+        <div class="an-lbl">Memory Analogy</div>
+        <div class="an-txt"><strong>CTS = a fire drill with a perfect alarm system.</strong> Every classroom (flip-flop) must hear the alarm (clock edge) at the same moment. Without CTS, the alarm rings in classroom 1 first — those students line up while classroom 100 is still seated. Chaos (setup violations near the source, hold violations far away). CTS adds speaker amplifiers (clock buffers) in hallways so the sound reaches every room simultaneously — balanced tree = equal propagation delay everywhere.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTS TARGETS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-b">⚙</div><div class="card-ttl">CTS Targets — What You Configure and Why</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr>
+          <td><span class="tc tcb">Target skew</span></td>
+          <td><span class="td">Maximum allowed skew across all sinks on this clock domain. Typical: 50–100ps for 28nm, 100–200ps for 130nm. Tighter skew = more buffers = more area/power.</span>
+          <div class="td-pd">SDC: set_clock_uncertainty [expr 0.05 + $skew_budget] — skew is added to setup/hold uncertainty margins</div></td>
+        </tr>
+        <tr>
+          <td><span class="tc tcb">Max clock buffer fanout</span></td>
+          <td><span class="td">Maximum number of sinks each clock buffer can drive. Typically 8–32. Too many = high load, slower edges, more skew. Too few = more levels = more insertion delay.</span>
+          <div class="td-pd">Innovus/OpenROAD: set_cts_max_fanout 16 — affects tree depth and total buffer count</div></td>
+        </tr>
+        <tr>
+          <td><span class="tc tcb">Max cap / max slew</span></td>
+          <td><span class="td">Max capacitive load and max transition time allowed at each buffer output. From PDK constraints. Violations here = slow clock edges = timing problems and signal integrity issues.</span>
+          <div class="td-pd">Library provides max_cap and max_transition per cell pin — CTS checks these automatically</div></td>
+        </tr>
+        <tr>
+          <td><span class="tc tcb">Clock buffer cell list</span></td>
+          <td><span class="td">Which cell types CTS is allowed to use: CLKBUF_X2, CLKBUF_X4, CLKBUF_X8, CLKINV_X2... Only clock-optimised cells should be in this list — not regular BUF cells (different drive strength characteristics).</span>
+          <div class="td-pd">OpenROAD: set_cts_buffer_list {CLKBUF_4 CLKBUF_8 CLKBUF_16} — critical for power-efficient CTS</div></td>
+        </tr>
+        <tr>
+          <td><span class="tc tcb">NDR (Non-Default Rules)</span></td>
+          <td><span class="td">Clock nets are routed with double-width wires and double-spacing. This reduces resistance (less insertion delay) and improves signal integrity (less crosstalk noise on the clock). Must be defined before CTS routing.</span>
+          <div class="td-pd">Innovus: setNDRRule -name CTS_NDR -spacing 2x -width 2x ; then assign to clock nets</div></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- USEFUL CTS CONCEPTS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-b">⊞</div><div class="card-ttl">Critical CTS Concepts — Interview Topics</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl lb">USEFUL SKEW</div>
+          <div class="cc-ttl">Intentional skew to fix hold</div>
+          <div class="cc-body">On a path with a hold violation, you can intentionally delay the clock to the capture FF — making it arrive later — which relaxes the hold check. This is called "useful skew" or "local skew adjustment." Powerful but must be done carefully to avoid setup violations elsewhere.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl la">HOLD VIOLATIONS AFTER CTS</div>
+          <div class="cc-ttl">CTS changes hold margins</div>
+          <div class="cc-body">Before CTS, all FFs see the clock simultaneously (ideal clock). After CTS, real skew means some FFs see clock earlier or later. Paths where capture FF is faster than launch FF now have tighter hold margins — and may violate. Expect hold fixups after CTS.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lb">MULTI-CLOCK DESIGNS</div>
+          <div class="cc-ttl">Separate trees per clock domain</div>
+          <div class="cc-body">Each independent clock (clk_core, clk_usb, clk_pcie) gets its own CTS tree. Paths crossing clock domains (CDC paths) are handled with set_false_path or set_max_delay -datapath_only in the SDC — CTS does not balance these.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lv">CLOCK GATING</div>
+          <div class="cc-ttl">Power-saving CTS optimization</div>
+          <div class="cc-body">Integrated Clock Gating (ICG) cells sit in the clock tree and can disable the clock for sections of the design when idle — reducing dynamic power by 20–40%. CTS must place ICG cells close to the FFs they gate to minimise skew impact.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTS COMMANDS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-g">$</div><div class="card-ttl">CTS TCL Commands (OpenROAD / Innovus)</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tcg">clock_tree_synthesis<br>-root_buf CLKBUF_8<br>-buf_list {CLKBUF_4 CLKBUF_8}</span></td><td><span class="td">Run CTS (OpenROAD). Specify the root buffer and allowed buffer cells.</span><div class="td-pd">Innovus: ccopt_design or create_clock_tree_spec → ccopt_design -cts</div></td></tr>
+        <tr><td><span class="tc tcg">repair_clock_skew<br>-hold_margin 0.05</span></td><td><span class="td">Post-CTS hold violation fixing. Inserts delay buffers on paths with inadequate hold margin.</span><div class="td-pd">Must run after CTS. Fixes the hold violations CTS introduces by adding small delays.</div></td></tr>
+        <tr><td><span class="tc tcg">report_cts</span></td><td><span class="td">Report CTS results: skew, insertion delay, number of buffers inserted, tree depth, max fanout.</span><div class="td-pd">Check: skew within target? Buffer count reasonable? Insertion delay documented for STA?</div></td></tr>
+        <tr><td><span class="tc tcb">estimate_parasitics<br>-placement</span></td><td><span class="td">Re-run parasitic estimation after CTS. Clock nets now have real buffers — timing changes.</span><div class="td-pd">Always re-check WNS/TNS after CTS — CTS changes hundreds of path delays</div></td></tr>
+        <tr><td><span class="tc tcb">report_checks<br>-path_delay min<br>-group_count 20</span></td><td><span class="td">Report worst 20 hold paths post-CTS. These are the paths you must fix before routing.</span><div class="td-pd">Hold violations post-CTS are expected and normal — fix with repair_timing -hold</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- LAB 22 -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-g">⚡</div><div class="card-ttl">Lab — Day 22: CTS Skew Analyser &amp; OpenLane CTS Run</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day22_cts.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 22 — CTS skew analyser and hold violation checker</span>
+
+<span class="ck">proc</span> <span class="cf">analyse_cts</span> {clock_name sink_arrivals_ns period_ns} {
+    <span class="co">set</span> <span class="cv">n</span>       [<span class="co">llength</span> $sink_arrivals_ns]
+    <span class="co">set</span> <span class="cv">sorted</span>  [<span class="co">lsort</span> -real $sink_arrivals_ns]
+    <span class="co">set</span> <span class="cv">min_arr</span> [<span class="co">lindex</span> $sorted 0]
+    <span class="co">set</span> <span class="cv">max_arr</span> [<span class="co">lindex</span> $sorted end]
+    <span class="co">set</span> <span class="cv">skew</span>    [<span class="ck">expr</span> {$max_arr - $min_arr}]
+    <span class="co">set</span> <span class="cv">avg</span>     [<span class="ck">expr</span> {[<span class="co">tcl::mathop::+</span> {*}$sink_arrivals_ns] / $n}]
+
+    <span class="co">puts</span> <span class="cs">"\n=============================="</span>
+    <span class="co">puts</span> <span class="cs">"  CTS Report: $clock_name"</span>
+    <span class="co">puts</span> <span class="cs">"=============================="</span>
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Sinks        : %d FFs"</span>       $n]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Min arrival  : %.3f ns"</span>      $min_arr]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Max arrival  : %.3f ns"</span>      $max_arr]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Skew         : %.3f ns (%.0fps)"</span> $skew [<span class="ck">expr</span> {$skew*1000}]]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Avg insertion : %.3f ns"</span>      $avg]
+
+    <span class="cm"># Skew assessment</span>
+    <span class="ck">if</span>      {$skew < 0.05}  { <span class="co">puts</span> <span class="cs">"  Skew  : EXCELLENT (&lt;50ps)"</span> } \
+    <span class="ck">elseif</span> {$skew < 0.10}  { <span class="co">puts</span> <span class="cs">"  Skew  : GOOD (&lt;100ps)"</span> } \
+    <span class="ck">elseif</span> {$skew < 0.20}  { <span class="co">puts</span> <span class="cs">"  Skew  : MARGINAL — check hold violations"</span> } \
+    <span class="ck">else</span>                    { <span class="co">puts</span> <span class="cs">"  Skew  : POOR — re-run CTS with tighter target"</span> }
+
+    <span class="cm"># Hold check: worst case hold slack = data_path_min - (skew + thold)</span>
+    <span class="co">set</span> <span class="cv">thold</span>          0.03
+    <span class="co">set</span> <span class="cv">min_data_delay</span>  0.18
+    <span class="co">set</span> <span class="cv">hold_slack</span> [<span class="ck">expr</span> {$min_data_delay - ($skew + $thold)}]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Hold slack est: %+.3f ns  %s"</span> $hold_slack \
+          [<span class="ck">expr</span> {$hold_slack >= 0 ? "OK" : "VIOLATED — add delay buffers"}]]
+}
+
+<span class="cm"># Scenario 1: Good CTS — tight skew</span>
+<span class="cf">analyse_cts</span> clk_core \
+  {0.821 0.834 0.819 0.828 0.842 0.815 0.836 0.826 0.830 0.818} 2.0
+
+<span class="cm"># Scenario 2: Poor CTS — large skew</span>
+<span class="cf">analyse_cts</span> clk_core \
+  {0.650 0.820 0.710 0.940 0.780 0.870 0.690 0.750 0.900 0.810} 2.0
+
+<span class="cm"># Scenario 3: Multi-clock — two separate trees</span>
+<span class="cf">analyse_cts</span> clk_usb \
+  {1.24 1.25 1.23 1.26 1.24 1.25} 8.333
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-b">01</span><span class="lab-txt">Run all three scenarios. Observe how Scenario 2's large skew causes a hold violation estimate.</span></li>
+        <li class="lab-item"><span class="lab-n ln-b">02</span><span class="lab-txt">For Scenario 2, calculate: how large does min_data_delay need to be to fix the hold violation? Add a "fix by buffering" suggestion to the proc output.</span></li>
+        <li class="lab-item"><span class="lab-n ln-b">03</span><span class="lab-txt"><strong>OpenLane CTS lab:</strong> In your OpenLane session, run: <code>./flow.tcl -design spm -from cts -to cts</code> then check the log: <code>grep -i "skew\|insertion\|buffer" runs/RUN_*/logs/cts/*.log | head -30</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-b">04</span><span class="lab-txt">Find the CTS report: <code>cat runs/RUN_*/reports/cts/*.rpt</code> — record the actual skew and insertion delay values in your notes.</span></li>
+        <li class="lab-item"><span class="lab-n ln-b">05</span><span class="lab-txt"><strong>Key insight:</strong> Why do we use CLKBUF cells (two cascaded inverters) instead of regular BUF cells in the clock tree? Write the answer as a comment — think about equal rise and fall times.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════ DAY 23 — ROUTING -->
+<section class="day" id="day23">
+  <div class="day-hd">
+    <div class="day-badge db-violet">DAY 23</div>
+    <div>
+      <div class="day-ttl">Routing — Connecting Every Net with Metal</div>
+      <div class="day-desc">Routing draws the actual metal wires that connect every placed cell, clock buffer, and I/O pin according to the netlist. It must do this on multiple metal layers, obey thousands of design rules, meet timing, and achieve zero DRC violations. A clean route is the culmination of every decision made in the flow so far.</div>
+    </div>
+  </div>
+
+  <!-- ROUTING LAYERS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-v">⊟</div><div class="card-ttl">Metal Layer Stackup — The Routing Highway System</div></div>
+    <div class="card-body">
+      <div class="layer-stack">
+        <div class="layer" style="background:rgba(248,113,113,.05)">
+          <div class="layer-name" style="color:var(--red)">M8–M9</div>
+          <div class="layer-dir" style="color:var(--red)">H/V</div>
+          <div class="layer-bar" style="background:var(--red);width:95%;opacity:.5"></div>
+          <div class="layer-info" style="color:var(--muted)">Power stripes, clock trunks · Lowest R/μm · Widest pitch</div>
+        </div>
+        <div class="layer" style="background:rgba(251,191,36,.05)">
+          <div class="layer-name" style="color:var(--amber)">M5–M7</div>
+          <div class="layer-dir" style="color:var(--amber)">H/V</div>
+          <div class="layer-bar" style="background:var(--amber);width:75%;opacity:.5"></div>
+          <div class="layer-info" style="color:var(--muted)">Long data wires, clock distribution · Medium pitch</div>
+        </div>
+        <div class="layer" style="background:rgba(96,165,250,.05)">
+          <div class="layer-name" style="color:var(--blue)">M3–M4</div>
+          <div class="layer-dir" style="color:var(--blue)">H/V</div>
+          <div class="layer-bar" style="background:var(--blue);width:50%;opacity:.5"></div>
+          <div class="layer-info" style="color:var(--muted)">Standard signal routing · Alternating H/V · Medium R</div>
+        </div>
+        <div class="layer" style="background:rgba(74,222,128,.05)">
+          <div class="layer-name" style="color:var(--green)">M2</div>
+          <div class="layer-dir" style="color:var(--green)">H</div>
+          <div class="layer-bar" style="background:var(--green);width:30%;opacity:.5"></div>
+          <div class="layer-info" style="color:var(--muted)">Local signal routing · Dense · High R/μm</div>
+        </div>
+        <div class="layer" style="background:rgba(45,212,191,.05)">
+          <div class="layer-name" style="color:var(--teal)">M1</div>
+          <div class="layer-dir" style="color:var(--teal)">V</div>
+          <div class="layer-bar" style="background:var(--teal);width:20%;opacity:.5"></div>
+          <div class="layer-info" style="color:var(--muted)">Power rails only (VDD/VSS) · Standard cell internal</div>
+        </div>
+      </div>
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lv">H/V ALTERNATION</div><div class="cc-ttl">Prevent parallel wire crosstalk</div><div class="cc-body">Even layers route horizontal, odd layers vertical (or vice versa — PDK-defined). Adjacent parallel wires on the same layer create capacitive crosstalk. Alternating layers means most crossing wires are perpendicular — minimal crosstalk.</div></div>
+        <div class="cc"><div class="cc-lbl lv">VIAS</div><div class="cc-ttl">Layer-to-layer connections</div><div class="cc-body">When a wire must change metal layers, a via (a vertical metal plug) connects M2 to M3, M3 to M4, etc. Vias add resistance and area. Minimising via count improves timing and reduces DRC risk. DRC often flags incorrectly stacked vias.</div></div>
+        <div class="cc"><div class="cc-lbl la">ROUTING TRACKS</div><div class="cc-ttl">Where wires are allowed to go</div><div class="cc-body">Each layer has a fixed grid of routing tracks defined by the PDK (track pitch). A wire must run exactly on a track. More tracks = more routing capacity. Running out of tracks = routing overflow.</div></div>
+        <div class="cc"><div class="cc-lbl lb">NDR FOR CLOCKS</div><div class="cc-ttl">Double-width, double-spacing</div><div class="cc-body">Clock nets use Non-Default Rules: 2× wire width (lower resistance = less insertion delay variation) and 2× spacing (less coupling capacitance from adjacent signal nets = less crosstalk glitches on the clock).</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTING PHASES -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-v">→</div><div class="card-ttl">Two-Phase Routing Process</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl lv">PHASE 1 — GLOBAL ROUTING</div>
+          <div class="cc-ttl">Plan the path, not the wire</div>
+          <div class="cc-body">Divides the chip into a coarse grid of GCells. For each net, finds the sequence of GCells it passes through — a high-level route plan. Does not draw actual wires. Reports congestion: how many nets need to pass through each GCell vs how many tracks are available. Overflow GCells must be fixed before detail routing.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lv">PHASE 2 — DETAIL ROUTING</div>
+          <div class="cc-ttl">Draw the actual DRC-clean wires</div>
+          <div class="cc-body">Takes global route plan and draws specific metal segments on specific tracks and layers. Must satisfy all DRC rules simultaneously: min spacing, min width, min enclosure, via rules, antenna rules. Uses maze routing algorithms. Any remaining DRC violations are flagged as errors.</div>
+        </div>
+      </div>
+      <table class="tbl" style="margin-top:14px">
+        <tr><td><span class="tc tcv">Min spacing</span></td><td><span class="td">Minimum distance between two parallel wires on the same layer. Violation = shorts risk during manufacturing.</span><div class="td-pd">Most common DRC violation. Caused by the router being forced into a congested area.</div></td></tr>
+        <tr><td><span class="tc tcv">Min width</span></td><td><span class="td">Minimum wire width on each layer. Too-thin wire → higher resistance → timing violation AND electromigration risk.</span></td></tr>
+        <tr><td><span class="tc tcv">Min enclosure</span></td><td><span class="td">A via must be fully enclosed by metal on both layers it connects. If metal is too short, the via is not properly enclosed — process variation causes open circuit.</span></td></tr>
+        <tr><td><span class="tc tcv">Antenna rule</span></td><td><span class="td">During manufacturing, a long metal wire acts as an antenna and accumulates charge that can destroy the gate oxide of a transistor. Long nets require antenna diodes or jumper vias to protect gates.</span><div class="td-pd">Antenna violations checked separately by Calibre antenna tool. Fixed by routing engineer inserting diode cells.</div></td></tr>
+        <tr><td><span class="tc tcv">Off-grid</span></td><td><span class="td">Wire not aligned to the routing track grid. Causes mis-alignment with adjacent cells and via misalignment. Always caused by manual edits or ECO changes.</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROUTING COMMANDS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-g">$</div><div class="card-ttl">Routing TCL Commands</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tcg">global_route<br>-guide_file route.guide<br>-verbose</span></td><td><span class="td">Run global routing (OpenROAD). Produces routing guides for detail routing.</span><div class="td-pd">Innovus: globalRoute -effort high -routeTopology grid</div></td></tr>
+        <tr><td><span class="tc tcg">detailed_route<br>-output_drc drc.rpt<br>-verbose</span></td><td><span class="td">Run detail routing using global route guides. Reports remaining DRC violations in output file.</span><div class="td-pd">Innovus: routeDesign -globalDetail. Target: 0 DRC violations after this step.</div></td></tr>
+        <tr><td><span class="tc tcv">repair_design<br>-max_wire_length 100<br>-slew_margin 0.05</span></td><td><span class="td">Post-route optimization: insert buffers on violating nets, fix slew violations.</span><div class="td-pd">Run after routing to fix wire-length and slew violations introduced by routing</div></td></tr>
+        <tr><td><span class="tc tcv">report_design_area</span></td><td><span class="td">Report total routing wire length, number of vias, routing overflow statistics per layer.</span><div class="td-pd">Check: any layer with overflow? Total wirelength reasonable for your design size?</div></td></tr>
+        <tr><td><span class="tc tcv">check_antennas<br>-lib_file pdk.lef</span></td><td><span class="td">Check antenna violations on all nets. Reports ratios of metal area to gate oxide area per net.</span><div class="td-pd">OpenROAD: antenna_check. Fix: run repair_antennas which inserts diode cells automatically</div></td></tr>
+        <tr><td><span class="tc tcv">write_def<br>-name routed.def</span></td><td><span class="td">Export the routed design as a DEF file. This is the input to STA, DRC, and LVS signoff tools.</span><div class="td-pd">Always write DEF immediately after routing completes — this is your checkpoint file</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- LAB 23 -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-g">⚡</div><div class="card-ttl">Lab — Day 23: Routing QA Script &amp; OpenLane Route Run</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day23_routing.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 23 — Post-route DRC report parser and quality checker</span>
+
+<span class="ck">proc</span> <span class="cf">parse_drc_report</span> {filename} {
+    <span class="ck">if</span> {![<span class="co">file</span> exists $filename]} {
+        <span class="co">puts</span> <span class="cs">"[SKIP] File not found: $filename — using synthetic data"</span>
+        <span class="cm"># Use synthetic data for practice</span>
+        <span class="ck">return</span> [<span class="co">list</span> spacing 12 width 3 enclosure 7 antenna 4 offgrid 2]
+    }
+    <span class="co">set</span> <span class="cv">results</span> {}
+    <span class="co">set</span> <span class="cv">f</span> [<span class="co">open</span> $filename r]
+    <span class="ck">while</span> {[<span class="co">gets</span> $f line] >= 0} {
+        <span class="ck">if</span> {[<span class="co">regexp</span> {(\w+)\s+violation.*?(\d+)} $line _ type count]} {
+            <span class="co">lappend</span> results $type $count
+        }
+    }
+    <span class="co">close</span> $f
+    <span class="ck">return</span> $results
+}
+
+<span class="ck">proc</span> <span class="cf">report_routing_quality</span> {wns_ns tns_ns drc_dict total_wirelength_mm} {
+    <span class="co">puts</span> <span class="cs">"\n╔══════════════════════════════════════╗"</span>
+    <span class="co">puts</span> <span class="cs">"  Post-Route Quality Report"</span>
+    <span class="co">puts</span> <span class="cs">"╠══════════════════════════════════════╣"</span>
+
+    <span class="cm"># Timing</span>
+    <span class="co">puts</span> -nonewline [<span class="co">format</span> <span class="cs">"  WNS : %+.3f ns  "</span> $wns_ns]
+    <span class="co">puts</span> [<span class="ck">expr</span> {$wns_ns >= 0 ? "PASS" : ($wns_ns > -0.2 ? "MARGINAL" : "FAIL")}]
+
+    <span class="co">puts</span> -nonewline [<span class="co">format</span> <span class="cs">"  TNS : %.3f ns  "</span> $tns_ns]
+    <span class="co">puts</span> [<span class="ck">expr</span> {$tns_ns > -5 ? "PASS" : ($tns_ns > -50 ? "MARGINAL" : "FAIL")}]
+
+    <span class="cm"># DRC violations</span>
+    <span class="co">set</span> <span class="cv">total_drc</span> 0
+    <span class="co">puts</span> <span class="cs">"  --- DRC Violations ---"</span>
+    <span class="ck">foreach</span> {type count} $drc_dict {
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"    %-12s : %3d %s"</span> $type $count \
+              [<span class="ck">expr</span> {$count == 0 ? "OK" : "NEEDS FIX"}]]
+        <span class="co">incr</span> total_drc $count
+    }
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Total DRC    : %3d  %s"</span> $total_drc \
+          [<span class="ck">expr</span> {$total_drc == 0 ? "CLEAN" : "MUST FIX BEFORE SIGNOFF"}]]
+
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Wirelength   : %.2f mm"</span> $total_wirelength_mm]
+    <span class="co">puts</span> <span class="cs">"╚══════════════════════════════════════╝"</span>
+
+    <span class="ck">if</span> {$total_drc == 0 && $wns_ns >= 0} {
+        <span class="co">puts</span> <span class="cs">"  VERDICT: Ready for STA signoff!"</span>
+    } <span class="ck">elseif</span> {$total_drc > 0} {
+        <span class="co">puts</span> <span class="cs">"  VERDICT: Fix DRC first, then re-check timing"</span>
+    } <span class="ck">else</span> {
+        <span class="co">puts</span> <span class="cs">"  VERDICT: Fix timing violations before signoff"</span>
+    }
+}
+
+<span class="cm"># Scenario A: Clean route</span>
+<span class="co">puts</span> <span class="cs">"=== Scenario A: Successful route ==="</span>
+<span class="cf">report_routing_quality</span>  0.045  0.0 {spacing 0 width 0 enclosure 0 antenna 0} 12.4
+
+<span class="cm"># Scenario B: DRC violations remain</span>
+<span class="co">puts</span> <span class="cs">"\n=== Scenario B: DRC violations ==="</span>
+<span class="cf">report_routing_quality</span> -0.12 -8.3 {spacing 12 width 3 enclosure 7 antenna 4} 14.1
+
+<span class="cm"># Scenario C: Timing failure</span>
+<span class="co">puts</span> <span class="cs">"\n=== Scenario C: Timing crisis post-route ==="</span>
+<span class="cf">report_routing_quality</span> -1.85 -420.0 {spacing 0 width 0 enclosure 2 antenna 0} 18.7
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-v">01</span><span class="lab-txt">Run all three scenarios. For Scenario C, what does a -1.85ns post-route WNS tell you about what should have been done at placement?</span></li>
+        <li class="lab-item"><span class="lab-n ln-v">02</span><span class="lab-txt"><strong>OpenLane route run:</strong> <code>./flow.tcl -design spm -from routing -to routing</code> then check: <code>grep -c "violation" runs/RUN_*/reports/routing/*.rpt</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-v">03</span><span class="lab-txt">Open the routed DEF in KLayout: <code>\\wsl$\Ubuntu\...\results\routing\spm.def</code> — zoom in on a few cells and observe the actual metal wires connecting pin to pin.</span></li>
+        <li class="lab-item"><span class="lab-n ln-v">04</span><span class="lab-txt">Find the SPEF file after routing: <code>ls runs/RUN_*/results/routing/*.spef</code> — open it in GVIM and find the resistance and capacitance of one net. This is what STA will use for accurate timing.</span></li>
+        <li class="lab-item"><span class="lab-n ln-v">05</span><span class="lab-txt"><strong>Challenge:</strong> Add a proc <code>estimate_eco_effort</code> to the script that takes DRC count and WNS, and prints whether the fix is Minor (&lt;10 DRC, WNS &gt;-0.3), Moderate, or Major (requires reroute).</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ DAY 24 — STA & SIGNOFF -->
+<section class="day" id="day24">
+  <div class="day-hd">
+    <div class="day-badge db-indigo">DAY 24</div>
+    <div>
+      <div class="day-ttl">Static Timing Analysis &amp; Signoff</div>
+      <div class="day-desc">STA is the mathematical proof that your chip will work at the required clock frequency across all process, voltage, and temperature corners. Signoff is the complete checklist — DRC, LVS, STA, antenna, ERC — that a chip must pass before the GDSII file is sent to the foundry. Nothing ships without clean signoff.</div>
+    </div>
+  </div>
+
+  <!-- STA CONCEPTS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-i">⏱</div><div class="card-ttl">Static Timing Analysis — How It Actually Works</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl li">WHAT STA DOES</div>
+          <div class="cc-ttl">Exhaustively checks every path</div>
+          <div class="cc-body">STA analyses every combinational path from every flip-flop output to every flip-flop input — potentially millions of paths — and checks that data arrival ≤ data required time. No simulation needed. It is exhaustive and deterministic.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl la">PVT CORNERS</div>
+          <div class="cc-ttl">Process·Voltage·Temperature</div>
+          <div class="cc-body">Silicon varies during manufacturing (Process: slow/fast/typical). Supply voltage varies (±10%). Temperature varies (−40°C to 125°C). STA runs at multiple corners to ensure the chip works in the worst case for both setup and hold.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl li">SETUP CORNER</div>
+          <div class="cc-ttl">Worst-case slow (SS, 0.9V, 125°C)</div>
+          <div class="cc-body">Slow process + low voltage + high temperature = slowest possible logic. Setup violations here mean the chip fails at speed in the worst production unit. This is your setup timing sign-off corner.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lr">HOLD CORNER</div>
+          <div class="cc-ttl">Worst-case fast (FF, 1.1V, −40°C)</div>
+          <div class="cc-body">Fast process + high voltage + low temperature = fastest possible logic. Hold violations here mean data races to the capture FF and corrupts it. Hold must be clean at the fast corner — the exact opposite of setup.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lb">MCMM</div>
+          <div class="cc-ttl">Multi-Corner Multi-Mode</div>
+          <div class="cc-body">A single chip may operate in multiple modes (functional, test, low-power) and must be signed off at multiple corners simultaneously. Modern STA runs 6–20 scenarios (corner × mode). All must have zero violations at tapeout.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl lv">CPPR</div>
+          <div class="cc-ttl">Clock Path Pessimism Removal</div>
+          <div class="cc-body">STA applies pessimism to both launch and capture clock paths independently — this double-counts the shared clock path pessimism. CPPR removes this artificial pessimism, giving a more accurate (slightly better) slack. Always enable CPPR in signoff STA.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STA TIMING REPORT -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-i">📄</div><div class="card-ttl">Reading a Real STA Timing Report</div></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Every PD engineer reads reports like this daily. Learn to extract the critical information instantly.</p>
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">timing_report_setup.rpt  — worst path, corner: ss_0p9v_125c</span></div>
+        <div class="cb-body"><span class="cm">Startpoint: FF_data_reg0 (rising edge-triggered flip-flop clocked by clk_core)</span>
+<span class="cm">Endpoint  : FF_out_reg7  (rising edge-triggered flip-flop clocked by clk_core)</span>
+<span class="cm">Path Group: clk_core</span>
+<span class="cm">Path Type : max  (setup check)</span>
+
+<span class="cm">──── Data Arrival ────────────────────────────────────────────────</span>
+<span class="cg2"> 0.000</span>   clock clk_core (rise edge)
+<span class="cg2"> 0.820</span>   clock network delay (propagated)          <span class="cm">← insertion delay</span>
+<span class="cg2"> 0.820</span>   FF_data_reg0/CK (rise)
+<span class="cv"> 0.152</span>   FF_data_reg0/Q (tCQ delay)
+<span class="cv"> 0.284</span>   AND2_X2/Z  (gate delay 0.132ns)
+<span class="cv"> 0.391</span>   INV_X4/ZN  (gate delay 0.107ns)
+<span class="cv"> 0.618</span>   NAND3_X2/ZN  (0.227ns incl. wire 0.052ns)  <span class="cm">← wire delay!</span>
+<span class="cv"> 0.744</span>   BUF_X4/Z   (0.126ns)
+<span class="cv"> 0.832</span>   XOR2_X2/Z  (0.088ns)
+<span class="co"> 1.024</span>   FF_out_reg7/D  (net delay 0.192ns — long wire)</span>
+<span class="cg2"> 1.024</span>   data arrival time                           <span class="cm">← total arrival</span>
+
+<span class="cm">──── Data Required ───────────────────────────────────────────────</span>
+<span class="cg2"> 2.000</span>   clock clk_core (next rise edge)
+<span class="cg2"> 0.836</span>   clock network delay (capture path)
+<span class="cs">-0.080</span>   library setup time (tsu)
+<span class="cg2"> 2.756</span>   data required time
+
+<span class="cm">──── Slack ───────────────────────────────────────────────────────</span>
+<span class="cg2"> 2.756</span>   data required time
+<span class="cs">-1.024</span>   data arrival time
+<span class="cg2">─────────────────────────────────────────────────────────────────</span>
+<span class="cg2"> 1.732</span>   slack (MET)  ← positive = PASS</span>
+</div>
+      </div>
+      <table class="tbl">
+        <tr><td><span class="tc tci">Clock network delay</span></td><td><span class="td">= insertion delay from CTS. The time for clock to travel from source to this FF's CK pin via the clock tree buffers.</span></td></tr>
+        <tr><td><span class="tc tci">tCQ = 0.152ns</span></td><td><span class="td">Flip-flop clock-to-Q delay from the .lib file for this corner (SS corner = slowest).</span></td></tr>
+        <tr><td><span class="tc tci">Wire delay</span></td><td><span class="td">The extra delay from .spef parasitic extraction — shown as "net delay" values in the path. Long wires = large wire delays = this is why placement quality matters.</span></td></tr>
+        <tr><td><span class="tc tci">slack = 1.732ns</span></td><td><span class="td">Positive slack = MET. This path has 1.732ns of margin. The WNS is the path with the smallest (most negative) slack — this path is not the WNS.</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SIGNOFF CHECKS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-i">✓</div><div class="card-ttl">Complete Signoff Checklist — Every Item Must Pass</div></div>
+    <div class="card-body">
+      <div class="checklist">
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat drc">DRC — Design Rule Check</div>
+            <div class="cl-title">Zero physical design rule violations</div>
+            <div class="cl-desc">Run by Calibre DRC. Checks min spacing, min width, enclosure, via rules, density rules (metal fill), well spacing, antenna rules. Every foundry rule must pass. Even 1 DRC violation = chip cannot be fabricated correctly.</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat lvs">LVS — Layout vs Schematic</div>
+            <div class="cl-title">Physical layout matches gate netlist</div>
+            <div class="cl-desc">Run by Calibre LVS. Extracts the circuit from the GDS layout and compares it to the Verilog netlist. Every net connection must match exactly. A short (two nets merged) or open (net broken) is a fatal LVS error — the chip will be functionally wrong.</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat sta">STA — Setup Timing (All corners)</div>
+            <div class="cl-title">WNS ≥ 0 at slow corner (SS, 0.9V, 125°C)</div>
+            <div class="cl-desc">Run by PrimeTime. Every timing path must have non-negative setup slack at the slow-slow process corner, lowest operating voltage, highest temperature. This is the hardest timing check. Zero violations required.</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat sta">STA — Hold Timing (All corners)</div>
+            <div class="cl-title">Hold slack ≥ 0 at fast corner (FF, 1.1V, −40°C)</div>
+            <div class="cl-desc">Every path must have non-negative hold slack at the fast-fast process corner. Hold violations cause functional failures even at low frequency. Every hold violation must be fixed with delay buffers before tapeout — no exceptions.</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat ant">Antenna Check</div>
+            <div class="cl-title">No antenna ratio violations on any net</div>
+            <div class="cl-desc">Metal area accumulated during manufacturing cannot exceed the foundry's antenna ratio limit relative to the gate oxide area. Violations damage gates permanently during manufacturing. Fixed by inserting antenna diode cells or adding via jumpers (routing the wire to a higher layer earlier).</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat erc">ERC — Electrical Rule Check</div>
+            <div class="cl-title">No electromigration or max capacitance violations</div>
+            <div class="cl-desc">Current through any wire must not exceed the electromigration limit (mA/μm per layer). No net may exceed max_capacitance (causes slow transitions). No cell output may exceed max_fanout. ERC violations cause premature chip failure in the field.</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat" style="color:var(--amber)">Metal Fill / Density</div>
+            <div class="cl-title">Metal layer density within min/max bounds</div>
+            <div class="cl-desc">Foundries require each metal layer to have density between ~20% and 80% across every region. Too sparse = CMP (Chemical Mechanical Polishing) dishing. Too dense = bridging risk. Fill cells (dummy metal) are inserted automatically by the tool to meet density rules.</div>
+          </div>
+        </div>
+        <div class="cl-item">
+          <div class="cl-box" onclick="toggleCheck(this)"></div>
+          <div>
+            <div class="cl-cat" style="color:var(--cyan)">IR Drop Analysis</div>
+            <div class="cl-title">IR drop &lt; 10% of VDD at every cell</div>
+            <div class="cl-desc">Power integrity analysis (Redhawk, Voltus, or OpenROAD). Every cell must receive adequate supply voltage under worst-case switching conditions. IR drop &gt; 10% = cells run too slow = timing fails in silicon even if STA passed at nominal voltage.</div>
+          </div>
+        </div>
+      </div>
+      <div class="cbox cbox-warn" style="margin-top:16px"><div class="cbox-icon">⚠</div><div><strong>Tapeout is irreversible.</strong> Once the GDSII file is sent to the foundry and masks are made, there is no going back. A mask set costs $500,000–$15,000,000 depending on the process node. Fabrication takes 8–16 weeks. Every item on this checklist must pass before tapeout — not 99%, not 99.9%. Zero violations. This is why PD engineers are so rigorous.</div></div>
+    </div>
+  </div>
+
+  <!-- STA COMMANDS -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-g">$</div><div class="card-ttl">STA &amp; Signoff TCL Commands</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tcg">read_liberty -min fast_corner.lib<br>read_liberty -max slow_corner.lib</span></td><td><span class="td">Load library files for both timing corners. Min = hold analysis (fast cells). Max = setup analysis (slow cells).</span><div class="td-pd">PrimeTime / OpenROAD. Must match the actual fabrication process corner files.</div></td></tr>
+        <tr><td><span class="tc tcg">read_parasitics routed.spef</span></td><td><span class="td">Load post-route extracted parasitics. This replaces the estimated wire delays with real RC values from the actual layout.</span><div class="td-pd">Critical: pre-SPEF timing is ~10–20% optimistic. Always use SPEF for signoff.</div></td></tr>
+        <tr><td><span class="tc tci">report_checks -path_delay max<br>-group_count 50 -slack_lesser_than 0</span></td><td><span class="td">Report all paths with negative slack (setup violations). group_count=50 shows 50 worst paths.</span><div class="td-pd">Target: zero lines in output = all setup violations closed</div></td></tr>
+        <tr><td><span class="tc tci">report_checks -path_delay min<br>-group_count 50 -slack_lesser_than 0</span></td><td><span class="td">Report all paths with negative hold slack. Must be zero at the fast corner for signoff.</span><div class="td-pd">Hold violations at signoff require ECO — inserting delay buffers and re-routing affected nets</div></td></tr>
+        <tr><td><span class="tc tci">report_wns<br>report_tns</span></td><td><span class="td">Report WNS and TNS — the two summary numbers that tell you how far you are from signoff.</span><div class="td-pd">Signoff criteria: WNS=0.000, TNS=0.000 at every required corner</div></td></tr>
+        <tr><td><span class="tc tcv">write_gds -file final.gds</span></td><td><span class="td">Export final GDSII layout. Run only after ALL signoff checks pass. This file goes to the foundry.</span><div class="td-pd">Also write: final.v (netlist), final.spef (parasitics), final.sdc (constraints) — foundry package</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- LAB 24 -->
+  <div class="card">
+    <div class="card-hd"><div class="ci ci-g">⚡</div><div class="card-ttl">Lab — Day 24: Full Signoff Verification Script &amp; OpenLane Signoff</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day24_signoff.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 24 — Complete signoff verification engine</span>
+<span class="cm"># Simulates every check a real PD signoff script runs</span>
+
+<span class="ck">proc</span> <span class="cf">signoff_check</span> {name result target relation desc} {
+    <span class="co">set</span> <span class="cv">pass</span> 0
+    <span class="ck">if</span>      {$relation eq <span class="cs">"eq"</span>}  { <span class="co">set</span> pass [<span class="ck">expr</span> {$result == $target}] }
+    <span class="ck">elseif</span> {$relation eq <span class="cs">"ge"</span>}  { <span class="co">set</span> pass [<span class="ck">expr</span> {$result >= $target}] }
+    <span class="ck">elseif</span> {$relation eq <span class="cs">"le"</span>}  { <span class="co">set</span> pass [<span class="ck">expr</span> {$result <= $target}] }
+
+    <span class="co">set</span> <span class="cv">status</span> [<span class="ck">expr</span> {$pass ? <span class="cs">"  PASS"</span> : <span class="cs">"  FAIL"</span>}]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"%-8s %-25s %-10s target:%s  %s"</span> \
+          $status $name $result $target $desc]
+    <span class="ck">return</span> $pass
+}
+
+<span class="ck">proc</span> <span class="cf">run_signoff</span> {design_name data} {
+    <span class="co">puts</span> <span class="cs">"\n╔══════════════════════════════════════════════════════╗"</span>
+    <span class="co">puts</span> <span class="cs">"  SIGNOFF REPORT: $design_name"</span>
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Date: %s"</span> [<span class="co">clock</span> format [<span class="co">clock</span> seconds] -format <span class="cs">"%Y-%m-%d %H:%M"</span>]]
+    <span class="co">puts</span> <span class="cs">"╠══════════════════════════════════════════════════════╣"</span>
+
+    <span class="co">set</span> <span class="cv">total</span> 0
+    <span class="co">set</span> <span class="cv">passed</span> 0
+
+    <span class="ck">foreach</span> {name result target relation desc} $data {
+        <span class="co">incr</span> total
+        <span class="ck">if</span> {[<span class="cf">signoff_check</span> $name $result $target $relation $desc]} { <span class="co">incr</span> passed }
+    }
+
+    <span class="co">puts</span> <span class="cs">"╠══════════════════════════════════════════════════════╣"</span>
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Result: %d/%d checks passed"</span> $passed $total]
+
+    <span class="ck">if</span> {$passed == $total} {
+        <span class="co">puts</span> <span class="cs">"  ✓ ALL CHECKS PASSED — ready for GDSII tapeout!"</span>
+    } <span class="ck">else</span> {
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  ✗ %d checks FAILED — do NOT tapeout"</span> [<span class="ck">expr</span> {$total - $passed}]]
+    }
+    <span class="co">puts</span> <span class="cs">"╚══════════════════════════════════════════════════════╝"</span>
+}
+
+<span class="cm"># ── Scenario A: Ready-to-tapeout chip ──────────────────</span>
+<span class="cf">run_signoff</span> "my_chip_v3_final" {
+    setup_wns       0.042   0.0    ge   "Setup WNS ≥ 0 (SS corner)"
+    hold_wns        0.031   0.0    ge   "Hold WNS ≥ 0 (FF corner)"
+    setup_tns       0.0     0.0    ge   "Setup TNS = 0"
+    hold_tns        0.0     0.0    ge   "Hold TNS = 0"
+    drc_violations  0       0      eq   "DRC clean (Calibre)"
+    lvs_errors      0       0      eq   "LVS clean (Calibre)"
+    antenna_viols   0       0      eq   "Antenna check clean"
+    max_ir_drop_pct 6.2     10.0   le   "IR drop < 10% of VDD"
+    em_violations   0       0      eq   "EM violations = 0"
+    density_min_pct 22.1    20.0   ge   "Metal density ≥ 20%"
+}
+
+<span class="cm"># ── Scenario B: Not ready — multiple failures ──────────</span>
+<span class="cf">run_signoff</span> "my_chip_v2_draft" {
+    setup_wns      -0.085   0.0    ge   "Setup WNS ≥ 0 (SS corner)"
+    hold_wns        0.028   0.0    ge   "Hold WNS ≥ 0 (FF corner)"
+    setup_tns      -34.2    0.0    ge   "Setup TNS = 0"
+    hold_tns        0.0     0.0    ge   "Hold TNS = 0"
+    drc_violations  23      0      eq   "DRC clean (Calibre)"
+    lvs_errors      0       0      eq   "LVS clean (Calibre)"
+    antenna_viols   8       0      eq   "Antenna check clean"
+    max_ir_drop_pct 8.4     10.0   le   "IR drop < 10% of VDD"
+    em_violations   3       0      eq   "EM violations = 0"
+    density_min_pct 22.1    20.0   ge   "Metal density ≥ 20%"
+}
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-i">01</span><span class="lab-txt">Run both scenarios. Scenario A should show all PASS. Scenario B shows 5 failures — identify which category each belongs to (timing/physical/power).</span></li>
+        <li class="lab-item"><span class="lab-n ln-i">02</span><span class="lab-txt"><strong>OpenLane signoff run:</strong> <code>./flow.tcl -design spm -from sta -to sta</code> — this runs OpenSTA with the real post-route SPEF file.</span></li>
+        <li class="lab-item"><span class="lab-n ln-i">03</span><span class="lab-txt">Find the STA report: <code>cat runs/RUN_*/reports/signoff/*.rpt | grep -A2 "wns\|tns"</code> — record the actual WNS and TNS values from your real run.</span></li>
+        <li class="lab-item"><span class="lab-n ln-i">04</span><span class="lab-txt">Run the full OpenLane flow end to end: <code>./flow.tcl -design spm</code> — this runs synthesis through signoff automatically. When complete: <code>ls runs/RUN_*/results/final/</code> to see your GDSII file.</span></li>
+        <li class="lab-item"><span class="lab-n ln-i">05</span><span class="lab-txt">Open the final GDSII in KLayout: File → Open → your .gds file → press Ctrl+Shift+F to fit view. You are looking at a real manufacturable chip layout. Zoom in until you can see individual metal wires and transistor contacts.</span></li>
+        <li class="lab-item"><span class="lab-n ln-i">06</span><span class="lab-txt"><strong>Final challenge:</strong> Modify <code>run_signoff</code> to write a summary log file <code>signoff_report.txt</code> with timestamp, design name, and PASS/FAIL for each check. This is exactly what production sign-off scripts generate for traceability.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ QUIZ -->
+<section class="day" id="quiz">
+  <div class="day-hd">
+    <div class="day-badge" style="background:rgba(129,140,248,.15);color:var(--indigo);border:1px solid rgba(129,140,248,.3)">FINAL QUIZ</div>
+    <div>
+      <div class="day-ttl">Phase 2 Final Assessment — All 10 Days</div>
+      <div class="day-desc">10 questions covering the complete Phase 2 curriculum from CMOS transistors to signoff. These are real interview questions asked by companies like Qualcomm, MediaTek, Apple, and Intel for PD engineer roles.</div>
+    </div>
+  </div>
+
+  <div class="quiz-wrap">
+
+    <div class="qcard">
+      <div class="qtxt">Q1. What is clock skew and why does it create both setup AND hold problems simultaneously?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Skew = max - min arrival time across all FFs. If capture FF sees clock LATE (skew helps launch side): setup is harder (less time for data). If capture FF sees clock EARLY (negative skew): hold is harder (data arrives before capture FF is ready). Two FFs on the same path — one fast, one slow — experience opposite effects. This is why CTS balance is so critical.')">Clock skew only causes setup violations — it adds delay to paths that were previously timing-clean.</button>
+        <button class="qopt" onclick="qa(this,true,'Skew = max - min arrival time across all FFs. If capture FF sees clock LATE (skew helps launch side): setup is harder (less time for data). If capture FF sees clock EARLY (negative skew): hold is harder (data arrives before capture FF is ready). Two FFs on the same path — one fast, one slow — experience opposite effects. This is why CTS balance is so critical.')">Skew = clock arrival time difference. Late capture clock = tighter setup. Early capture clock = tighter hold. Same skew helps one and hurts the other on different paths simultaneously.</button>
+        <button class="qopt" onclick="qa(this,false,'Skew = max - min arrival time across all FFs. If capture FF sees clock LATE (skew helps launch side): setup is harder (less time for data). If capture FF sees clock EARLY (negative skew): hold is harder (data arrives before capture FF is ready). Two FFs on the same path — one fast, one slow — experience opposite effects. This is why CTS balance is so critical.')">Clock skew only causes hold violations because the clock arrives too early at some flip-flops.</button>
+        <button class="qopt" onclick="qa(this,false,'Skew = max - min arrival time across all FFs. If capture FF sees clock LATE (skew helps launch side): setup is harder (less time for data). If capture FF sees clock EARLY (negative skew): hold is harder (data arrives before capture FF is ready). Two FFs on the same path — one fast, one slow — experience opposite effects. This is why CTS balance is so critical.')">Skew causes power violations, not timing violations.</button>
+      </div>
+      <div class="qexp">Skew = max(arrival) - min(arrival). For a launch→capture FF path: if the capture FF's clock arrives LATER than the launch FF (positive skew at capture) → the capture window opens later → less time for data to arrive → setup gets HARDER. If the capture clock arrives EARLIER (negative skew at capture) → the capture window closes before data has propagated enough → hold gets HARDER. Large skew means some paths suffer setup and other paths suffer hold — simultaneously.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q2. Why are clock nets routed with Non-Default Rules (NDR) — specifically double-width and double-spacing?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Double-width: lower resistance per μm → less RC delay variation along the clock tree → all sinks see more consistent insertion delay → better skew. Double-spacing: less coupling capacitance from adjacent signal nets → signal switching on nearby data nets cannot inject noise glitches onto the clock → cleaner clock edges → less setup/hold uncertainty.')">NDR is required by the foundry for all clock nets regardless of design constraints.</button>
+        <button class="qopt" onclick="qa(this,false,'Double-width: lower resistance per μm → less RC delay variation along the clock tree → all sinks see more consistent insertion delay → better skew. Double-spacing: less coupling capacitance from adjacent signal nets → signal switching on nearby data nets cannot inject noise glitches onto the clock → cleaner clock edges → less setup/hold uncertainty.')">Double-width reduces power consumption of the clock tree by lowering dynamic current.</button>
+        <button class="qopt" onclick="qa(this,true,'Double-width: lower resistance per μm → less RC delay variation along the clock tree → all sinks see more consistent insertion delay → better skew. Double-spacing: less coupling capacitance from adjacent signal nets → signal switching on nearby data nets cannot inject noise glitches onto the clock → cleaner clock edges → less setup/hold uncertainty.')">Double-width lowers wire resistance → reduces insertion delay variation (better skew). Double-spacing reduces coupling capacitance from adjacent nets → less crosstalk noise injected onto clock → cleaner edges.</button>
+        <button class="qopt" onclick="qa(this,false,'Double-width: lower resistance per μm → less RC delay variation along the clock tree → all sinks see more consistent insertion delay → better skew. Double-spacing: less coupling capacitance from adjacent signal nets → signal switching on nearby data nets cannot inject noise glitches onto the clock → cleaner clock edges → less setup/hold uncertainty.')">NDR is only used for power nets, not clock nets.</button>
+      </div>
+      <div class="qexp">Double-width clock wires have lower resistance per unit length (R=ρL/A — larger A = lower R). Lower R means less RC delay variation across different wire lengths in the tree, which means all FF clock pins see more similar insertion delays → lower skew. Double-spacing reduces capacitive coupling to adjacent nets. If a nearby data net switches, it injects charge into the clock net through coupling capacitance — a glitch that can cause a false clock edge or timing uncertainty. Double-spacing reduces this coupling by 50%+.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q3. Metal layers alternate between horizontal and vertical routing directions. What specific problem does this solve?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Alternating H/V directions prevents parallel same-layer adjacency between wires on the routing path. Adjacent parallel wires on the same layer have high coupling capacitance — they see each other as capacitors. When one switches, the other receives a noise glitch (crosstalk). Perpendicular wires on adjacent layers have minimal coupling area. H/V alternation makes the majority of wire-to-wire crossings perpendicular, dramatically reducing signal integrity problems.')">H/V alternation reduces the total wirelength by allowing shorter diagonal routing paths.</button>
+        <button class="qopt" onclick="qa(this,true,'Alternating H/V directions prevents parallel same-layer adjacency between wires on the routing path. Adjacent parallel wires on the same layer have high coupling capacitance — they see each other as capacitors. When one switches, the other receives a noise glitch (crosstalk). Perpendicular wires on adjacent layers have minimal coupling area. H/V alternation makes the majority of wire-to-wire crossings perpendicular, dramatically reducing signal integrity problems.')">Alternating H/V makes most adjacent-layer crossings perpendicular, dramatically reducing capacitive coupling and crosstalk noise between wires.</button>
+        <button class="qopt" onclick="qa(this,false,'Alternating H/V directions prevents parallel same-layer adjacency between wires on the routing path. Adjacent parallel wires on the same layer have high coupling capacitance — they see each other as capacitors. When one switches, the other receives a noise glitch (crosstalk). Perpendicular wires on adjacent layers have minimal coupling area. H/V alternation makes the majority of wire-to-wire crossings perpendicular, dramatically reducing signal integrity problems.')">H/V alternation is only for aesthetics — it makes the GDS file look cleaner.</button>
+        <button class="qopt" onclick="qa(this,false,'Alternating H/V directions prevents parallel same-layer adjacency between wires on the routing path. Adjacent parallel wires on the same layer have high coupling capacitance — they see each other as capacitors. When one switches, the other receives a noise glitch (crosstalk). Perpendicular wires on adjacent layers have minimal coupling area. H/V alternation makes the majority of wire-to-wire crossings perpendicular, dramatically reducing signal integrity problems.')">Alternating directions allows the tool to use fewer vias because each net only changes layer once.</button>
+      </div>
+      <div class="qexp">Parallel adjacent wires on the same layer have high capacitive coupling — proportional to the shared length. This creates crosstalk: a switching aggressor wire injects a voltage pulse onto a quiet victim wire, potentially causing a glitch or timing shift. Perpendicular wires have minimal coupling area (they cross at one point, not run alongside each other). Alternating H/V means a horizontal wire on M3 sits above/below vertical wires on M4 — perpendicular crossing = tiny coupling area = minimal crosstalk.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q4. STA runs at "slow-slow (SS) corner" for setup and "fast-fast (FF) corner" for hold. Why are these different corners?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Setup: you need the SLOWEST possible timing — if the chip passes setup at SS corner (slowest process + lowest voltage + highest temp), it passes at all other corners too. Hold: you need the FASTEST possible timing — if data arrives too fast at FF corner and still satisfies hold, it satisfies hold everywhere. Using SS for hold would be wrong: slow transistors help hold (more data delay = easier hold), so you must check the worst case for hold: FF corner where data arrives fastest.')">SS is used for hold because slow chips need more setup margin. FF is used for setup because fast chips are timing-aggressive.</button>
+        <button class="qopt" onclick="qa(this,true,'Setup: you need the SLOWEST possible timing — if the chip passes setup at SS corner (slowest process + lowest voltage + highest temp), it passes at all other corners too. Hold: you need the FASTEST possible timing — if data arrives too fast at FF corner and still satisfies hold, it satisfies hold everywhere. Using SS for hold would be wrong: slow transistors help hold (more data delay = easier hold), so you must check the worst case for hold: FF corner where data arrives fastest.')">Setup checks the slowest operation (SS corner = slowest logic → hardest setup). Hold checks the fastest operation (FF corner = fastest data path → data could arrive too early → hardest hold).</button>
+        <button class="qopt" onclick="qa(this,false,'Setup: you need the SLOWEST possible timing — if the chip passes setup at SS corner (slowest process + lowest voltage + highest temp), it passes at all other corners too. Hold: you need the FASTEST possible timing — if data arrives too fast at FF corner and still satisfies hold, it satisfies hold everywhere. Using SS for hold would be wrong: slow transistors help hold (more data delay = easier hold), so you must check the worst case for hold: FF corner where data arrives fastest.')">Both setup and hold use the same SS corner — the choice of corner depends on the clock frequency only.</button>
+        <button class="qopt" onclick="qa(this,false,'Setup: you need the SLOWEST possible timing — if the chip passes setup at SS corner (slowest process + lowest voltage + highest temp), it passes at all other corners too. Hold: you need the FASTEST possible timing — if data arrives too fast at FF corner and still satisfies hold, it satisfies hold everywhere. Using SS for hold would be wrong: slow transistors help hold (more data delay = easier hold), so you must check the worst case for hold: FF corner where data arrives fastest.')">SS corner is used for digital logic; FF corner is used for analog circuits only.</button>
+      </div>
+      <div class="qexp">Setup violation = data arrives too LATE. Worst case = slowest logic = SS (slow-slow process, 0.9V, 125°C). If setup passes at SS, it passes everywhere because all other corners are faster. Hold violation = data arrives too EARLY. Worst case = fastest logic = FF (fast-fast process, 1.1V, -40°C). At FF corner, logic is fastest and data races to the capture FF quickest — if hold is satisfied here, it's satisfied everywhere. You check the extreme that makes each problem hardest.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q5. What is the difference between DRC and LVS? A design with zero DRC errors can still fail LVS — give an example of why.</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'DRC checks the physical layout against foundry manufacturing rules (spacing, width, density). LVS checks that the physical layout circuit matches the schematic/netlist. They check completely different things. DRC-clean layout with LVS error: the router accidentally merged two adjacent nets (a short) — both wires are individually DRC-clean (proper width and spacing from other wires) but they are electrically connected when they should be separate. The LVS extractor finds this short; DRC does not see it because each individual wire obeys the rules.')">DRC and LVS check the same things — they are redundant checks run by different tools.</button>
+        <button class="qopt" onclick="qa(this,false,'DRC checks the physical layout against foundry manufacturing rules (spacing, width, density). LVS checks that the physical layout circuit matches the schematic/netlist. They check completely different things. DRC-clean layout with LVS error: the router accidentally merged two adjacent nets (a short) — both wires are individually DRC-clean (proper width and spacing from other wires) but they are electrically connected when they should be separate. The LVS extractor finds this short; DRC does not see it because each individual wire obeys the rules.')">DRC is for timing violations; LVS is for power violations.</button>
+        <button class="qopt" onclick="qa(this,true,'DRC checks the physical layout against foundry manufacturing rules (spacing, width, density). LVS checks that the physical layout circuit matches the schematic/netlist. They check completely different things. DRC-clean layout with LVS error: the router accidentally merged two adjacent nets (a short) — both wires are individually DRC-clean (proper width and spacing from other wires) but they are electrically connected when they should be separate. The LVS extractor finds this short; DRC does not see it because each individual wire obeys the rules.')">DRC = layout obeys manufacturing rules. LVS = layout circuit matches netlist. Example: two nets accidentally shorted by a via — each individual wire is DRC-clean but they are connected when they shouldn't be, causing an LVS short error.</button>
+        <button class="qopt" onclick="qa(this,false,'DRC checks the physical layout against foundry manufacturing rules (spacing, width, density). LVS checks that the physical layout circuit matches the schematic/netlist. They check completely different things. DRC-clean layout with LVS error: the router accidentally merged two adjacent nets (a short) — both wires are individually DRC-clean (proper width and spacing from other wires) but they are electrically connected when they should be separate. The LVS extractor finds this short; DRC does not see it because each individual wire obeys the rules.')">LVS failures are always caused by DRC violations — fixing DRC automatically fixes LVS.</button>
+      </div>
+      <div class="qexp">DRC = "does each shape obey the foundry's manufacturing rules?" (min width, min spacing, density, etc.) LVS = "does the physical circuit extracted from the layout match the intended schematic/netlist?" These check orthogonal things. Example of DRC-clean, LVS-fail: two nets (net_A and net_B) are accidentally connected by a stray via. Each individual metal shape obeys DRC rules (proper width and spacing to everything else). But the LVS extractor finds that net_A and net_B are shorted — this is an LVS "short" error. The chip would be functionally wrong even though the layout is geometrically legal.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q6. After routing, you find 15 spacing DRC violations all clustered in one corner of the die. What is the root cause and what is the correct fix?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,true,'Clustered DRC violations = routing congestion. The router was forced into a small area with too many wires and too few tracks — it violated spacing to fit everything. Fix: reduce cell density in that area (add placement blockages, lower utilization, move macros away from that corner). Then re-run routing. Alternatively, check if a macro is blocking routing tracks in that area (macro halos may be too small).')">Routing congestion — too many wires, too few tracks in that region. Fix: reduce cell density there by adding placement blockages or reducing utilization, then re-route.</button>
+        <button class="qopt" onclick="qa(this,false,'Clustered DRC violations = routing congestion. The router was forced into a small area with too many wires and too few tracks — it violated spacing to fit everything. Fix: reduce cell density in that area (add placement blockages, lower utilization, move macros away from that corner). Then re-run routing. Alternatively, check if a macro is blocking routing tracks in that area (macro halos may be too small).')">The foundry PDK has incorrect spacing rules — contact the PDK team to fix the rule file.</button>
+        <button class="qopt" onclick="qa(this,false,'Clustered DRC violations = routing congestion. The router was forced into a small area with too many wires and too few tracks — it violated spacing to fit everything. Fix: reduce cell density in that area (add placement blockages, lower utilization, move macros away from that corner). Then re-run routing. Alternatively, check if a macro is blocking routing tracks in that area (macro halos may be too small).')">The cells in that corner are from the wrong library — replace them with cells from the correct technology.</button>
+        <button class="qopt" onclick="qa(this,false,'Clustered DRC violations = routing congestion. The router was forced into a small area with too many wires and too few tracks — it violated spacing to fit everything. Fix: reduce cell density in that area (add placement blockages, lower utilization, move macros away from that corner). Then re-run routing. Alternatively, check if a macro is blocking routing tracks in that area (macro halos may be too small).')">The clock tree has too many buffers in that corner — remove clock buffers to free up routing resources.</button>
+      </div>
+      <div class="qexp">Clustered DRC violations in one area = routing congestion. The router ran out of available routing tracks (the routing supply was less than routing demand in that region) and was forced to violate spacing rules to complete connections. The root cause is too many cells packed into that area — which was set at placement time. Fix: go back to placement, add a placement blockage in that region to push cells away, reduce utilization, or move a macro that was blocking routing tracks. Trying to fix DRC violations at the routing level without fixing the underlying congestion is ineffective.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q7. What is an antenna violation and at what point in the PD flow does it occur?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Antenna violations occur during manufacturing (not simulation). As metal layers are etched one at a time, a long metal segment connected only to a gate (no diffusion connection yet) accumulates charge from the plasma. When this charge exceeds the gate oxide breakdown threshold, it permanently damages the transistor. Fix: insert antenna diode cells (safe path for charge to drain) or add "jumper" vias to a higher metal layer that has a diffusion connection.')">An antenna violation occurs during simulation when a wire carries too much current for too long.</button>
+        <button class="qopt" onclick="qa(this,false,'An antenna violation occurs during simulation when a wire carries too much current for too long.')">An antenna violation is when a wire acts as a radio antenna, causing EMI problems with nearby circuits.</button>
+        <button class="qopt" onclick="qa(this,true,'Antenna violations occur during manufacturing (not simulation). As metal layers are etched one at a time, a long metal segment connected only to a gate (no diffusion connection yet) accumulates charge from the plasma. When this charge exceeds the gate oxide breakdown threshold, it permanently damages the transistor. Fix: insert antenna diode cells (safe path for charge to drain) or add "jumper" vias to a higher metal layer that has a diffusion connection.')">During manufacturing plasma etching, a long metal wire accumulates charge that can permanently destroy the transistor gate oxide it connects to. Antenna ratio (metal area / gate area) must stay below the foundry limit.</button>
+        <button class="qopt" onclick="qa(this,false,'Antenna violations occur during manufacturing (not simulation). As metal layers are etched one at a time, a long metal segment connected only to a gate (no diffusion connection yet) accumulates charge from the plasma. When this charge exceeds the gate oxide breakdown threshold, it permanently damages the transistor. Fix: insert antenna diode cells (safe path for charge to drain) or add "jumper" vias to a higher metal layer that has a diffusion connection.')">Antenna violations only occur in power nets, not signal nets.</button>
+      </div>
+      <div class="qexp">Antenna violations are a manufacturing problem, not a simulation problem. During IC fabrication, each metal layer is deposited and etched using plasma. While M3 is being etched, a long M3 wire may be electrically connected only to a transistor gate (the M4 connections haven't been made yet). The plasma charges this "antenna" and current flows into the gate oxide — destroying it if the charge/area ratio exceeds the foundry's limit. Fix options: (1) insert an antenna diode cell (provides a safe discharge path to diffusion), (2) "jump" the wire to a higher metal layer (M4+) earlier in the route — higher metal layers are deposited later, so the antenna is shorter when it's being etched.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q8. A chip has passed DRC and LVS but fails in silicon at the target clock frequency. STA showed zero violations. What could explain this?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Several reasons STA can pass but silicon fails: (1) IR drop not accounted for — actual VDD is lower than nominal, making cells slower → setup violations at the chip level. (2) On-chip variation (OCV) modeling incorrect — different parts of die operate at slightly different process corners. (3) Temperature was wrong in STA. (4) Clock jitter not included in clock uncertainty. (5) Cross-talk timing effects not modeled (SI-aware STA not run). These are why signoff has multiple sign-off checks — STA alone is not sufficient.')">If DRC, LVS, and STA all pass, the chip cannot fail in silicon — it must be a test setup error.</button>
+        <button class="qopt" onclick="qa(this,true,'Several reasons STA can pass but silicon fails: (1) IR drop not accounted for — actual VDD is lower than nominal, making cells slower → setup violations at the chip level. (2) On-chip variation (OCV) modeling incorrect — different parts of die operate at slightly different process corners. (3) Temperature was wrong in STA. (4) Clock jitter not included in clock uncertainty. (5) Cross-talk timing effects not modeled (SI-aware STA not run). These are why signoff has multiple sign-off checks — STA alone is not sufficient.')">Possible causes: IR drop reduces actual VDD below assumed value (cells run slower), on-chip variation not modeled correctly, clock jitter not included in SDC uncertainty, or crosstalk effects not captured in STA.</button>
+        <button class="qopt" onclick="qa(this,false,'Several reasons STA can pass but silicon fails: (1) IR drop not accounted for — actual VDD is lower than nominal, making cells slower → setup violations at the chip level. (2) On-chip variation (OCV) modeling incorrect — different parts of die operate at slightly different process corners. (3) Temperature was wrong in STA. (4) Clock jitter not included in clock uncertainty. (5) Cross-talk timing effects not modeled (SI-aware STA not run). These are why signoff has multiple sign-off checks — STA alone is not sufficient.')">The silicon is defective — send it back to the foundry for re-fabrication.</button>
+        <button class="qopt" onclick="qa(this,false,'Several reasons STA can pass but silicon fails: (1) IR drop not accounted for — actual VDD is lower than nominal, making cells slower → setup violations at the chip level. (2) On-chip variation (OCV) modeling incorrect — different parts of die operate at slightly different process corners. (3) Temperature was wrong in STA. (4) Clock jitter not included in clock uncertainty. (5) Cross-talk timing effects not modeled (SI-aware STA not run). These are why signoff has multiple sign-off checks — STA alone is not sufficient.')">STA is perfectly accurate — if it passes, the chip will always work. The test methodology must be wrong.</button>
+      </div>
+      <div class="qexp">STA is a model — models can be wrong or incomplete. Common reasons: (1) IR drop: STA assumed VDD=1.8V, but actual VDD at the most active cells was 1.6V due to IR drop. Slower. (2) On-chip variation (OCV): different die regions have slightly different process corners. AOCV/POCV models account for this; basic OCV may not. (3) Clock jitter: real clock has cycle-to-cycle jitter that adds to setup uncertainty. If not modeled in SDC set_clock_uncertainty, paths appear to have more margin than they do. (4) Signal integrity: crosstalk can slow a victim net or create false glitches — SI-aware STA (ECSM, CCS models) catches this; basic STA may not. This is why advanced sign-off runs SI analysis separately.</div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PHASE COMPLETE BANNER -->
+<div class="phase-complete">
+  <div class="pc-badge">✓ Phase 2 Complete — All 10 Days</div>
+  <div class="pc-title">You Now Know Physical Design</div>
+  <div class="pc-desc">You have covered the complete RTL-to-GDSII flow: CMOS fundamentals, timing analysis, floorplanning, power planning, placement, CTS, routing, STA, and signoff. Every step, every tool command, every metric. You have run real tools on a real design and seen real results. This is the foundation that takes engineers years of industry experience to build. You built it in 10 days.</div>
+  <div class="pc-next">→ Next: Phase 3 — Advanced PD Topics (STA · SI · Low Power · DFT · ECO)</div>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <p>Phase 2 · Part 3 · CTS · Routing · STA · Signoff &nbsp;|&nbsp; Days 22–24 &nbsp;|&nbsp; <em>Physical Design Engineer Training</em></p>
+  <p style="margin-top:5px;font-size:10px">Phase 2 complete. All three files: Part1_VLSI_Fundamentals · Part2_Floorplan_Power_Placement · Part3_CTS_Routing_STA_Signoff</p>
+</footer>
+
+<script>
+const nl=document.querySelectorAll('.nav a');
+function hl(el){nl.forEach(a=>a.classList.remove('on'));el.classList.add('on')}
+const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){const id=en.target.id;nl.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+id))}})},{threshold:0.2});
+document.querySelectorAll('.day').forEach(s=>obs.observe(s));
+function qa(btn,correct){
+  const card=btn.closest('.qcard');
+  card.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'ok':'no');
+  if(!correct)card.querySelectorAll('.qopt').forEach(b=>{if(!b.classList.contains('no'))b.classList.add('ok')});
+  const exp=card.querySelector('.qexp');
+  if(exp)exp.classList.add('show');
+}
+function toggleCheck(box){
+  box.classList.toggle('checked');
+  box.textContent = box.classList.contains('checked') ? '✓' : '';
+  const all=document.querySelectorAll('.cl-box');
+  const done=[...all].filter(b=>b.classList.contains('checked')).length;
+  // subtle progress feedback
+}
+</script>
+</body>
+</html>

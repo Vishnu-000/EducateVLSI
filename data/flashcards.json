@@ -1,0 +1,594 @@
+[
+  {
+    "id": 1,
+    "question": "What is the primary function of the Synthesis stage in the ASIC design flow?",
+    "answer": "It is the process of converting the Register Transfer Level (RTL) code into a technology-dependent gate-level netlist.",
+    "category": "ASIC Flow & Design Files",
+    "tag": "ASIC Flow",
+    "difficulty": "Fundamental"
+  },
+  {
+    "id": 2,
+    "question": "In the ASIC design flow, what is the purpose of the Floorplan stage?",
+    "answer": "It determines the die and core area, places macros and ports/pads, performs power planning, and creates site rows for standard cells.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 3,
+    "question": "What is the main objective of the Placement stage in physical design?",
+    "answer": "To automatically assign correct, non-overlapping positions to standard cells inside the core area.",
+    "category": "Placement & Optimization",
+    "tag": "Placement",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 4,
+    "question": "What is Clock Tree Synthesis (CTS) in the physical design flow?",
+    "answer": "It is the process of building a clock distribution network using buffers and inverters to balance clock skew and minimize insertion delay.",
+    "category": "ASIC Flow & Design Files",
+    "tag": "ASIC Flow",
+    "difficulty": "Fundamental"
+  },
+  {
+    "id": 5,
+    "question": "What is the function of the Routing stage in the ASIC design flow?",
+    "answer": "It physically connects all the cells, macros, and I/O ports using metal layers, converting logical connections into physical ones.",
+    "category": "ASIC Flow & Design Files",
+    "tag": "ASIC Flow",
+    "difficulty": "Fundamental"
+  },
+  {
+    "id": 6,
+    "question": "The final stage before tape-out, where checks like DRC, LVS, and LEC are performed to ensure layout quality, is known as _____.",
+    "answer": "Signoff",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 7,
+    "question": "Which input file for Physical Design (PD) contains the logical connectivity of all standard cells and macros?",
+    "answer": "The Verilog Netlist (.v file).",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 8,
+    "question": "Which input file provides timing constraints like clock definitions, input/output delays, and timing exceptions to the PD tools?",
+    "answer": "The Synopsys Design Constraints (.sdc) file.",
+    "category": "General VLSI",
+    "tag": "ASIC",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": 9,
+    "question": "The timing, functionality, and power information of standard cells and macros are contained in the _____ libraries.",
+    "answer": "Logical (.lib or .db)",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 10,
+    "question": "Which file format contains the physical information of standard cells and macros, such as size, pin locations, and obstruction layers?",
+    "answer": "The Layout Exchange Format (.lef) file or .Fram_views for Synopsys.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 11,
+    "question": "The _____ file contains manufacturing grid definitions, layer characteristics (pitch, width, spacing), and physical design rules provided by the foundry.",
+    "answer": "Technology File (.tf)",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 12,
+    "question": "Which files are used for calculating net delays by providing R-C parasitics of metal layers per unit length?",
+    "answer": "TLU+ files (.tlup).",
+    "category": "General VLSI",
+    "tag": "ASIC",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": 13,
+    "question": "In floorplanning, what is the term for the ratio of the height and width of the core area?",
+    "answer": "Aspect ratio.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 14,
+    "question": "What does 'core utilization' represent in the context of floorplanning?",
+    "answer": "It defines the percentage of the core area that is occupied by standard cells, macros, and other cells.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 15,
+    "question": "In floorplanning, what are fly-lines used for?",
+    "answer": "Fly-lines show the connectivity between macros and other components (like other macros or I/O ports) to help minimize interconnect length during placement.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 16,
+    "question": "What is a 'keep-out margin' or 'halo' when placing macros?",
+    "answer": "It is a specified area around a macro where no standard cells can be placed, which helps avoid congestion and protect macro pins.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 17,
+    "question": "What is the difference between a hard placement blockage and a soft placement blockage?",
+    "answer": "A hard blockage prevents any cell (including buffers/inverters) from being placed, while a soft blockage allows buffers/inverters to be placed during optimization.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 18,
+    "question": "A _____ blockage limits the cell density in a specified area to a certain percentage.",
+    "answer": "partial",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 19,
+    "question": "What is the purpose of a tap cell in physical design?",
+    "answer": "It is a special non-logic cell with well and substrate ties (to VDD and ground) to prevent the latch-up problem.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 20,
+    "question": "What are Tie-Cells (Tie-High/Tie-Low) used for in a design?",
+    "answer": "They provide a constant high (logic 1) or low (logic 0) signal to the inputs of gates, avoiding direct connection to power rails.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 21,
+    "question": "What is the function of Filler Cells in physical design?",
+    "answer": "They are added after routing to ensure n-well and substrate continuity and to meet density rules, which simplifies the manufacturing process.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 22,
+    "question": "What is the purpose of inserting Decap (Decoupling Capacitor) Cells?",
+    "answer": "They act as small capacitors between VDD and GND to provide extra charge to logic cells during high current draw, thereby reducing IR drop.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 23,
+    "question": "Why are End-cap Cells placed at the ends of cell rows and around block boundaries?",
+    "answer": "They protect the gates of adjacent standard cells from damage during manufacturing and help avoid base layer DRC violations.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 24,
+    "question": "In power planning, what is the function of power 'rings'?",
+    "answer": "Rings are wide metal tracks that carry VDD and VSS around the periphery of the chip or block.",
+    "category": "Floorplanning & Power Planning",
+    "tag": "Floorplan",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 25,
+    "question": "The process of moving cells to legal locations on the placement grid and eliminating any overlap after coarse placement is called _____.",
+    "answer": "Legalization",
+    "category": "Placement & Optimization",
+    "tag": "Placement",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 26,
+    "question": "What is the purpose of scan-chain reordering during the placement stage?",
+    "answer": "It rearranges the scan chains based on the physical placement of flip-flops to reduce wire length, which improves timing and routability.",
+    "category": "Placement & Optimization",
+    "tag": "Placement",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 27,
+    "question": "What is High Fanout Net Synthesis (HFNS)?",
+    "answer": "It is the process of inserting buffers into nets with a high number of fanouts (like reset or scan enable) to reduce delay and transition time issues.",
+    "category": "ASIC Flow & Design Files",
+    "tag": "ASIC Flow",
+    "difficulty": "Fundamental"
+  },
+  {
+    "id": 28,
+    "question": "Name one technique used by placement tools to optimize for timing violations.",
+    "answer": "Cell sizing (upsizing/downsizing), Vt swapping, buffering, or cloning.",
+    "category": "Placement & Optimization",
+    "tag": "Placement",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 29,
+    "question": "What is congestion in the context of physical design?",
+    "answer": "It is a situation where the number of required routing tracks in a given area exceeds the number of available routing tracks.",
+    "category": "Placement & Optimization",
+    "tag": "Placement",
+    "difficulty": "Core PD"
+  },
+  {
+    "id": 30,
+    "question": "How does static timing analysis (STA) differ from dynamic timing analysis (DTA)?",
+    "answer": "STA checks timing requirements without using input vectors, making it faster, while DTA verifies functionality by applying input vectors.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 31,
+    "question": "In STA, what is a 'timing path'?",
+    "answer": "A point-to-point path in a design through which data can propagate, typically starting from an input port or a flip-flop's clock pin and ending at an output port or a flip-flop's data pin.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 32,
+    "question": "What is 'setup time' for a flip-flop?",
+    "answer": "It is the minimum amount of time the data signal must be held steady *before* the active clock edge for it to be reliably sampled.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 33,
+    "question": "What is 'hold time' for a flip-flop?",
+    "answer": "It is the minimum amount of time the data signal must be held steady *after* the active clock edge for it to be reliably sampled.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 34,
+    "question": "In STA, what does 'slack' represent?",
+    "answer": "Slack is the difference between the required time and the arrival time for a signal at a particular point.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 35,
+    "question": "What is the difference between source latency and network latency of a clock?",
+    "answer": "Source latency is the delay from the clock source to the clock definition port, while network latency is the delay from the clock definition port to the clock pins of sequential elements.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 36,
+    "question": "What is clock skew?",
+    "answer": "It is the time difference between the arrivals of the clock signal at different registers in a clock domain.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 37,
+    "question": "What is the difference between local skew and global skew?",
+    "answer": "Local skew is the clock skew between two related flip-flops (launch and capture), while global skew is the difference between the maximum and minimum insertion delays in the entire design.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 38,
+    "question": "A situation where the capture clock arrives later than the launch clock is known as _____ skew.",
+    "answer": "positive",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 39,
+    "question": "What is clock jitter?",
+    "answer": "It refers to the short-term variations of a clock edge with respect to its ideal position in time.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 40,
+    "question": "How is clock uncertainty defined before and after CTS?",
+    "answer": "Before CTS, it includes skew + jitter + margin; after CTS, it is typically just jitter + margin, as skew is calculated from the physical tree.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 41,
+    "question": "What is a 'multi-cycle path' timing exception?",
+    "answer": "It is a path that is intentionally designed to take more than one clock cycle for data to propagate from the start point to the end point.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 42,
+    "question": "What is a 'false path' in STA?",
+    "answer": "A path that physically exists in the design but is logically or functionally inactive, meaning no data is actually transferred through it.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 43,
+    "question": "What is the key characteristic of High Voltage Threshold (HVT) cells?",
+    "answer": "They have low leakage power but are slower, making them suitable for non-timing-critical paths.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 44,
+    "question": "Why are Low Voltage Threshold (LVT) cells used in timing-critical paths?",
+    "answer": "They are faster (high speed) but have higher leakage power.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 45,
+    "question": "The phenomenon where a longer combinational path in a latch-based design borrows time from a subsequent, shorter path is called _____.",
+    "answer": "time borrowing or cycle stealing",
+    "category": "General VLSI",
+    "tag": "ASIC",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": 46,
+    "question": "What is a crosstalk glitch?",
+    "answer": "It is a voltage spike (noise) induced on a static victim net due to the switching of a neighbouring aggressor net.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 47,
+    "question": "What is crosstalk delta delay?",
+    "answer": "It is the change (increase or decrease) in the delay of a switching victim net caused by the simultaneous switching of a neighbouring aggressor net.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 48,
+    "question": "When does crosstalk cause an increase in delay on the victim net?",
+    "answer": "When the aggressor and victim nets switch in opposite directions.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 49,
+    "question": "What is 'net shielding' as a technique to prevent crosstalk?",
+    "answer": "It involves inserting a static net (connected to VDD or VSS) between the aggressor and victim nets to block the coupling capacitance.",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 50,
+    "question": "What is the 'Antenna Effect' or 'Plasma Induced Gate Oxide Damage'?",
+    "answer": "It is damage to the gate oxide of a transistor caused by charge accumulation on long metal interconnects during plasma etching in the fabrication process.",
+    "category": "Signal Integrity & Reliability",
+    "tag": "SI & Reliability",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": 51,
+    "question": "What is one way to fix an antenna violation?",
+    "answer": "By inserting a reverse-biased antenna diode near the gate to drain excess charge, or by using metal hopping to a higher layer.",
+    "category": "Signal Integrity & Reliability",
+    "tag": "SI & Reliability",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": 52,
+    "question": "What is electromigration (EM)?",
+    "answer": "It is the drift of metal ions in an interconnect due to the momentum transfer from a high-density flow of electrons, which can lead to open or short circuits.",
+    "category": "Signal Integrity & Reliability",
+    "tag": "SI & Reliability",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": 53,
+    "question": "The formation of _____ in an interconnect due to electromigration can cause an open circuit.",
+    "answer": "voids",
+    "category": "Signal Integrity & Reliability",
+    "tag": "SI & Reliability",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": 54,
+    "question": "The accumulation of metal ions into a _____ due to electromigration can cause a short circuit with a neighbouring wire.",
+    "answer": "hillock",
+    "category": "Signal Integrity & Reliability",
+    "tag": "SI & Reliability",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": 55,
+    "question": "How do clock buffers differ from normal buffers?",
+    "answer": "Clock buffers are designed to have equal rise and fall times to maintain a 50% duty cycle and avoid pulse width violations.",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 56,
+    "question": "What are Non-Default Rules (NDRs) used for during CTS and routing?",
+    "answer": "They are user-defined routing rules, such as double width and double spacing, applied to clock nets to make them less sensitive to crosstalk and EM effects.",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 57,
+    "question": "What is an 'exclude pin' clock tree exception?",
+    "answer": "It is a pin (like a non-clock input) that is excluded from clock tree timing calculations and optimization, though DRC fixing is still performed.",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 58,
+    "question": "What is a 'stop pin' in the context of CTS?",
+    "answer": "It is an endpoint of the clock tree, such as a flip-flop's clock pin, that is used for delay balancing calculations.",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 59,
+    "question": "What is a 'float pin' clock tree exception, often used for hard macros?",
+    "answer": "It is a pin with special insertion delay requirements where balancing is done by considering the macro's internal clock latency.",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 60,
+    "question": "What is the purpose of an Integrated Clock Gating (ICG) cell?",
+    "answer": "It stops the clock signal from propagating to a group of logic cells when they are not in use, thereby reducing dynamic power consumption.",
+    "category": "Clock Tree Synthesis (CTS)",
+    "tag": "CTS",
+    "difficulty": "Clocking"
+  },
+  {
+    "id": 61,
+    "question": "The routing stage that identifies a general path for nets without adhering to DRC rules is called _____ routing.",
+    "answer": "Global",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 62,
+    "question": "The routing stage that performs the final, DRC-aware physical connections on specific tracks is called _____ routing.",
+    "answer": "Detailed",
+    "category": "Static Timing Analysis (STA)",
+    "tag": "STA",
+    "difficulty": "Timing"
+  },
+  {
+    "id": 63,
+    "question": "What is Design Rule Check (DRC) in physical verification?",
+    "answer": "It is the process of checking if the physical layout adheres to the fabrication-specific geometric rules provided by the foundry.",
+    "category": "Routing & Physical Verification",
+    "tag": "Routing & Signoff",
+    "difficulty": "Verification"
+  },
+  {
+    "id": 64,
+    "question": "What is verified during a Layout Versus Schematic (LVS) check?",
+    "answer": "LVS verifies that the connectivity of the extracted layout netlist matches the connectivity of the original source (Verilog) netlist.",
+    "category": "Routing & Physical Verification",
+    "tag": "Routing & Signoff",
+    "difficulty": "Verification"
+  },
+  {
+    "id": 65,
+    "question": "What is the purpose of an Electrical Rule Check (ERC)?",
+    "answer": "ERC checks for electrical connectivity issues in the layout, such as floating devices, shorted power/ground nets, or incorrect well tap connections.",
+    "category": "Routing & Physical Verification",
+    "tag": "Routing & Signoff",
+    "difficulty": "Verification"
+  },
+  {
+    "id": 66,
+    "question": "Which ICC2 command is used to invoke the Graphical User Interface (GUI)?",
+    "answer": "icc2_shell > start_gui",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 67,
+    "question": "Which ICC2 command is used to create a new project library?",
+    "answer": "create_lib",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 68,
+    "question": "What is the ICC2 command to import a Verilog netlist into the design?",
+    "answer": "read_verilog",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 69,
+    "question": "What command is used in ICC2 to check if the netlist/design is proper and if libraries are correct?",
+    "answer": "check_netlist",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 70,
+    "question": "The ICC2 command `legalize_placement` is used for what purpose?",
+    "answer": "It places the standard cells in legalized locations on the site rows.",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 71,
+    "question": "What is the purpose of the `report_congestion` command in ICC2?",
+    "answer": "It generates a report on the routing congestion in the design, helping to identify problem areas.",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 72,
+    "question": "Which ICC2 command is used to build the clock tree and perform optimization?",
+    "answer": "clock_opt",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 73,
+    "question": "The command `route_global` performs what function in the routing flow?",
+    "answer": "It performs global routing, which determines the general paths for nets.",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  },
+  {
+    "id": 74,
+    "question": "What does the `report_timing` command in ICC2 do?",
+    "answer": "It generates a detailed static timing analysis report for specified paths in the design.",
+    "category": "EDA Tools & ICC2 Commands",
+    "tag": "ICC2",
+    "difficulty": "Hands-On"
+  }
+]

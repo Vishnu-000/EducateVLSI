@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Phase 2 · Part 2 — Floorplanning, Power Planning &amp; Placement</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#0c0f0a;--bg2:#111408;--bg3:#161a0e;--bg4:#1c2214;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#dde8d0;--muted:#607050;--muted2:#3a4430;
+  --green:#4ade80;--lime:#a3e635;--blue:#38bdf8;--amber:#fbbf24;
+  --orange:#fb923c;--purple:#c084fc;--teal:#2dd4bf;--red:#f87171;--cyan:#67e8f9;
+  --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;--body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.65}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 15% 20%,rgba(74,222,128,.03) 0%,transparent 40%),radial-gradient(circle at 85% 80%,rgba(163,230,53,.03) 0%,transparent 40%);pointer-events:none;z-index:0}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(12,15,10,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;overflow-x:auto;padding:0 28px}
+.nav-brand{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--lime);letter-spacing:.05em;padding:14px 0;margin-right:22px;white-space:nowrap}
+.nav a{display:block;padding:13px 15px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.nav a:hover{color:var(--text)}
+.nav a.on{color:var(--lime);border-bottom-color:var(--lime)}
+
+/* HERO */
+.hero{padding:56px 28px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;right:0;width:50%;height:100%;background:radial-gradient(ellipse at 80% 50%,rgba(74,222,128,.05),transparent 65%);pointer-events:none}
+.wrap{max-width:1080px;margin:0 auto;position:relative}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--lime);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--lime);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:var(--display);font-size:clamp(30px,5vw,52px);font-weight:800;color:#fff;line-height:1.05;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--lime)}
+.hero-sub{font-size:14px;color:var(--muted);max-width:580px;line-height:1.75;margin-bottom:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:4px;border:1px solid var(--border);color:var(--muted);background:var(--bg2)}
+.chip b{color:var(--text)}
+
+.page{max-width:1080px;margin:0 auto;padding:36px 28px}
+
+/* DAY */
+.day{scroll-margin-top:58px;margin-bottom:64px}
+.day-hd{display:flex;align-items:flex-start;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.day-badge{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;padding:4px 11px;border-radius:4px;white-space:nowrap;margin-top:3px;flex-shrink:0}
+.db-green{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25)}
+.db-lime{background:rgba(163,230,53,.12);color:var(--lime);border:1px solid rgba(163,230,53,.25)}
+.db-teal{background:rgba(45,212,191,.12);color:var(--teal);border:1px solid rgba(45,212,191,.25)}
+.day-ttl{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;line-height:1.15}
+.day-desc{font-size:13px;color:var(--muted);max-width:660px;line-height:1.7}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.card-hd{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.015)}
+.card-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.ci-g{background:rgba(74,222,128,.1);color:var(--green)}
+.ci-l{background:rgba(163,230,53,.1);color:var(--lime)}
+.ci-t{background:rgba(45,212,191,.1);color:var(--teal)}
+.ci-a{background:rgba(251,191,36,.1);color:var(--amber)}
+.ci-b{background:rgba(56,189,248,.1);color:var(--blue)}
+.ci-p{background:rgba(192,132,252,.1);color:var(--purple)}
+.card-ttl{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.card-body{padding:18px}
+
+/* CONCEPTS */
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.cc{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:13px 15px}
+.cc-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.lbl-g{color:var(--green)}.lbl-l{color:var(--lime)}.lbl-t{color:var(--teal)}.lbl-a{color:var(--amber)}.lbl-b{color:var(--blue)}.lbl-p{color:var(--purple)}.lbl-r{color:var(--red)}.lbl-o{color:var(--orange)}
+.cc-ttl{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.cc-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse}
+.tbl tr{border-bottom:1px solid var(--border)}
+.tbl tr:last-child{border-bottom:none}
+.tbl tr:hover{background:rgba(74,222,128,.02)}
+.tbl td{padding:9px 12px;vertical-align:top}
+.tbl td:first-child{width:36%;min-width:150px}
+.tc{font-family:var(--mono);font-size:11.5px;padding:3px 8px;border-radius:3px;display:inline-block;white-space:nowrap}
+.tcg{color:var(--green);background:rgba(74,222,128,.08)}
+.tcl{color:var(--lime);background:rgba(163,230,53,.08)}
+.tct{color:var(--teal);background:rgba(45,212,191,.08)}
+.tca{color:var(--amber);background:rgba(251,191,36,.08)}
+.tcb{color:var(--blue);background:rgba(56,189,248,.08)}
+.tcp{color:var(--purple);background:rgba(192,132,252,.08)}
+.td{font-size:13px;color:var(--text);line-height:1.5}
+.td-pd{font-size:11.5px;color:var(--teal);margin-top:3px;font-style:italic}
+.td-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* CODE */
+.codeblock{background:#060a04;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.cb-hd{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}.dots span{width:9px;height:9px;border-radius:50%}
+.dots span:nth-child(1){background:#ff5f57}.dots span:nth-child(2){background:#febc2e}.dots span:nth-child(3){background:#28c840}
+.cb-fn{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:4px}
+.cb-body{padding:18px;font-family:var(--mono);font-size:12px;line-height:1.85;overflow-x:auto;white-space:pre;color:#b8d4a0}
+.ck{color:#f9a8d4}.cs{color:#bbf7d0}.cn{color:#fde68a}.cf{color:#c4b5fd}.cm{color:#4a5a38}.cv{color:#fdba74}.co{color:#7dd3fc}
+
+/* LAB */
+.lab-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.lab-item{display:flex;gap:13px;align-items:flex-start}
+.lab-n{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:2px;color:#060a04}
+.ln-g{background:var(--green)}.ln-l{background:var(--lime);color:#1a2210}.ln-t{background:var(--teal)}
+.lab-txt{font-size:13px;color:var(--muted);line-height:1.65}
+.lab-txt code{font-family:var(--mono);font-size:11px;color:var(--orange);background:rgba(251,146,60,.1);padding:1px 5px;border-radius:3px}
+.lab-txt strong{color:var(--text);font-weight:500}
+
+/* CALLOUTS */
+.cbox{display:flex;gap:11px;border-radius:6px;padding:13px 15px;margin-bottom:14px;font-size:13px;line-height:1.65}
+.cbox-tip{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);color:#c49720}
+.cbox-win{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.2);color:var(--green)}
+.cbox-info{background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.2);color:#60b8e0}
+.cbox-warn{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);color:#d06868}
+.cbox-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ANALOGY */
+.analogy{background:linear-gradient(135deg,rgba(74,222,128,.05),rgba(45,212,191,.04));border:1px solid rgba(74,222,128,.18);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+.analogy-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--green);margin-bottom:6px;text-transform:uppercase}
+.analogy-txt{font-size:13px;color:var(--text);line-height:1.7}
+
+/* FLOORPLAN VISUAL */
+.fp-vis{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px;position:relative}
+.fp-die{border:2px solid var(--lime);border-radius:4px;padding:12px;position:relative;min-height:200px;background:rgba(163,230,53,.03)}
+.fp-ring{border:3px solid var(--orange);border-radius:3px;padding:10px;position:relative;background:rgba(251,146,60,.05)}
+.fp-ring-lbl{position:absolute;top:-10px;left:8px;font-family:var(--mono);font-size:9px;background:var(--bg3);padding:0 5px;color:var(--orange)}
+.fp-core{border:2px dashed var(--green);border-radius:3px;padding:10px;background:rgba(74,222,128,.04);min-height:120px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.fp-core-lbl{position:absolute;top:-9px;left:8px;font-family:var(--mono);font-size:9px;background:var(--bg3);padding:0 5px;color:var(--green)}
+.fp-macro{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--blue)}
+.fp-cell-area{background:rgba(74,222,128,.08);border:1px dashed rgba(74,222,128,.3);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--green)}
+.fp-io{display:flex;justify-content:space-between;margin-bottom:4px}
+.fp-io-pin{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);border-radius:2px;padding:2px 7px;font-family:var(--mono);font-size:9px;color:var(--amber)}
+
+/* POWER GRID VISUAL */
+.pg-vis{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;overflow:hidden;margin-bottom:14px}
+.pg-svg{display:block;width:100%;height:180px}
+
+/* QUIZ */
+.quiz-wrap{display:flex;flex-direction:column;gap:14px}
+.qcard{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:16px}
+.qtxt{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:7px}
+.qopt{padding:9px 14px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;text-align:left;font-family:var(--body);transition:all .15s;width:100%}
+.qopt:hover:not(:disabled){border-color:rgba(74,222,128,.35);color:var(--text);background:rgba(74,222,128,.03)}
+.qopt.ok{border-color:var(--green)!important;color:var(--green)!important;background:rgba(74,222,128,.07)!important}
+.qopt.no{border-color:var(--red)!important;color:var(--red)!important;background:rgba(248,113,113,.07)!important}
+.qexp{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.6;display:none;padding:10px 13px;background:rgba(74,222,128,.05);border-radius:5px;border-left:2px solid var(--green)}
+.qexp.show{display:block}
+
+.divider{height:1px;background:var(--border);margin:48px 0}
+footer{border-top:1px solid var(--border);padding:28px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted2)}
+footer em{color:var(--lime);font-style:normal}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:99px}
+@media(max-width:680px){.page,.hero{padding-left:16px;padding-right:16px}.nav{padding:0 12px}.cg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">PD · Phase 2 · Part 2</div>
+  <a href="#day18" onclick="hl(this)">Day 18</a>
+  <a href="#day19" onclick="hl(this)">Day 19</a>
+  <a href="#day20" onclick="hl(this)">Day 20</a>
+  <a href="#day21" onclick="hl(this)">Day 21</a>
+  <a href="#quiz" onclick="hl(this)">Quiz</a>
+</nav>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Phase 2 · Part 2 · PD Core Steps 1–3</div>
+    <h1>Floorplanning · Power<br><em>Planning · Placement</em></h1>
+    <p class="hero-sub">Days 18–21 — The first three steps of physical design. Every chip starts with a floorplan. Every chip needs power. Every cell must be placed. These are the skills that define a PD engineer.</p>
+    <div class="chips">
+      <div class="chip">Days <b>18–21</b></div>
+      <div class="chip">Week <b>4</b></div>
+      <div class="chip">Topics <b>Floorplan · Power Grid · Placement · Timing-driven</b></div>
+      <div class="chip">Tool <b>OpenROAD / Innovus commands</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════════ DAY 18 -->
+<section class="day" id="day18">
+  <div class="day-hd">
+    <div class="day-badge db-green">DAY 18</div>
+    <div>
+      <div class="day-ttl">Floorplanning — Foundations</div>
+      <div class="day-desc">Floorplanning is the most important step in PD. A good floorplan makes everything else easier. A bad floorplan — wrong die size, bad macro placement, poor I/O assignment — creates problems that cannot be fixed downstream. Decisions made here echo through the entire flow.</div>
+    </div>
+  </div>
+
+  <!-- What is floorplanning -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">□</div><div class="card-ttl">What is Floorplanning?</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lbl-g">DEFINITION</div><div class="cc-ttl">Defining the physical canvas</div><div class="cc-body">Floorplanning determines: the die area (how big the chip is), the core area (where cells are placed), I/O pad locations (where signals enter/exit), and macro placement (where large blocks like SRAM, PLL, IP sit).</div></div>
+        <div class="cc"><div class="cc-lbl lbl-l">INPUT</div><div class="cc-ttl">What you need</div><div class="cc-body">Gate-level netlist (.v), SDC constraints, LEF files (cell abstracts), technology file (design rules), die size estimate from architecture, I/O pad list from package team.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-t">OUTPUT</div><div class="cc-ttl">What you produce</div><div class="cc-body">A DEF file with: die boundary defined, placement rows created, macros placed and fixed, I/O pins assigned, power grid stripes planned. Feeds directly into placement.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-a">WHY IT MATTERS</div><div class="cc-ttl">The foundation of timing closure</div><div class="cc-body">A macro placed in the wrong location adds 0.5–2ns of wire delay to every path through it. Multiply that by 1000 paths and you have an impossible timing closure problem that no amount of cell sizing will fix.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floorplan anatomy -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-l">⊞</div><div class="card-ttl">Anatomy of a Floorplan</div></div>
+    <div class="card-body">
+      <div class="fp-vis">
+        <div class="fp-die">
+          <div style="position:absolute;top:-10px;left:10px;font-family:var(--mono);font-size:9px;background:var(--bg3);padding:0 6px;color:var(--lime)">DIE BOUNDARY</div>
+          <div class="fp-io">
+            <div class="fp-io-pin">clk_in</div><div class="fp-io-pin">data_in[7:0]</div><div class="fp-io-pin">vdd_io</div><div class="fp-io-pin">data_out</div><div class="fp-io-pin">rst_n</div>
+          </div>
+          <div class="fp-ring" style="position:relative">
+            <div class="fp-ring-lbl">VDD/VSS RING</div>
+            <div class="fp-core" style="position:relative">
+              <div class="fp-core-lbl">CORE AREA (standard cells placed here)</div>
+              <div class="fp-macro">SRAM_256KB</div>
+              <div class="fp-macro">PLL</div>
+              <div class="fp-cell-area">Standard cell area<br>(placement rows)</div>
+              <div class="fp-macro">USB_PHY</div>
+            </div>
+          </div>
+          <div class="fp-io" style="margin-top:4px">
+            <div class="fp-io-pin">vss_io</div><div class="fp-io-pin">scan_en</div><div class="fp-io-pin">test_mode</div>
+          </div>
+        </div>
+      </div>
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lbl-g">DIE BOUNDARY</div><div class="cc-ttl">The chip's outer edge</div><div class="cc-body">The rectangular boundary of the entire chip. Determined by package constraints and area budget. Usually sized to be an integer multiple of standard cell height × row count.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-a">CORE AREA</div><div class="cc-ttl">Where logic lives</div><div class="cc-body">Inner rectangle where standard cells and macros are placed. Core_area = standard_cell_area / utilization. 70% utilization means 30% is white space for routing and buffers.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-o">I/O RING</div><div class="cc-ttl">Between core and die edge</div><div class="cc-body">I/O pad cells and power pads live between the core and die edge. Signal assignment: clocks go at the top, data buses at the sides, power pads distributed uniformly.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-b">MACROS</div><div class="cc-ttl">Fixed large blocks</div><div class="cc-body">SRAM, PLL, ADC, USB/DDR PHY — pre-designed blocks placed early and "fixed" (locked). Standard cells fill around them. Macro placement determines whether critical paths are short or long.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Die size calculation -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-a">∑</div><div class="card-ttl">Die Area Calculation — How PD Engineers Estimate</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tca">Cell area</span></td><td><span class="td">Sum of all standard cell areas from synthesis area report. Unit: μm². Reported per cell type and total.</span><div class="td-sub">Example: synthesis reports total_cell_area = 42,500 μm²</div></td></tr>
+        <tr><td><span class="tc tca">Utilization target</span></td><td><span class="td">Typically 70–80% for standard cell designs. Lower = easier routing but larger/more expensive die. Higher = cheaper die but routing congestion and timing risk.</span><div class="td-sub">80%+ utilization = congestion risk. 60%- = wasteful area</div></td></tr>
+        <tr><td><span class="tc tca">Core area formula</span></td><td><span class="td"><strong>core_area_μm² = cell_area / utilization_fraction</strong><br>Example: 42,500 / 0.75 = 56,667 μm²</span><div class="td-pd">PD tool command: initialize_floorplan -utilization 0.75</div></td></tr>
+        <tr><td><span class="tc tca">Die side length</span></td><td><span class="td"><strong>side_μm = sqrt(core_area)</strong> (for square die)<br>Example: sqrt(56,667) ≈ 238 μm → die is ~238 × 238 μm</span><div class="td-pd">Adjust aspect ratio for macro placement constraints: tall SRAM → tall/thin die</div></td></tr>
+        <tr><td><span class="tc tca">Aspect ratio</span></td><td><span class="td">width:height ratio of the die. 1:1 is ideal. Forced to be non-square when I/O constraints or macro shapes require it.</span><div class="td-sub">Rule: keep aspect ratio between 0.5 and 2.0 for manageable routing</div></td></tr>
+      </table>
+      <div class="analogy" style="margin-top:14px">
+        <div class="analogy-lbl">Memory Analogy</div>
+        <div class="analogy-txt"><strong>Floorplanning = designing a factory floor.</strong> The die boundary is the building walls. The core area is the factory floor. Macros are the heavy machinery (CNC machines, boilers) you place first because they can't move. Standard cells are the workers at benches placed around the machines. I/O pins are the loading docks at the edges. A good factory layout puts the workers who talk to each other close together — and that's exactly what timing-driven placement does next.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floorplan commands -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">$</div><div class="card-ttl">Floorplan TCL Commands (OpenROAD / Innovus style)</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tcg">initialize_floorplan<br>-utilization 0.75<br>-aspect_ratio 1.0</span></td><td><span class="td">Create floorplan from synthesis area report. Tool calculates die size automatically from utilization target.</span><div class="td-pd">OpenROAD equivalent. Innovus: floorPlan -su 0.75 -ar 1.0</div></td></tr>
+        <tr><td><span class="tc tcg">place_pins -hor_layers M3 -ver_layers M4</span></td><td><span class="td">Automatically distribute I/O pins on specified metal layers around die perimeter.</span><div class="td-pd">Must specify routing layers for pins — layer assignment affects DRC and signal integrity</div></td></tr>
+        <tr><td><span class="tc tcg">macro_placement<br>-macro_name SRAM<br>-location {50 50}</span></td><td><span class="td">Place a macro at specific XY coordinates. Use -orientation for rotation (N, S, E, W, FN, FS, FE, FW).</span><div class="td-pd">After placing: placeInstance SRAM 50 50 -fixed — "fixed" locks it so placement engine ignores it</div></td></tr>
+        <tr><td><span class="tc tcg">create_tracks</span></td><td><span class="td">Create the routing track grid — defines where wires can run on each metal layer.</span><div class="td-pd">Must be done before placement. Track pitch comes from the PDK tech file.</div></td></tr>
+        <tr><td><span class="tc tcg">add_global_connections<br>-net VDD -pin_pattern VDD</span></td><td><span class="td">Connect all VDD pins in the design to the VDD net. Same for VSS. Required before power planning.</span><div class="td-pd">Without this, cells have unconnected power pins — DRC violation at signoff</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Lab 18 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">⚡</div><div class="card-ttl">Lab — Day 18: Floorplan Calculator &amp; Analyser</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day18_floorplan.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 18 — Floorplan calculator and decision advisor</span>
+
+<span class="ck">proc</span> <span class="cf">calc_floorplan</span> {cell_area_um2 utilization aspect_ratio} {
+    <span class="ck">set</span> <span class="cv">core_area</span> [<span class="ck">expr</span> {$cell_area_um2 / $utilization}]
+    <span class="ck">set</span> <span class="cv">width</span>     [<span class="ck">expr</span> {sqrt($core_area * $aspect_ratio)}]
+    <span class="ck">set</span> <span class="cv">height</span>    [<span class="ck">expr</span> {$core_area / $width}]
+    <span class="ck">set</span> <span class="cv">whitespace</span> [<span class="ck">expr</span> {$core_area - $cell_area_um2}]
+
+    <span class="co">puts</span> <span class="cs">"\n=== Floorplan Analysis ==="</span>
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Cell area     : %.0f μm²"</span> $cell_area_um2]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Utilization   : %.0f%%"</span>   [<span class="ck">expr</span> {$utilization*100}]]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Core area     : %.0f μm²"</span> $core_area]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Die size      : %.1f × %.1f μm"</span> $width $height]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  White space   : %.0f μm² (routing + buffers)"</span> $whitespace]
+
+    <span class="cm"># Risk assessment</span>
+    <span class="ck">if</span> {$utilization > 0.85} {
+        <span class="co">puts</span> <span class="cs">"  RISK: HIGH congestion — routing overflow likely"</span>
+    } <span class="ck">elseif</span> {$utilization > 0.78} {
+        <span class="co">puts</span> <span class="cs">"  RISK: MODERATE — monitor congestion closely"</span>
+    } <span class="ck">else</span> {
+        <span class="co">puts</span> <span class="cs">"  RISK: LOW — good margin for routing"</span>
+    }
+
+    <span class="ck">if</span> {$aspect_ratio < 0.5 || $aspect_ratio > 2.0} {
+        <span class="co">puts</span> <span class="cs">"  WARNING: extreme aspect ratio — routing may be difficult"</span>
+    }
+    <span class="co">return</span> [<span class="co">list</span> $width $height $core_area]
+}
+
+<span class="cm"># Test different design scenarios</span>
+<span class="co">puts</span> <span class="cs">"=== Scenario 1: Standard design, 75% utilization ==="</span>
+<span class="cf">calc_floorplan</span> 42500 0.75 1.0
+
+<span class="co">puts</span> <span class="cs">"\n=== Scenario 2: Same cells, 85% utilization (risky!) ==="</span>
+<span class="cf">calc_floorplan</span> 42500 0.85 1.0
+
+<span class="co">puts</span> <span class="cs">"\n=== Scenario 3: With SRAM macro (add 10000 μm²), 70% ==="</span>
+<span class="cf">calc_floorplan</span> [<span class="ck">expr</span> {42500 + 10000}] 0.70 1.0
+
+<span class="co">puts</span> <span class="cs">"\n=== Scenario 4: Non-square (wide SRAM requires AR=1.6) ==="</span>
+<span class="cf">calc_floorplan</span> 42500 0.75 1.6
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-g">01</span><span class="lab-txt">Run all 4 scenarios and compare die sizes. Write down what changes and why.</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">02</span><span class="lab-txt">Add a scenario with <code>utilization = 0.90</code>. Observe the risk warning and note why this is the critical threshold.</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">03</span><span class="lab-txt">Add a proc <code>calc_macro_blockage</code> that takes a macro's width/height and the core area, and returns what percentage of the core is blocked by that macro.</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">04</span><span class="lab-txt"><strong>Key insight:</strong> Why do you NOT want macros to cover more than 30–40% of the core area? Write the answer as a comment — think about where standard cells will go.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ DAY 19 -->
+<section class="day" id="day19">
+  <div class="day-hd">
+    <div class="day-badge db-lime">DAY 19</div>
+    <div>
+      <div class="day-ttl">Power Planning — VDD/VSS Grid Design</div>
+      <div class="day-desc">Every transistor needs power. Power planning creates the metal infrastructure that delivers VDD and GND to every single cell in the design. A weak power grid causes IR drop — voltage droops that slow cells and cause timing violations or, worse, functional failures.</div>
+    </div>
+  </div>
+
+  <!-- Power planning concepts -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-a">⚡</div><div class="card-ttl">Power Grid Structure — Rings, Stripes, Rails</div></div>
+    <div class="card-body">
+      <div class="pg-vis">
+        <svg class="pg-svg" viewBox="0 0 700 170">
+          <!-- VDD horizontal stripes -->
+          <line x1="20" y1="30" x2="680" y2="30" stroke="#fbbf24" stroke-width="4" opacity=".8"/>
+          <line x1="20" y1="75" x2="680" y2="75" stroke="#fbbf24" stroke-width="4" opacity=".8"/>
+          <line x1="20" y1="120" x2="680" y2="120" stroke="#fbbf24" stroke-width="4" opacity=".8"/>
+          <!-- VSS horizontal stripes -->
+          <line x1="20" y1="52" x2="680" y2="52" stroke="#4ade80" stroke-width="4" opacity=".8"/>
+          <line x1="20" y1="97" x2="680" y2="97" stroke="#4ade80" stroke-width="4" opacity=".8"/>
+          <line x1="20" y1="142" x2="680" y2="142" stroke="#4ade80" stroke-width="4" opacity=".8"/>
+          <!-- VDD vertical stripes -->
+          <line x1="100" y1="15" x2="100" y2="155" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <line x1="250" y1="15" x2="250" y2="155" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <line x1="400" y1="15" x2="400" y2="155" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <line x1="550" y1="15" x2="550" y2="155" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <!-- VSS vertical stripes -->
+          <line x1="175" y1="15" x2="175" y2="155" stroke="#4ade80" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <line x1="325" y1="15" x2="325" y2="155" stroke="#4ade80" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <line x1="475" y1="15" x2="475" y2="155" stroke="#4ade80" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <line x1="625" y1="15" x2="625" y2="155" stroke="#4ade80" stroke-width="3" stroke-dasharray="4 3" opacity=".5"/>
+          <!-- Labels -->
+          <text x="30" y="27" fill="#fbbf24" font-size="9" font-family="monospace">VDD stripe (M7)</text>
+          <text x="30" y="49" fill="#4ade80" font-size="9" font-family="monospace">VSS stripe (M7)</text>
+          <text x="106" y="14" fill="#fbbf24" font-size="9" font-family="monospace">M6↕</text>
+          <text x="181" y="14" fill="#4ade80" font-size="9" font-family="monospace">M6↕</text>
+        </svg>
+      </div>
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lbl-a">POWER RINGS</div><div class="cc-ttl">Outer loop around core</div><div class="cc-body">Wide metal loops (M5–M8) running around the entire core perimeter. VDD ring and VSS ring are separate. These are the main power collectors that feed the stripes.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-a">POWER STRIPES</div><div class="cc-ttl">Mesh inside core</div><div class="cc-body">Wide metal wires crossing the core horizontally (one layer) and vertically (another layer). Alternate VDD/VSS stripes. Higher utilization = more stripes needed to reduce IR drop.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-g">POWER RAILS</div><div class="cc-ttl">M1 in every cell row</div><div class="cc-body">Every standard cell row has M1 VDD and VSS rails running horizontally. These connect to standard cell power pins directly. The stripes above connect to these rails via vias.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-b">WELL TAPS</div><div class="cc-ttl">Substrate connections</div><div class="cc-body">Special cells that connect the N-well to VDD and P-substrate to VSS. Required every 20–50μm to prevent latch-up. A missing well tap = potential chip destruction from parasitic SCR activation.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IR drop -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-a">▼</div><div class="card-ttl">IR Drop — Why Power Grid Quality Determines Timing</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lbl-r">WHAT IS IR DROP</div><div class="cc-ttl">Voltage loss in the power grid</div><div class="cc-body">V = I × R. Every metal wire has resistance R. Current I flows through it to power cells. The voltage at the cell = VDD - (I × R_path). If IR drop is large, cells see reduced supply voltage and run slower.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-r">EFFECT ON TIMING</div><div class="cc-ttl">Lower VDD = slower cells</div><div class="cc-body">A 10% IR drop (e.g. 1.8V → 1.62V) increases cell delay by ~15–20%. Your timing was designed for nominal VDD — IR drop adds delay that causes violations. The tool accounts for this in sign-off corners.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-g">FIXES</div><div class="cc-ttl">More metal = less resistance</div><div class="cc-body">1. Add more/wider power stripes. 2. Use higher metal layers (lower resistance per μm). 3. Add decap cells (decoupling capacitors — buffer switching current). 4. Reduce logic density hotspots.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-a">ELECTROMIGRATION (EM)</div><div class="cc-ttl">Current density limit</div><div class="cc-body">Too much current through a narrow wire permanently damages it over time (metal atoms migrate). Each metal layer has a maximum current capacity. PD tool checks EM during routing — violations must be fixed before tapeout.</div></div>
+      </div>
+      <div class="analogy">
+        <div class="analogy-lbl">Memory Analogy</div>
+        <div class="analogy-txt"><strong>Power planning = the city water supply system.</strong> The power ring is the main water main at the city edge. Stripes are the neighbourhood distribution pipes. Cell rails are the house water pipes. IR drop = pressure loss by the time water reaches the last house. Too thin pipes = low pressure = showers don't work (cells run slow). The solution: wider pipes (wider stripes), more pipes (more stripes), and storage tanks (decap cells to buffer demand spikes).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Power commands -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">$</div><div class="card-ttl">Power Planning TCL Commands</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tcg">add_global_connections<br>-net {VDD VSS}<br>-pin_pattern {VDD VSS}</span></td><td><span class="td">Connect all cell power pins to named power nets. Must run before creating power grid.</span><div class="td-pd">Innovus: globalNetConnect VDD -type pgpin -pin VDD -all</div></td></tr>
+        <tr><td><span class="tc tcg">pdngen</span></td><td><span class="td">OpenROAD power distribution network generator. Reads a PDN config script and builds the complete power grid.</span><div class="td-pd">OpenROAD-specific. Innovus has separate commands for rings, stripes, rails.</div></td></tr>
+        <tr><td><span class="tc tcl">addRing -nets {VDD VSS}<br>-width 3.0 -spacing 1.5<br>-layer_top M8 -layer_right M7</span></td><td><span class="td">Create power rings (Innovus). Width 3μm, spacing 1.5μm on top/right metal layers.</span><div class="td-pd">Wider rings = lower resistance = less IR drop. Size based on total chip current consumption.</div></td></tr>
+        <tr><td><span class="tc tcl">addStripe -nets {VDD VSS}<br>-layer M7 -width 2.0<br>-set_to_set_distance 40</span></td><td><span class="td">Add horizontal/vertical power stripes. Stripe pitch (set_to_set_distance) determines IR drop.</span><div class="td-pd">Rule: more stripes for high-utilization and high-frequency designs. 40μm pitch typical for 28nm.</div></td></tr>
+        <tr><td><span class="tc tcl">sroute -connect {corePin}<br>-layerChangeRange {M1 M3}</span></td><td><span class="td">Route standard rail connections — connect M1 cell rails to M2/M3 stripes above.</span><div class="td-pd">Must run after placing stripes. Creates the vertical vias connecting grid layers.</div></td></tr>
+        <tr><td><span class="tc tcl">addWellTap -cell TAPCELL_X4<br>-prefix TAP -distance 20</span></td><td><span class="td">Insert well tap cells every 20μm to prevent latch-up.</span><div class="td-pd">Required for CMOS processes. Spacing comes from foundry design rules. Never skip this step.</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Lab 19 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">⚡</div><div class="card-ttl">Lab — Day 19: Power Grid Advisor Script</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day19_power.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 19 — Power grid advisor and IR drop estimator</span>
+
+<span class="ck">proc</span> <span class="cf">power_grid_advisor</span> {freq_mhz num_cells die_um process_nm} {
+    <span class="cm"># Dynamic power estimate: P = α·C·V²·f (simplified)</span>
+    <span class="ck">set</span> <span class="cv">V</span>       [<span class="ck">expr</span> {$process_nm <= 28 ? 0.9 : ($process_nm <= 65 ? 1.1 : 1.8)}]
+    <span class="ck">set</span> <span class="cv">C_cell</span>  [<span class="ck">expr</span> {$process_nm * 0.0001}] <span class="cm">;# rough fF per cell per nm</span>
+    <span class="ck">set</span> <span class="cv">alpha</span>   0.2                              <span class="cm">;# avg switching activity</span>
+    <span class="ck">set</span> <span class="cv">P_mW</span>   [<span class="ck">expr</span> {$alpha * $C_cell * 1e-15 * $V * $V * $freq_mhz * 1e6 * $num_cells * 1000}]
+
+    <span class="cm"># Grid recommendations</span>
+    <span class="ck">set</span> <span class="cv">I_mA</span>        [<span class="ck">expr</span> {$P_mW / $V}]
+    <span class="ck">set</span> <span class="cv">ring_width</span>  [<span class="ck">expr</span> {max(2.0, $I_mA / 50.0)}]
+    <span class="ck">set</span> <span class="cv">stripe_pitch</span> [<span class="ck">expr</span> {max(20, min(60, int(300.0 / ($I_mA / $die_um))))}]
+    <span class="ck">set</span> <span class="cv">num_stripes</span> [<span class="ck">expr</span> {int($die_um / $stripe_pitch) + 1}]
+
+    <span class="co">puts</span> <span class="cs">"\n=== Power Grid Advisor ==="</span>
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Process       : %dnm @ %.1fV"</span>   $process_nm $V]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Frequency     : %d MHz"</span>         $freq_mhz]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Est. power    : %.2f mW"</span>        $P_mW]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Est. current  : %.2f mA"</span>        $I_mA]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Ring width    : %.1f μm (min)"</span>   $ring_width]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Stripe pitch  : %d μm"</span>          $stripe_pitch]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Stripe count  : ~%d per axis"</span>   $num_stripes]
+
+    <span class="ck">if</span> {$P_mW > 500} { <span class="co">puts</span> <span class="cs">"  WARNING: high power — consider clock gating / power domains"</span> }
+    <span class="ck">if</span> {$stripe_pitch < 25} { <span class="co">puts</span> <span class="cs">"  NOTE: dense grid needed — use M7/M8 for stripes"</span> }
+}
+
+<span class="co">power_grid_advisor</span> 500  50000  500  130
+<span class="co">power_grid_advisor</span> 1000 200000 800  28
+<span class="co">power_grid_advisor</span> 2000 1000000 2000 7
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-l">01</span><span class="lab-txt">Run all three scenarios and compare power/current estimates for 130nm, 28nm, and 7nm.</span></li>
+        <li class="lab-item"><span class="lab-n ln-l">02</span><span class="lab-txt">Observe: at 7nm, the current is enormous. What does this mean for the number of power stripes needed? What layer would you use?</span></li>
+        <li class="lab-item"><span class="lab-n ln-l">03</span><span class="lab-txt">Add a proc <code>check_em</code> that takes current (mA) and wire width (μm), and warns if current density exceeds 1 mA/μm (simplified EM limit).</span></li>
+        <li class="lab-item"><span class="lab-n ln-l">04</span><span class="lab-txt"><strong>Key question:</strong> Why does a high-frequency design need more power stripes than a low-frequency one with the same cell count? Write the answer as a comment using the P=αCV²f formula.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ DAY 20 -->
+<section class="day" id="day20">
+  <div class="day-hd">
+    <div class="day-badge db-teal">DAY 20</div>
+    <div>
+      <div class="day-ttl">Placement — Assigning XY to Every Cell</div>
+      <div class="day-desc">Placement assigns an X,Y coordinate and orientation to every standard cell in the design. It is the PD step with the highest impact on both timing and routing success. Good placement = timing closure is achievable. Bad placement = months of rework.</div>
+    </div>
+  </div>
+
+  <!-- Placement phases -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-t">⊡</div><div class="card-ttl">Three Phases of Placement</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lbl-t">PHASE 1 — GLOBAL</div><div class="cc-ttl">Rough placement for density</div><div class="cc-body">Divides the core into a grid of bins. Places cells into bins to achieve uniform density. No legal positions yet — cells may overlap. Goal: minimise total wirelength. Tool uses HPWL (half-perimeter wirelength) as the optimization metric.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-t">PHASE 2 — LEGALIZATION</div><div class="cc-ttl">Snap to rows, remove overlaps</div><div class="cc-body">Moves cells to legal positions on placement rows (must align to row height and site width). Resolves overlaps while trying to minimise disruption to global placement quality. Cells must be within the core area boundary.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-t">PHASE 3 — DETAIL</div><div class="cc-ttl">Local optimisation for timing</div><div class="cc-body">Fine-tuning: moves individual cells by small distances to improve timing on critical paths. Techniques: cell swapping, mirroring, incremental refinement. This is where timing-driven placement pays off.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-g">TIMING-DRIVEN</div><div class="cc-ttl">Critical path awareness</div><div class="cc-body">Modern PD tools run timing analysis during placement and push cells on critical paths closer together. Cells with the worst slack are prioritized for proximity placement. Wire length on critical paths directly determines if timing closure is possible.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Placement constraints -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-t">⊞</div><div class="card-ttl">Placement Rules &amp; Constraints</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tct">Standard cell rows</span></td><td><span class="td">All standard cells must align to rows. Row height = cell height (fixed by PDK). Cells cannot span rows or be placed between rows.</span><div class="td-pd">SKY130 standard cell height = 2.72μm. All cells are a multiple of this height.</div></td></tr>
+        <tr><td><span class="tc tct">Site width</span></td><td><span class="td">The minimum horizontal unit for cell placement. Cells are placed at integer multiples of the site width. SKY130 site width = 0.46μm.</span><div class="td-pd">Cell width must be integer multiple of site width — PDK guarantees this for all library cells</div></td></tr>
+        <tr><td><span class="tc tct">Row orientation</span></td><td><span class="td">Alternating rows are flipped (N, FS, N, FS...). Flipped rows share VDD/VSS rails with normal rows — this is how power rails run continuously across the chip without additional vias.</span><div class="td-pd">Critical: cells must match row orientation. Placing an "N" cell in an "FS" row = VDD/VSS short circuit</div></td></tr>
+        <tr><td><span class="tc tct">Density constraint</span></td><td><span class="td">Each bin of the floorplan must have cell density ≤ utilization target. High-density bins create routing congestion. The placer reports congestion maps.</span><div class="td-pd">Check congestion report after placement: any bin > 90% is a routing risk</div></td></tr>
+        <tr><td><span class="tc tct">Macro halos</span></td><td><span class="td">Exclusion zones around macros where standard cells cannot be placed. Prevents routing congestion around macro boundaries.</span><div class="td-pd">Typical halo: 5–10μm around all sides of each macro. Add in floorplan before placement.</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Placement metrics -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-t">📊</div><div class="card-ttl">Placement Quality Metrics — What to Check</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tct">WNS (Worst Negative Slack)</span></td><td><span class="td">The worst setup slack across all timing paths after placement. Should be negative but improving from pre-placement estimates. Target: WNS close to 0ns post-placement (some tools report -0.3 to -0.5 as acceptable pre-CTS).</span></td></tr>
+        <tr><td><span class="tc tct">TNS (Total Negative Slack)</span></td><td><span class="td">Sum of all negative slacks. Indicates total timing work remaining. Should reduce as you progress through CTS and routing. Large TNS = many paths need fixing.</span></td></tr>
+        <tr><td><span class="tc tct">Congestion map</span></td><td><span class="td">2D heatmap of routing demand vs supply per bin. Red areas = overflow (more routing needed than tracks available). Must fix before routing by spreading cells.</span><div class="td-pd">Command: report_design_area / reportCongestion. Red bins &gt; 5% of area = routing likely to fail</div></td></tr>
+        <tr><td><span class="tc tct">Total wirelength</span></td><td><span class="td">Estimated total wire length from placement. Lower = better timing and less routing resources needed. Minimising HPWL during global placement directly predicts routing success.</span></td></tr>
+      </table>
+      <div class="cbox cbox-tip"><div class="cbox-icon">💡</div><div><strong>Golden rule of placement:</strong> Fix timing post-placement, not post-routing. Every additional step after placement locks in more decisions. If WNS is -3ns after placement, it will be -3ns or worse after routing (wire parasitics add more delay). You must reach approximately WNS ≈ 0 before routing — or timing closure after routing is impossible.</div></div>
+    </div>
+  </div>
+
+  <!-- Placement commands -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">$</div><div class="card-ttl">Placement TCL Commands</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tcg">global_placement<br>-skip_io</span></td><td><span class="td">Run global placement (OpenROAD). Optimises for minimum wirelength across core area.</span><div class="td-pd">OpenROAD. Innovus: place_design -place_io_pins (or setDesignMode followed by placeDesign)</div></td></tr>
+        <tr><td><span class="tc tcg">detailed_placement</span></td><td><span class="td">Run legalization + detail placement. Snaps cells to legal positions and runs local optimisation.</span><div class="td-pd">OpenROAD. Innovus: refinePlace -effort high</div></td></tr>
+        <tr><td><span class="tc tct">estimate_parasitics<br>-placement</span></td><td><span class="td">Estimate wire delays from placement (before actual routing). Necessary for timing analysis post-placement.</span><div class="td-pd">This gives you pre-route timing — less accurate than post-route but critical for placement quality check</div></td></tr>
+        <tr><td><span class="tc tct">report_checks<br>-path_delay max</span></td><td><span class="td">Report worst setup timing paths after placement. Shows which paths need attention before routing.</span><div class="td-pd">OpenROAD. Innovus: report_timing -max_paths 20 -early (hold) / -late (setup)</div></td></tr>
+        <tr><td><span class="tc tct">repair_design<br>-max_wire_length 100</span></td><td><span class="td">Insert buffers on nets where estimated wire length exceeds 100μm. Fixes long-wire timing problems before routing.</span><div class="td-pd">Critical step: long wires not buffered post-placement will cause setup violations post-route</div></td></tr>
+        <tr><td><span class="tc tct">check_placement -verbose</span></td><td><span class="td">Verify all cells are legally placed (no overlaps, all within core, correct row orientation).</span><div class="td-pd">Must pass before proceeding to CTS. Any illegal placement = tool errors in next step</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Lab 20 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">⚡</div><div class="card-ttl">Lab — Day 20: Placement Quality Analyser</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day20_placement.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 20 — Placement quality checker and optimizer advisor</span>
+
+<span class="ck">proc</span> <span class="cf">check_placement_quality</span> {wns_ns tns_ns congestion_pct wirelength_um design_cells} {
+    <span class="co">puts</span> <span class="cs">"\n=== Placement Quality Report ==="</span>
+    <span class="co">puts</span> [<span class="co">string</span> repeat - 40]
+
+    <span class="cm"># WNS check</span>
+    <span class="co">puts</span> -nonewline [<span class="co">format</span> <span class="cs">"  WNS   : %+.3f ns  "</span> $wns_ns]
+    <span class="ck">if</span>      {$wns_ns >= 0}    { <span class="co">puts</span> <span class="cs">"[PASS] Timing positive"</span> }
+    <span class="ck">elseif</span> {$wns_ns >= -0.5}  { <span class="co">puts</span> <span class="cs">"[WARN] Marginal — buffer critical paths"</span> }
+    <span class="ck">else</span>                       { <span class="co">puts</span> <span class="cs">"[FAIL] Severe — rework placement"</span> }
+
+    <span class="cm"># TNS check</span>
+    <span class="co">puts</span> -nonewline [<span class="co">format</span> <span class="cs">"  TNS   : %.3f ns  "</span> $tns_ns]
+    <span class="ck">if</span>      {$tns_ns > -10}   { <span class="co">puts</span> <span class="cs">"[PASS] Few violations"</span> }
+    <span class="ck">elseif</span> {$tns_ns > -100}  { <span class="co">puts</span> <span class="cs">"[WARN] Moderate — timing closure possible"</span> }
+    <span class="ck">else</span>                      { <span class="co">puts</span> <span class="cs">"[FAIL] Severe — revisit synthesis/floorplan"</span> }
+
+    <span class="cm"># Congestion check</span>
+    <span class="co">puts</span> -nonewline [<span class="co">format</span> <span class="cs">"  Cong  : %.1f%%  "</span> $congestion_pct]
+    <span class="ck">if</span>      {$congestion_pct < 3}  { <span class="co">puts</span> <span class="cs">"[PASS] Low congestion"</span> }
+    <span class="ck">elseif</span> {$congestion_pct < 8}  { <span class="co">puts</span> <span class="cs">"[WARN] Moderate — watch routing"</span> }
+    <span class="ck">else</span>                            { <span class="co">puts</span> <span class="cs">"[FAIL] High — routing will overflow"</span> }
+
+    <span class="cm"># Wirelength per cell</span>
+    <span class="ck">set</span> <span class="cv">wl_per_cell</span> [<span class="ck">expr</span> {$wirelength_um / $design_cells}]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  WL/cell: %.2f μm/cell  (lower = better placement quality)"</span> $wl_per_cell]
+
+    <span class="co">puts</span> [<span class="co">string</span> repeat - 40]
+
+    <span class="cm"># Overall decision</span>
+    <span class="ck">if</span> {$wns_ns >= -0.5 && $congestion_pct < 8} {
+        <span class="co">puts</span> <span class="cs">"  DECISION: Proceed to CTS"</span>
+    } <span class="ck">elseif</span> {$congestion_pct >= 8} {
+        <span class="co">puts</span> <span class="cs">"  DECISION: Fix congestion first (reduce utilization or spread cells)"</span>
+    } <span class="ck">else</span> {
+        <span class="co">puts</span> <span class="cs">"  DECISION: Fix timing (repair_design, optimize_design)"</span>
+    }
+}
+
+<span class="cm"># Scenario: post-placement results</span>
+<span class="co">puts</span> <span class="cs">"--- Scenario A: Good placement result ---"</span>
+<span class="cf">check_placement_quality</span> -0.18  -42.5  2.1  185000 25000
+
+<span class="co">puts</span> <span class="cs">"\n--- Scenario B: Congestion problem ---"</span>
+<span class="cf">check_placement_quality</span> -0.22  -35.0  11.5 220000 25000
+
+<span class="co">puts</span> <span class="cs">"\n--- Scenario C: Timing crisis ---"</span>
+<span class="cf">check_placement_quality</span> -2.85  -892.0 4.2  310000 25000
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-t">01</span><span class="lab-txt">Run all three scenarios. For Scenario C, what specific placement problem does WNS=-2.85ns indicate?</span></li>
+        <li class="lab-item"><span class="lab-n ln-t">02</span><span class="lab-txt">For Scenario B with 11.5% congestion, what two actions could fix this? (Hint: less cells per area = ?)</span></li>
+        <li class="lab-item"><span class="lab-n ln-t">03</span><span class="lab-txt">Add a proc <code>estimate_buffer_count</code> that takes WNS and cell count, and estimates how many additional buffers are needed (rough estimate: 1 buffer per 50ps of violation per 1000 cells).</span></li>
+        <li class="lab-item"><span class="lab-n ln-t">04</span><span class="lab-txt"><strong>Key insight:</strong> Why can't you fix a -2ns WNS post-routing by upsizing cells? Write the answer as a comment — think about what fixing timing post-route changes and what it disrupts.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ DAY 21 -->
+<section class="day" id="day21">
+  <div class="day-hd">
+    <div class="day-badge db-teal">DAY 21</div>
+    <div>
+      <div class="day-ttl">OpenROAD Lab — Real Floorplan to Placement Flow</div>
+      <div class="day-desc">Combine everything from Days 18–20 into a real OpenROAD / OpenLane flow run. Execute actual tool commands on the SKY130 design and inspect the results using KLayout and OpenROAD GUI.</div>
+    </div>
+  </div>
+
+  <!-- OpenLane flow -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">🏭</div><div class="card-ttl">OpenLane — The Free RTL-to-GDSII Tool Stack</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl lbl-g">WHAT IT IS</div><div class="cc-ttl">Complete open-source PD flow</div><div class="cc-body">OpenLane = RTL-to-GDSII flow using all open-source tools: Yosys (synthesis), OpenROAD (placement/CTS/routing), Magic (DRC/LVS), KLayout (GDS viewer). Runs on SKY130 PDK — a real production process.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-l">OPENROAD</div><div class="cc-ttl">The PnR engine inside OpenLane</div><div class="cc-body">OpenROAD runs floorplan, placement, CTS, and routing. Its TCL command interface is similar to commercial tools. Commands you learn here map directly to Innovus and ICC2 concepts.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-t">SKY130 PDK</div><div class="cc-ttl">130nm process from SkyWater/Google</div><div class="cc-body">A real, manufacturable 130nm CMOS process. Has standard cell libraries, routing design rules, parasitic models. The same files (LEF, LIB, tech files) as commercial PDKs — just open-source.</div></div>
+        <div class="cc"><div class="cc-lbl lbl-a">YOUR DESIGN</div><div class="cc-ttl">spm — a simple accumulator</div><div class="cc-body">OpenLane ships with design examples. We'll use 'spm' (serial-parallel multiplier) or 'gcd' (GCD calculator) — small enough to run on a laptop, complex enough to see real floorplan/placement results.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lab 21 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-g">⚡</div><div class="card-ttl">Lab — Day 21: OpenLane Floorplan to Placement</div></div>
+    <div class="card-body">
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-g">01</span><span class="lab-txt"><strong>Navigate to OpenLane:</strong> <code>cd ~/OpenLane</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-g">02</span><span class="lab-txt"><strong>Start the flow container:</strong> <code>make mount</code> (launches Docker with all tools)</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">03</span><span class="lab-txt"><strong>Run synthesis only:</strong> <code>./flow.tcl -design spm -from synthesis -to synthesis</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-g">04</span><span class="lab-txt"><strong>Run floorplan:</strong> <code>./flow.tcl -design spm -from floorplan -to floorplan</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-g">05</span><span class="lab-txt"><strong>Inspect floorplan DEF:</strong> <code>grep -c "COMPONENT" runs/RUN_*/results/floorplan/spm.def</code> — how many components placed?</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">06</span><span class="lab-txt"><strong>Run placement:</strong> <code>./flow.tcl -design spm -from placement -to placement</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-g">07</span><span class="lab-txt"><strong>Check timing post-placement:</strong> <code>grep -A5 "wns" runs/RUN_*/logs/placement/*.log</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-g">08</span><span class="lab-txt"><strong>View in KLayout:</strong> Open KLayout on Windows → File → Open → navigate to <code>\\wsl$\Ubuntu\...\results\placement\spm.def</code> — you will see actual cell positions</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">09</span><span class="lab-txt"><strong>Read the area report:</strong> <code>cat runs/RUN_*/reports/synthesis/syn_stat.rpt</code> — note total cell area and cell count</span></li>
+        <li class="lab-item"><span class="lab-n ln-g">10</span><span class="lab-txt"><strong>Write your observations:</strong> Create <code>day21_notes.tcl</code> with comments recording die size, cell count, WNS, and what you see in the KLayout view</span></li>
+      </ul>
+      <div class="cbox cbox-info" style="margin-top:14px"><div class="cbox-icon">ℹ</div><div><strong>If Docker/OpenLane isn't set up yet:</strong> Run <code>cd ~/OpenLane && make</code> (first time setup — ~30 min). Alternatively, explore the DEF file format directly: <code>less ~/OpenLane/designs/spm/runs/*/results/placement/spm.def</code> and identify DIEAREA, COMPONENTS, and PINS sections.</div></div>
+      <div class="cbox cbox-win" style="margin-top:0"><div class="cbox-icon">✓</div><div><strong>What success looks like:</strong> You have run a real floorplan and placement on a real design using real open-source EDA tools with a real PDK. The TCL commands OpenROAD uses internally are the same commands you ran manually in earlier labs. The gap between "learning PD" and "doing PD" just closed significantly.</div></div>
+    </div>
+  </div>
+
+  <!-- DEF file anatomy -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-a">📄</div><div class="card-ttl">Reading a DEF File — What Each Section Means</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc tca">DIEAREA</span></td><td><span class="td">Defines the die boundary rectangle in database units (usually nm). <code>DIEAREA ( 0 0 ) ( 460000 460000 )</code> = 460μm × 460μm die.</span></td></tr>
+        <tr><td><span class="tc tca">UNITS</span></td><td><span class="td"><code>UNITS DISTANCE MICRONS 1000</code> — all coordinates in the file are in units of (1/1000) microns = nanometers.</span></td></tr>
+        <tr><td><span class="tc tca">COMPONENTS</span></td><td><span class="td">Lists every placed cell: name, library cell type, placement status (PLACED/FIXED), XY location, orientation. This is the output of placement.</span></td></tr>
+        <tr><td><span class="tc tca">NETS</span></td><td><span class="td">Lists all nets with their connected pins. Contains the logical connectivity but not yet the physical routing (wires). Added by router.</span></td></tr>
+        <tr><td><span class="tc tca">PINS</span></td><td><span class="td">I/O pin definitions — name, direction (INPUT/OUTPUT), net, layer, and location on die boundary.</span></td></tr>
+        <tr><td><span class="tc tca">ROWS</span></td><td><span class="td">Defines placement rows: site name, origin, orientation, step, count. Rows are what standard cells snap to.</span></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ QUIZ -->
+<section class="day" id="quiz">
+  <div class="day-hd">
+    <div class="day-badge" style="background:rgba(45,212,191,.12);color:var(--teal);border:1px solid rgba(45,212,191,.25)">QUIZ</div>
+    <div>
+      <div class="day-ttl">Part 2 Self-Assessment — Floorplan, Power, Placement</div>
+      <div class="day-desc">Test your understanding of the three PD steps most heavily tested in job interviews. Answer without looking — if you need to check, re-read that day's content.</div>
+    </div>
+  </div>
+  <div class="quiz-wrap">
+
+    <div class="qcard">
+      <div class="qtxt">Q1. Synthesis reports total cell area = 60,000 μm². You target 75% utilization with a square die. What is the approximate die side length?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Core area = 60000/0.75 = 80,000 μm². Die side = sqrt(80000) ≈ 283 μm. Common mistake: dividing instead of dividing — utilization means cells occupy that fraction of core area, so core must be LARGER than cell area.')">200 × 200 μm</button>
+        <button class="qopt" onclick="qa(this,true,'Core area = 60000/0.75 = 80,000 μm². Die side = sqrt(80000) ≈ 283 μm. Common mistake: dividing instead of dividing — utilization means cells occupy that fraction of core area, so core must be LARGER than cell area.')">~283 × 283 μm</button>
+        <button class="qopt" onclick="qa(this,false,'Core area = 60000/0.75 = 80,000 μm². Die side = sqrt(80000) ≈ 283 μm. Common mistake: dividing instead of dividing — utilization means cells occupy that fraction of core area, so core must be LARGER than cell area.')">~245 × 245 μm</button>
+        <button class="qopt" onclick="qa(this,false,'Core area = 60000/0.75 = 80,000 μm². Die side = sqrt(80000) ≈ 283 μm. Common mistake: dividing instead of dividing — utilization means cells occupy that fraction of core area, so core must be LARGER than cell area.')">~316 × 316 μm</button>
+      </div>
+      <div class="qexp">Core area = cell_area / utilization = 60,000 / 0.75 = 80,000 μm². Die side (square) = √80,000 ≈ 283 μm. Remember: utilization is the fraction of core area USED by cells. So core must be bigger: if cells = 60,000 μm² and they fill 75%, total core = 60,000/0.75 = 80,000 μm².</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q2. What causes IR drop and what are TWO ways to reduce it in physical design?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'IR drop = V=I×R voltage loss. Fix: add wider/more stripes (lower R) or add decap cells (buffer current I spikes). Upsizing cells increases power draw — makes IR drop worse, not better.')">IR drop is caused by too many flip-flops. Fix by reducing clock frequency and upsizing cells.</button>
+        <button class="qopt" onclick="qa(this,true,'IR drop = V=I×R voltage loss. Fix: add wider/more stripes (lower R) or add decap cells (buffer current I spikes). Upsizing cells increases power draw — makes IR drop worse, not better.')">IR drop = current × resistance in power grid wires. Fix: add wider/more power stripes (reduce R), or insert decap cells (reduce peak current demand).</button>
+        <button class="qopt" onclick="qa(this,false,'IR drop = V=I×R voltage loss. Fix: add wider/more stripes (lower R) or add decap cells (buffer current I spikes). Upsizing cells increases power draw — makes IR drop worse, not better.')">IR drop is caused by long clock paths. Fix by reducing CTS target skew.</button>
+        <button class="qopt" onclick="qa(this,false,'IR drop = V=I×R voltage loss. Fix: add wider/more stripes (lower R) or add decap cells (buffer current I spikes). Upsizing cells increases power draw — makes IR drop worse, not better.')">IR drop comes from insufficient decap cells only. Fix by adding more flip-flops near the affected area.</button>
+      </div>
+      <div class="qexp">IR drop = voltage loss due to V=I×R where I = switching current and R = metal wire resistance. Two fixes: (1) Add wider or more power stripes — reduces R, so for same current I the voltage drop I×R is smaller. (2) Add decap (decoupling capacitor) cells — they store charge locally and supply it during switching events, reducing instantaneous I. A third fix is reducing logic density hotspots to reduce local I.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q3. After global placement, the congestion report shows 12% overflow in one corner of the die. What does this mean and how do you fix it?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'12% routing overflow means that in that corner, the routing demand exceeds available routing tracks by 12%. Fix: reduce cell density there — push cells away using placement blockages or reduce overall utilization. Moving macros out of that corner also helps.')">12% overflow means 12% of cells have timing violations. Fix by upsizing cells in that corner.</button>
+        <button class="qopt" onclick="qa(this,false,'12% routing overflow means that in that corner, the routing demand exceeds available routing tracks by 12%. Fix: reduce cell density there — push cells away using placement blockages or reduce overall utilization. Moving macros out of that corner also helps.')">12% overflow means the die is 12% too small. Increase the die size by 12%.</button>
+        <button class="qopt" onclick="qa(this,true,'12% routing overflow means that in that corner, the routing demand exceeds available routing tracks by 12%. Fix: reduce cell density there — push cells away using placement blockages or reduce overall utilization. Moving macros out of that corner also helps.')">12% routing overflow means more wires are needed than available routing tracks exist there. Fix by reducing cell density in that area — add placement blockages or reduce utilization.</button>
+        <button class="qopt" onclick="qa(this,false,'12% routing overflow means that in that corner, the routing demand exceeds available routing tracks by 12%. Fix: reduce cell density there — push cells away using placement blockages or reduce overall utilization. Moving macros out of that corner also helps.')">12% overflow is normal and acceptable — routing tools handle it automatically.</button>
+      </div>
+      <div class="qexp">Routing overflow = routing demand > routing supply in a region. The router has finite tracks on each metal layer. 12% overflow means the router cannot fit all required wires there — it will "overflow" (route outside the normal grid) causing DRC violations. Fix: reduce cell density in that region using placement blockages, move macros away, or reduce overall utilization target to give cells more space to spread out.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q4. Why must standard cells be placed on placement rows and align to the site width grid?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,true,'Rows and site alignment ensure: (1) VDD/VSS rail continuity — cells share power rails that run along row tops/bottoms, (2) abutment — cells touch each other without gaps or DRC errors, (3) alternating row orientation ensures shared rails between rows. Off-grid placement = disconnected power rails = chip doesnt work.')">Rows ensure VDD/VSS rail continuity (cells share power rails), proper abutment between cells, and correct orientation for alternating row flipping.</div>
+        <button class="qopt" onclick="qa(this,false,'Rows and site alignment ensure: (1) VDD/VSS rail continuity — cells share power rails that run along row tops/bottoms, (2) abutment — cells touch each other without gaps or DRC errors, (3) alternating row orientation ensures shared rails between rows. Off-grid placement = disconnected power rails = chip doesnt work.')">Rows are just for aesthetic alignment in the layout — functionally it doesn't matter.</button>
+        <button class="qopt" onclick="qa(this,false,'Rows and site alignment ensure: (1) VDD/VSS rail continuity — cells share power rails that run along row tops/bottoms, (2) abutment — cells touch each other without gaps or DRC errors, (3) alternating row orientation ensures shared rails between rows. Off-grid placement = disconnected power rails = chip doesnt work.')">Site alignment is only needed for memory cells, not standard cells.</button>
+        <button class="qopt" onclick="qa(this,false,'Rows and site alignment ensure: (1) VDD/VSS rail continuity — cells share power rails that run along row tops/bottoms, (2) abutment — cells touch each other without gaps or DRC errors, (3) alternating row orientation ensures shared rails between rows. Off-grid placement = disconnected power rails = chip doesnt work.')">Rows reduce power consumption by keeping cells physically close together.</button>
+      </div>
+      <div class="qexp">Standard cells are designed so that when placed in rows: their VDD/VSS rails abut (connect) at the cell boundaries. The M1 VDD rail runs along the top of each cell; the M1 VSS rail along the bottom. When cells are in a row, these rails form a continuous line that the power stripes above connect to. Off-grid placement breaks this continuity — power pins float unconnected. Site alignment also ensures the diffusion, poly, and metal layers of adjacent cells line up precisely as designed.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q5. The WNS after placement is -1.8ns. You proceed to routing anyway. After routing, the WNS is -2.3ns. Why did timing get worse, and what should you have done differently?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Routing adds real wire parasitics (R and C) that the pre-placement estimate did not include. If WNS=-1.8ns with estimated parasitics, adding real RC makes it worse. Fix: never proceed with WNS worse than ~0 post-placement. Routing does not fix timing — it only makes it more accurate (and worse, since estimates are optimistic).')">Routing fixes some paths — the -2.3ns is a tool bug. Re-run routing with higher effort.</button>
+        <button class="qopt" onclick="qa(this,true,'Routing adds real wire parasitics (R and C) that the pre-placement estimate did not include. If WNS=-1.8ns with estimated parasitics, adding real RC makes it worse. Fix: never proceed with WNS worse than ~0 post-placement. Routing does not fix timing — it only makes it more accurate (and worse, since estimates are optimistic).')">Routing adds real wire RC parasitics not captured pre-route. Pre-placement timing was optimistic. Should have fixed WNS to ≈0 before routing, not after.</button>
+        <button class="qopt" onclick="qa(this,false,'Routing adds real wire parasitics (R and C) that the pre-placement estimate did not include. If WNS=-1.8ns with estimated parasitics, adding real RC makes it worse. Fix: never proceed with WNS worse than ~0 post-placement. Routing does not fix timing — it only makes it more accurate (and worse, since estimates are optimistic).')">Clock routing caused extra skew — fix by reducing the CTS target.</button>
+        <button class="qopt" onclick="qa(this,false,'Routing adds real wire parasitics (R and C) that the pre-placement estimate did not include. If WNS=-1.8ns with estimated parasitics, adding real RC makes it worse. Fix: never proceed with WNS worse than ~0 post-placement. Routing does not fix timing — it only makes it more accurate (and worse, since estimates are optimistic).')">The design has hold violations which increased after routing — hold and setup violations are the same problem.</button>
+      </div>
+      <div class="qexp">Pre-route timing uses estimated wire parasitics (based on placement proximity). Real routing adds actual wire resistance and capacitance — always larger than estimates. So a -1.8ns WNS pre-route typically becomes -2ns+ post-route. The rule: never proceed to routing with WNS worse than ~0ns. Fix placement violations first using repair_design, optimize_design, or cell sizing. Once in routing, your options for fixing timing are limited and expensive (ECOs, rerouting, disrupting other paths).</div>
+    </div>
+
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Phase 2 · Part 2 · Floorplanning · Power Planning · Placement &nbsp;|&nbsp; Days 18–21 &nbsp;|&nbsp; <em>Physical Design Engineer Training</em></p>
+  <p style="margin-top:5px;font-size:10px">Next → Phase2_Part3_CTS_Routing_STA_Signoff.html</p>
+</footer>
+
+<script>
+const nl=document.querySelectorAll('.nav a');
+function hl(el){nl.forEach(a=>a.classList.remove('on'));el.classList.add('on')}
+const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){const id=en.target.id;nl.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+id))}})},{threshold:0.25});
+document.querySelectorAll('.day').forEach(s=>obs.observe(s));
+function qa(btn,correct,explain){
+  const card=btn.closest('.qcard');
+  card.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'ok':'no');
+  if(!correct)card.querySelectorAll('.qopt').forEach(b=>{if(!b.classList.contains('no'))b.classList.add('ok')});
+  const exp=card.querySelector('.qexp');
+  if(exp)exp.classList.add('show');
+}
+</script>
+</body>
+</html>

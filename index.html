@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EducateVLSI | Advanced ASIC Physical Design, TCL & STA Portal</title>
+  <meta name="description" content="Official learning platform for EducateVLSI (@EducateVLSI). Interactive 74+ interview flashcards, 8 Physical Design calculators, Cadence/Synopsys debug playbook, TCL automation script generator, and RTL-to-GDSII roadmaps.">
+  <meta name="keywords" content="VLSI, Physical Design, ASIC, TCL, Static Timing Analysis, STA, CTS, Synopsys ICC2, Cadence Innovus, OpenROAD, Semiconductor, Chip Design, Calculators, Tapeout Checklist">
+  
+  <!-- OpenGraph & Social Cards -->
+  <meta property="og:title" content="EducateVLSI | Master ASIC Physical Design, TCL & STA">
+  <meta property="og:description" content="Supercharge your semiconductor journey with 74+ interview flashcards, live PD calculators, real-time TCL script generator, error playbooks, and video masterclasses.">
+  <meta property="og:image" content="assets/EducateVLSI_BannerImage.jpg">
+  <meta property="og:type" content="website">
+  
+  <link rel="icon" type="image/jpeg" href="assets/EducateVLSI_Logo.jpg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Semiconductor Workstation Status Ribbon -->
+  <div class="vlsi-workstation-bar" id="vlsiWorkstationBar">
+    <div class="vlsi-status-indicators">
+      <div class="status-pill-item">
+        <span class="status-dot-active"></span>
+        <span>EDA Engine: <strong>Synopsys ICC2 / Cadence Innovus Ready</strong></span>
+      </div>
+      <div class="status-pill-item">
+        <span class="status-chip-tech">PDK: TSMC N7 / SkyWater 130nm</span>
+      </div>
+      <div class="status-pill-item">
+        <span>Corner: <strong>ss_0.72v_125c_rcworst</strong></span>
+      </div>
+    </div>
+    <div class="vlsi-status-indicators">
+      <div class="status-pill-item">
+        <span>Academy: <strong class="gradient-text">24 Deep Lessons (ECE to 3nm GAA)</strong></span>
+      </div>
+      <div class="status-pill-item">
+        <span>Channel: <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan); text-decoration:none; font-weight:700;">@EducateVLSI</a></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="mainNavbar">
+    <div class="container nav-container">
+      <a href="#" class="brand-link" id="navBrandLink">
+        <img src="assets/EducateVLSI_Logo.jpg" alt="EducateVLSI Logo" class="brand-logo-img">
+        <div class="brand-text-wrap">
+          <span class="brand-title">Educate<span class="gradient-text">VLSI</span></span>
+          <span class="brand-subtitle">Silicon Academy</span>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu" id="primaryNav">
+          <li><a href="#learn" class="nav-item-link" id="navLinkLearn" style="color: var(--accent-cyan); font-weight: 700;"><span style="color:var(--accent-cyan);">★</span> 'LEARN' Academy</a></li>
+          <li><a href="#study-vault" class="nav-item-link" id="navLinkStudyVault" style="color: var(--accent-emerald); font-weight: 700;"><span style="color:var(--accent-emerald);">✦</span> 'STUDY' Vault</a></li>
+          <li><a href="#flashcards" class="nav-item-link active" id="navLinkFlashcards">Flashcards</a></li>
+          <li><a href="#calculators" class="nav-item-link" id="navLinkCalculators">Calculators</a></li>
+          <li><a href="#debug" class="nav-item-link" id="navLinkDebug">Debug Center</a></li>
+          <li><a href="#tcl-generator" class="nav-item-link" id="navLinkTclGen">TCL Generator</a></li>
+          <li><a href="#checklists" class="nav-item-link" id="navLinkChecklists">Checklists</a></li>
+          <li><a href="#roadmap" class="nav-item-link" id="navLinkRoadmap">Roadmap</a></li>
+          <li><a href="#videos" class="nav-item-link" id="navLinkVideos">Video Hub</a></li>
+          <li><a href="#terminal" class="nav-item-link" id="navLinkCommands">ICC2 Shell</a></li>
+          <li><a href="#resources" class="nav-item-link" id="navLinkResources">Resources</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn-icon" id="themeToggleBtn" aria-label="Toggle Theme" title="Switch Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+        <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-youtube-nav" id="navYoutubeSubscribeBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          <span>YouTube</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="hero">
+    <div class="container hero-grid">
+      <div class="hero-text-content">
+        <div class="hero-tagline">
+          <span class="pulse-dot"></span>
+          <span>Official Educational Platform • youtube.com/@EducateVLSI</span>
+        </div>
+        <h1 class="hero-heading">
+          From Code to Silicon: Master Modern <span class="gradient-text">VLSI Physical Design</span>
+        </h1>
+        <p class="hero-desc">
+          Accelerate your semiconductor engineering journey with 74+ ASIC & ICC2 interview flashcards, 24-lesson ECE to sub-3nm Physical Design Academy, live PD calculation engines, production-grade TCL automation generators, and complete tapeout roadmaps.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#learn" class="btn-primary" id="heroLearnBtn" style="background: linear-gradient(135deg, #00f2fe 0%, #8b5cf6 100%); color: #050811; font-weight: 800; border: none; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span>Study 'LEARN' (ECE to PD)</span>
+          </a>
+          <a href="#flashcards" class="btn-secondary" id="heroStartPracticeBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            <span>Start Flashcards</span>
+          </a>
+          <a href="#calculators" class="btn-secondary" id="heroCalculatorsBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/>
+            </svg>
+            <span>PD Calculators</span>
+          </a>
+        </div>
+
+        <div class="hero-metrics">
+          <div class="metric-item">
+            <span class="metric-value">24 Lessons</span>
+            <span class="metric-label">ECE to 3nm Academy</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">74+</span>
+            <span class="metric-label">Interview Flashcards</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">8 Engines</span>
+            <span class="metric-label">Live PD Calculators</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value" id="heroMasteryStat">0/74 Mastered</span>
+            <span class="metric-label">Flashcard Mastery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Media Showcase Card -->
+      <div class="hero-media-wrap">
+        <div class="floating-tech-chip chip-1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+          <span>TCL EDA Automation</span>
+        </div>
+
+        <div class="floating-tech-chip chip-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+          <span>Static Timing Analysis (STA)</span>
+        </div>
+
+        <div class="hero-card-glow">
+          <img src="assets/EducateVLSI_BannerImage.jpg" alt="EducateVLSI Channel Banner" class="hero-banner-img">
+          <div class="hero-card-content">
+            <div class="hero-channel-badge">
+              <div class="channel-info">
+                <img src="assets/EducateVLSI_Logo.jpg" alt="EducateVLSI Avatar" class="channel-avatar">
+                <div>
+                  <div class="channel-name">EducateVLSI</div>
+                  <div class="channel-handle">@EducateVLSI • YouTube Education</div>
+                </div>
+              </div>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="badge badge-cyan">
+                Watch Videos ↗
+              </a>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+              Dedicated to demystifying semiconductor architecture, ASIC synthesis, clock tree synthesis, and EDA command scripting for students and professional engineers worldwide.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       'LEARN' ACADEMY (ECE TO VLSI PHYSICAL DESIGN - FROM SCRATCH TO ADVANCED)
+       ========================================================================== -->
+  <section class="section-spacer learn-academy-section" id="learn">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// MASTER CURRICULUM • FROM SCRATCH TO ADVANCED</span>
+        <h2 class="section-title">ECE to Physical Design <span class="gradient-text">'LEARN' Academy</span></h2>
+        <p class="section-subtitle">
+          Comprehensive 6-track curriculum taking you step-by-step from foundational semiconductor physics & transistor IV equations all the way to sub-3nm GAA, EUV, and 2.5D/3D chiplet packaging.
+        </p>
+      </div>
+
+      <!-- Track Navigation Tabs -->
+      <div class="learn-tracks-nav" id="learnTrackTabs">
+        <!-- Rendered dynamically by renderLearnTracks() -->
+      </div>
+
+      <!-- Search & Progress Bar -->
+      <div class="search-progress-bar-wrap" style="display: flex; gap: 1.5rem; justify-content: space-between; align-items: center; margin-bottom: 2.25rem; flex-wrap: wrap;">
+        <div class="search-box-wrap" style="flex: 1; min-width: 280px; max-width: 520px;">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input 
+            type="text" 
+            class="search-input" 
+            id="learnSearchInput" 
+            placeholder="Search lessons (e.g. PN junction, CTS, SDC, GAA, EM, EUV)..." 
+            autocomplete="off"
+          >
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1; justify-content: flex-end; min-width: 280px;">
+          <div style="display: flex; flex-direction: column; gap: 0.35rem; width: 100%; max-width: 320px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-family: var(--font-mono);">
+              <span id="learnProgressCount" style="color: var(--text-secondary);">0 of 24 Lessons Completed</span>
+              <span id="learnProgressBadge" class="gradient-text" style="font-weight: 700;">0% Mastered</span>
+            </div>
+            <div class="progress-bar-track" style="height: 7px; background: rgba(255,255,255,0.06); border-radius: var(--radius-full); overflow: hidden;">
+              <div class="progress-bar-fill" id="learnProgressBarFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modules Grid -->
+      <div class="learn-modules-grid" id="learnModulesGrid">
+        <!-- Rendered dynamically by renderLearnModules() -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       'STUDY' VAULT & REFERENCE LIBRARY (D:\EducateVLSI\Study)
+       ========================================================================== -->
+  <section class="section-spacer study-vault-section" id="study-vault" style="background: rgba(11, 15, 25, 0.45);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// INDUSTRY-GRADE TRAINING VAULT &amp; LMS REPOSITORY</span>
+        <h2 class="section-title">Silicon Study Vault &amp; <span class="gradient-text">Engineering Library</span></h2>
+        <p class="section-subtitle">
+          Direct access to our 5-Day Foundation Masterclass, 10-Day Phase 2 RTL-to-GDSII series, Synopsys ICC lab manuals, and 22MB+ official LMS handbooks from the <code>D:\EducateVLSI\Study</code> repository.
+        </p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="study-vault-filter-nav" id="studyVaultFilterNav">
+        <button class="track-nav-btn active" data-cat="all">
+          <span>All Materials</span>
+          <span class="track-badge-count" id="studyCountAll">24</span>
+        </button>
+        <button class="track-nav-btn" data-cat="foundations">
+          <span>5-Day Foundations</span>
+          <span class="track-badge-count">5</span>
+        </button>
+        <button class="track-nav-btn" data-cat="phase2">
+          <span>Phase 2 PD Series</span>
+          <span class="track-badge-count">3</span>
+        </button>
+        <button class="track-nav-btn" data-cat="lms_guides">
+          <span>LMS Guides &amp; PDFs</span>
+          <span class="track-badge-count">14</span>
+        </button>
+        <button class="track-nav-btn" data-cat="videos">
+          <span>Video Toolkits</span>
+          <span class="track-badge-count">2</span>
+        </button>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box-wrap" style="max-width: 480px; margin-bottom: 2rem;">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          id="studySearchInput" 
+          placeholder="Search study materials (e.g., ICC lab, CMOS, OpenROAD, DEF, SDC)..." 
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Study Vault Grid -->
+      <div class="study-vault-grid" id="studyVaultGrid">
+        <!-- Rendered dynamically by renderStudyVault() -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Flashcards Section -->
+  <section class="section-spacer flashcards-section" id="flashcards">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// INTERACTIVE KNOWLEDGE BASE</span>
+        <h2 class="section-title">ASIC Physical Design <span class="gradient-text">Interview Flashcards</span></h2>
+        <p class="section-subtitle">
+          Practice 74 high-yield physical design questions covering Synthesis, Floorplanning, CTS, Routing, STA, and Synopsys ICC2 commands.
+        </p>
+      </div>
+
+      <!-- Controls Panel -->
+      <div class="flashcard-controls-panel">
+        <div class="controls-row-top">
+          <div class="search-box-wrap">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input 
+              type="text" 
+              class="search-input" 
+              id="flashcardSearchInput" 
+              placeholder="Search concepts (e.g., CTS, Slack, Antenna, ICC2, DRC)..."
+              autocomplete="off"
+            >
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: var(--text-muted);">
+              <span>Progress:</span>
+              <strong id="statMasteredCount" style="color: var(--accent-emerald);">0 / 74 Mastered</strong>
+              <span class="badge badge-emerald" id="statMasteredPercent">0%</span>
+            </div>
+
+            <div class="view-mode-toggle">
+              <button class="mode-btn active" id="modeStudioBtn" title="3D Flip Studio">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span>Studio</span>
+              </button>
+              <button class="mode-btn" id="modeGridBtn" title="Grid View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                <span>Grid</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Chips Container -->
+        <div class="category-chips-scroll" id="categoryChipsContainer">
+          <!-- Dynamically populated via app.js -->
+        </div>
+      </div>
+
+      <!-- Studio Mode Wrap -->
+      <div id="studioModeWrap">
+        <div class="flashcard-stage">
+          <div class="card-3d-wrap" id="card3dWrap">
+            <!-- Front Face (Question) -->
+            <div class="card-face card-face-front">
+              <div class="card-meta-bar">
+                <div class="card-meta-left">
+                  <span class="badge badge-cyan" id="cardCatBadgeFront">ASIC Flow</span>
+                  <span class="badge badge-purple" id="cardDiffBadgeFront">Fundamental</span>
+                </div>
+                <div class="card-counter" id="cardIndexCounter">1 of 74</div>
+              </div>
+
+              <div class="card-content-main">
+                <div class="card-type-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  <span>Question</span>
+                </div>
+                <h3 class="card-text" id="cardQuestionText">Loading question...</h3>
+              </div>
+
+              <div class="card-footer-tip">
+                <span class="flip-hint">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                    <path d="M16 21h5v-5"/>
+                  </svg>
+                  Click card or press [Space] to flip
+                </span>
+                <span>Keyboard: [← / →] Navigate</span>
+              </div>
+            </div>
+
+            <!-- Back Face (Answer) -->
+            <div class="card-face card-face-back">
+              <div class="card-meta-bar">
+                <div class="card-meta-left">
+                  <span class="badge badge-emerald">Verified Answer</span>
+                  <span class="badge badge-cyan" id="cardCatBadgeBack">Category</span>
+                </div>
+                <span class="badge badge-purple" id="cardDiffBadgeBack">Difficulty</span>
+              </div>
+
+              <div class="card-content-main">
+                <div class="card-type-label" style="color: var(--accent-emerald);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>Answer / Key Concept</span>
+                </div>
+                <p class="card-text" id="cardAnswerText">Loading answer...</p>
+              </div>
+
+              <div class="card-footer-tip">
+                <span class="flip-hint" style="color: var(--accent-emerald);">
+                  ✓ Click again to return to question
+                </span>
+                <span>Press [M] to toggle mastered</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action & Navigation Bar -->
+        <div class="flashcard-nav-bar">
+          <div class="nav-buttons-group">
+            <button class="btn-nav-card" id="prevCardBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+              <span>Previous</span>
+            </button>
+            <button class="btn-nav-card" id="flipCardActionBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+              <span>Flip Card</span>
+            </button>
+            <button class="btn-nav-card" id="nextCardBtn">
+              <span>Next</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 0.6rem;">
+            <button class="btn-nav-card" id="shuffleCardBtn" title="Shuffle flashcards">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+              </svg>
+              <span>Shuffle</span>
+            </button>
+            <button class="mastery-toggle-btn" id="toggleMasteryBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              <span>Mark as Mastered</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Mode Wrap (Hidden by default) -->
+      <div id="gridModeWrap" style="display: none; margin-top: 1rem;">
+        <div class="flashcards-grid" id="flashcardsGrid">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       NEW MODULE 1: Physical Design Interactive Calculators Suite
+       ========================================================================= -->
+  <section class="section-spacer" id="calculators" style="background: rgba(11, 15, 25, 0.45);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// REAL-TIME ENGINEERING MATH</span>
+        <h2 class="section-title">Physical Design <span class="gradient-text">Interactive Calculators</span></h2>
+        <p class="section-subtitle">
+          Instantly evaluate core semiconductor metrics with step-by-step formulas, design rules, and interview questions.
+        </p>
+      </div>
+
+      <div class="calculators-grid">
+        <!-- Calculator 1: Dynamic Power -->
+        <div class="calc-card" id="calcDynPower">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Dynamic Power</h3>
+                <span class="calc-formula-badge">P = α · C · V² · f</span>
+              </div>
+              <p class="calc-desc">Switching power consumed charging & discharging load caps.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Activity (α):</label>
+                <input type="number" id="dyn_alpha" class="calc-input" value="0.10" step="0.01" min="0" max="1">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Total Cap (C): <span class="calc-unit">[pF]</span></label>
+                <input type="number" id="dyn_c" class="calc-input" value="250" step="10">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Voltage (V): <span class="calc-unit">[V]</span></label>
+                <input type="number" id="dyn_v" class="calc-input" value="0.90" step="0.05">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Frequency (f): <span class="calc-unit">[MHz]</span></label>
+                <input type="number" id="dyn_f" class="calc-input" value="1000" step="100">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <span class="calc-result-label">Dynamic Power</span>
+              <span class="calc-result-val" id="res_dyn_power">20.25 mW</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Interview Focus:</strong> Dynamic power scales quadratically with voltage ($V^2$). Clock gating reduces switching activity $\alpha$. Voltage scaling is the strongest lever to recover power budget.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 2: Core Utilization -->
+        <div class="calc-card" id="calcUtilization">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Core Utilization</h3>
+                <span class="calc-formula-badge">Util = (Cell Area / Core) %</span>
+              </div>
+              <p class="calc-desc">Die area ratio consumed by standard cells & hard macros.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Total Cell Area: <span class="calc-unit">[µm²]</span></label>
+                <input type="number" id="util_cells" class="calc-input" value="650000" step="10000">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Core Area: <span class="calc-unit">[µm²]</span></label>
+                <input type="number" id="util_core" class="calc-input" value="1000000" step="10000">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Utilization</span>
+                <div class="calc-result-val" id="res_util_val">65.0%</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_util_status">Optimal (60-75%)</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Rule of Thumb:</strong> Starting floorplans target 60%–70% utilization. Starting above 75% invites catastrophic detailed routing congestion and eliminates room for post-CTS timing ECO buffers.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 3: Setup Slack -->
+        <div class="calc-card" id="calcSetupSlack">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Setup Slack (Max Delay)</h3>
+                <span class="calc-formula-badge">Slack = Required - Arrival</span>
+              </div>
+              <p class="calc-desc">Timing closure margin at the capture register D-pin.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Clock Period (T): <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="setup_t" class="calc-input" value="1.00" step="0.1">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Data Path Delay: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="setup_comb" class="calc-input" value="0.65" step="0.05">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Launch Latency: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="setup_launch" class="calc-input" value="0.25" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Capture Latency: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="setup_capture" class="calc-input" value="0.28" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Setup Time (Tsetup): <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="setup_time" class="calc-input" value="0.08" step="0.01">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Uncertainty: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="setup_uncert" class="calc-input" value="0.05" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Setup Slack</span>
+                <div class="calc-result-val" id="res_setup_slack">+0.130 ns</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_setup_status">MET (PASS)</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Fix Order:</strong> 1. Upsize high-fanout drivers; 2. Swap HVT cells to LVT; 3. Pin swap & buffer insertion; 4. Useful skew (advance launch or delay capture).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 4: Hold Slack -->
+        <div class="calc-card" id="calcHoldSlack">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Hold Slack (Min Delay)</h3>
+                <span class="calc-formula-badge">Slack = Arrival - Required</span>
+              </div>
+              <p class="calc-desc">Ensures data remains stable after active clock edge.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Launch Latency: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="hold_launch" class="calc-input" value="0.25" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Capture Latency: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="hold_capture" class="calc-input" value="0.27" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Min Data Delay: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="hold_comb" class="calc-input" value="0.10" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Hold Time (Thold): <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="hold_time" class="calc-input" value="0.04" step="0.01">
+              </div>
+              <div class="calc-field-wrap calc-input-full">
+                <label class="calc-label">Clock Uncertainty: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="hold_uncert" class="calc-input" value="0.03" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Hold Slack</span>
+                <div class="calc-result-val" id="res_hold_slack">+0.010 ns</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_hold_status">MET (PASS)</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Why Buffer?</strong> Hold violations are independent of clock period $T$. If fast data arrives before $T_{hold}$, you must insert delay cells/buffers or downsize drivers to intentionally slow data down.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 5: Clock Skew -->
+        <div class="calc-card" id="calcClockSkew">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Clock Skew</h3>
+                <span class="calc-formula-badge">Skew = T_capture - T_launch</span>
+              </div>
+              <p class="calc-desc">Arrival time delta between related launch and capture flops.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Capture Latency: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="skew_cap" class="calc-input" value="0.35" step="0.01">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Launch Latency: <span class="calc-unit">[ns]</span></label>
+                <input type="number" id="skew_launch" class="calc-input" value="0.32" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Clock Skew</span>
+                <div class="calc-result-val" id="res_skew_val">+30.0 ps</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_skew_status">Positive Skew</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Useful Skew:</strong> Positive skew gives data more time to arrive (relaxes setup time), but steals margin from hold time. CTS tools balance this across all related paths.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 6: Elmore Interconnect Delay -->
+        <div class="calc-card" id="calcElmore">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Elmore Wire Delay</h3>
+                <span class="calc-formula-badge">τ = 0.69 · R · C</span>
+              </div>
+              <p class="calc-desc">Distributed RC interconnect propagation time constant.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Wire Resistance (R): <span class="calc-unit">[Ω]</span></label>
+                <input type="number" id="elmore_r" class="calc-input" value="120" step="10">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Wire Capacitance (C): <span class="calc-unit">[fF]</span></label>
+                <input type="number" id="elmore_c" class="calc-input" value="35" step="5">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <span class="calc-result-label">Interconnect Delay</span>
+              <span class="calc-result-val" id="res_elmore_val">2.90 ps</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Why Buffering?</strong> Unbuffered net delay grows quadratically ($L^2$). Inserting repeaters/buffers at regular intervals breaks the long net into linear delay segments ($\propto L$).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 7: Electromigration (EM) -->
+        <div class="calc-card" id="calcEM">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Electromigration (EM)</h3>
+                <span class="calc-formula-badge">J = I / Area (W · T)</span>
+              </div>
+              <p class="calc-desc">Current density check against foundry metallization limits.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Current (I): <span class="calc-unit">[mA]</span></label>
+                <input type="number" id="em_i" class="calc-input" value="2.4" step="0.2">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Wire Width (W): <span class="calc-unit">[µm]</span></label>
+                <input type="number" id="em_w" class="calc-input" value="0.14" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Thickness (T): <span class="calc-unit">[µm]</span></label>
+                <input type="number" id="em_t" class="calc-input" value="0.18" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Jmax Limit: <span class="calc-unit">[mA/µm²]</span></label>
+                <input type="number" id="em_limit" class="calc-input" value="15.0" step="1.0">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Current Density</span>
+                <div class="calc-result-val" id="res_em_val">95.2 mA/µm²</div>
+              </div>
+              <span class="calc-result-status calc-status-fail" id="res_em_status">EM VIOLATION</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Fixes:</strong> Widen metal stripes, add redundant parallel vias, or reroute on thicker top metal layers (e.g. M7/M8) where current-carrying cross section is substantially larger.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 8: Static IR Drop -->
+        <div class="calc-card" id="calcIRDrop">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Static IR Drop</h3>
+                <span class="calc-formula-badge">V_drop = I · R_mesh</span>
+              </div>
+              <p class="calc-desc">Ohmic supply voltage loss across power grid rails.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Load Current (I): <span class="calc-unit">[mA]</span></label>
+                <input type="number" id="ir_i" class="calc-input" value="45" step="5">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Mesh Resistance (R): <span class="calc-unit">[Ω]</span></label>
+                <input type="number" id="ir_r" class="calc-input" value="0.80" step="0.1">
+              </div>
+              <div class="calc-field-wrap calc-input-full">
+                <label class="calc-label">Nominal Supply (VDD): <span class="calc-unit">[V]</span></label>
+                <input type="number" id="ir_vdd" class="calc-input" value="0.90" step="0.05">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">IR Drop</span>
+                <div class="calc-result-val" id="res_ir_val">36.0 mV (4.0%)</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_ir_status">PASS (&lt; 5% VDD)</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Impact on Timing:</strong> Reduced supply voltage makes transistors switch slower, introducing unexpected setup timing degradation. Add power straps and decrease mesh pitch to resolve.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 9: Clock Uncertainty Budgeter -->
+        <div class="calc-card" id="calcClockUncert">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Clock Uncertainty Budget</h3>
+                <span class="calc-formula-badge">Uncert = Jitter + Skew + OCV + Margin</span>
+              </div>
+              <p class="calc-desc">Total clock timing uncertainty budget deducted from cycle time.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Jitter: <span class="calc-unit">[ps]</span></label>
+                <input type="number" id="uncert_jitter" class="calc-input" value="25" step="5">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Target Skew: <span class="calc-unit">[ps]</span></label>
+                <input type="number" id="uncert_skew" class="calc-input" value="50" step="5">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">OCV Margin: <span class="calc-unit">[ps]</span></label>
+                <input type="number" id="uncert_ocv" class="calc-input" value="40" step="5">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Clock Period: <span class="calc-unit">[ps]</span></label>
+                <input type="number" id="uncert_period" class="calc-input" value="1000" step="100">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Total Uncertainty</span>
+                <div class="calc-result-val" id="res_uncert_val">130.0 ps (13.0% of T)</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_uncert_status">ROBUST (&lt; 15% T)</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>STA SDC Command:</strong> Specified via <code>set_clock_uncertainty -setup 0.13 [get_clocks SYS_CLK]</code>. In hold analysis, jitter is typically excluded because hold check compares the same clock pulse edge.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 10: Wire Resistance & RC Delay -->
+        <div class="calc-card" id="calcWireRC">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Wire Resistance &amp; RC Delay</h3>
+                <span class="calc-formula-badge">R = ρL/(WT), τ = 0.69·R·C</span>
+              </div>
+              <p class="calc-desc">Distributed interconnect wire resistance and 50% Elmore delay.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Length (L): <span class="calc-unit">[µm]</span></label>
+                <input type="number" id="wire_l" class="calc-input" value="500" step="50">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Width (W): <span class="calc-unit">[µm]</span></label>
+                <input type="number" id="wire_w" class="calc-input" value="0.10" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Thickness (T): <span class="calc-unit">[µm]</span></label>
+                <input type="number" id="wire_t" class="calc-input" value="0.15" step="0.02">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Net Cap (C): <span class="calc-unit">[fF]</span></label>
+                <input type="number" id="wire_c" class="calc-input" value="75" step="5">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Interconnect Metrics</span>
+                <div class="calc-result-val" id="res_wire_val">R: 733.3 Ω | τ: 37.95 ps</div>
+              </div>
+              <span class="calc-result-status calc-status-warn" id="res_wire_status">MODERATE DELAY</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Scaling Rule:</strong> As wire width scales down, wire resistance increases quadratically with cross-sectional area, making wire delay dominate over cell delay below 7nm nodes. Buffer insertion breaks long wires into sub-critical lengths.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 11: Decoupling Capacitor (Decap) Sizing -->
+        <div class="calc-card" id="calcDecap">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Decoupling Capacitor (Decap)</h3>
+                <span class="calc-formula-badge">C = (ΔI · Δt) / ΔV</span>
+              </div>
+              <p class="calc-desc">Charge reservoir required to suppress dynamic supply voltage droop.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Current Surge (ΔI): <span class="calc-unit">[mA]</span></label>
+                <input type="number" id="decap_di" class="calc-input" value="120" step="10">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Surge Window (Δt): <span class="calc-unit">[ps]</span></label>
+                <input type="number" id="decap_dt" class="calc-input" value="150" step="10">
+              </div>
+              <div class="calc-field-wrap calc-input-full">
+                <label class="calc-label">Allowed Voltage Dip (ΔV): <span class="calc-unit">[mV]</span></label>
+                <input type="number" id="decap_dv" class="calc-input" value="30" step="5">
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Required Decap Reservoir</span>
+                <div class="calc-result-val" id="res_decap_val">0.60 pF Decap</div>
+              </div>
+              <span class="calc-result-status calc-status-pass" id="res_decap_status">Charge Reservoir Sized</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Placement Rule:</strong> Decap cells provide instantaneous charge during clock edge transitions before current can travel from off-chip pads. However, decap cells add gate leakage power, so they must be placed selectively near hotspots.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator 12: Crosstalk Coupling Delay -->
+        <div class="calc-card" id="calcCrosstalk">
+          <div>
+            <div class="calc-header">
+              <div class="calc-title-row">
+                <h3 class="calc-name">Crosstalk Noise &amp; Delay</h3>
+                <span class="calc-formula-badge">τ = R_d · (C_g + k·C_c)</span>
+              </div>
+              <p class="calc-desc">Signal integrity delta delay caused by Miller coupling capacitance.</p>
+            </div>
+            <div class="calc-inputs-grid">
+              <div class="calc-field-wrap">
+                <label class="calc-label">Driver Res (Rd): <span class="calc-unit">[Ω]</span></label>
+                <input type="number" id="xtalk_r" class="calc-input" value="350" step="25">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Ground Cap (Cg): <span class="calc-unit">[fF]</span></label>
+                <input type="number" id="xtalk_cg" class="calc-input" value="40" step="5">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Coupling Cap (Cc): <span class="calc-unit">[fF]</span></label>
+                <input type="number" id="xtalk_cc" class="calc-input" value="25" step="5">
+              </div>
+              <div class="calc-field-wrap">
+                <label class="calc-label">Miller Factor (k):</label>
+                <select id="xtalk_k" class="calc-input">
+                  <option value="2.0">k = 2.0 (Opposite Switch - Worst)</option>
+                  <option value="1.0">k = 1.0 (Quiet Aggressor)</option>
+                  <option value="0.0">k = 0.0 (Same Direction Switch)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="calc-result-box">
+              <div>
+                <span class="calc-result-label">Effective Stage Delay</span>
+                <div class="calc-result-val" id="res_xtalk_val">Delay: 31.50 ps (+17.50 ps SI)</div>
+              </div>
+              <span class="calc-result-status calc-status-fail" id="res_xtalk_status">WORST-CASE SWITCH (k=2)</span>
+            </div>
+            <div class="calc-insight-collapsible">
+              <button class="calc-toggle-insight-btn">
+                <span>Interview & Notes ▼</span>
+              </button>
+              <div class="calc-insight-body">
+                <strong>Miller Effect:</strong> When victim and aggressor switch simultaneously in opposite directions, the voltage change across $C_c$ is $2 V_{DD}$, doubling the effective coupling capacitance. Fix by shielding, increasing wire spacing, or upsizing victim driver.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       NEW MODULE 2: Stage-by-Stage Debug Center & Error Matrix
+       ========================================================================= -->
+  <section class="section-spacer" id="debug">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// REAL-WORLD EDA DIAGNOSTICS</span>
+        <h2 class="section-title">Physical Design <span class="gradient-text">Debug Center</span></h2>
+        <p class="section-subtitle">
+          Troubleshoot common Cadence Innovus, Synopsys ICC2, and Voltus tapeout errors with root causes, triage guidance, and executable commands.
+        </p>
+      </div>
+
+      <!-- Debug Controls -->
+      <div class="debug-search-panel">
+        <div class="search-box-wrap" style="max-width: 480px;">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input 
+            type="text" 
+            class="search-input" 
+            id="debugSearchInput" 
+            placeholder="Search error signatures (e.g. Cell not found, Congestion, Skew, IR drop)..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="debug-chips-wrap" id="debugStagePills">
+          <!-- Dynamically populated via app.js -->
+        </div>
+      </div>
+
+      <!-- 10-Point Debugging Priority Order (Shivas PD Hub & Industry Rule) -->
+      <div class="priority-order-card" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h4 style="font-family: var(--font-heading); font-size: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Industry Debugging Priority Hierarchy (Triage Sequence)</span>
+          </h4>
+          <span class="badge badge-cyan" style="font-size: 0.72rem;">Fixed In Strict Order 1 → 10</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Never fix hold before setup, and never fix setup before resolving connectivity and severe congestion. Follow this strict signoff sequence:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.65rem;">
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">1.</strong> Connectivity &amp; Libs
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">2.</strong> Floorplan &amp; Halos
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">3.</strong> Power Grid Continuity
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">4.</strong> Congestion (&gt; 100%)
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">5.</strong> Setup Timing (WNS/TNS)
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">6.</strong> Hold Timing Closure
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">7.</strong> Max Tran / Cap DRVs
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">8.</strong> Signal Integrity (Crosstalk)
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">9.</strong> Static &amp; Dynamic IR / EM
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-subtle);">
+            <strong style="color:var(--accent-cyan);">10.</strong> DRC, LVS &amp; Tapeout
+          </div>
+        </div>
+      </div>
+
+      <!-- Errors Grid -->
+      <div class="debug-errors-grid" id="debugErrorsContainer">
+        <!-- Populated via app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       NEW MODULE 3: Interactive TCL Automation Script Generator
+       ========================================================================= -->
+  <section class="section-spacer" id="tcl-generator" style="background: rgba(11, 15, 25, 0.45);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// EDUCATEVLSI SIGNATURE AUTOMATION</span>
+        <h2 class="section-title">Interactive TCL <span class="gradient-text">Script Generator</span></h2>
+        <p class="section-subtitle">
+          Configure parameters and generate production-grade TCL automation scripts for Synopsys ICC2, PrimeTime, and Cadence Innovus.
+        </p>
+      </div>
+
+      <div class="tcl-generator-container">
+        <!-- Left Column: Controls -->
+        <div class="tcl-controls-column">
+          <div class="tcl-type-selector">
+            <label class="calc-label" style="font-size: 0.95rem; font-weight: 700;">Select Automation Flow:</label>
+            <select id="tclTemplateSelect" class="calc-input" style="font-size: 0.95rem; padding: 0.75rem;">
+              <option value="ndr">1. Clock Non-Default Routing Rules (NDR)</option>
+              <option value="halo">2. Macro Halos & Keepout Margins</option>
+              <option value="eco">3. Timing ECO Cell Sizing & Buffering</option>
+              <option value="pdn">4. Power Distribution Network (PDN) Mesh</option>
+            </select>
+          </div>
+
+          <div class="tcl-param-group" id="tclParamFields">
+            <!-- Dynamically populated based on template -->
+          </div>
+
+          <button class="btn-primary" id="genTclBtn" style="justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            <span>Update TCL Script</span>
+          </button>
+        </div>
+
+        <!-- Right Column: Syntax-Highlighted Code Display -->
+        <div class="tcl-preview-column">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="badge badge-cyan">EDA Script Preview (.tcl)</span>
+            <div class="tcl-actions-bar">
+              <button class="btn-nav-card" id="copyTclBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy Script</span>
+              </button>
+              <button class="btn-primary" id="downloadTclBtn" style="padding: 0.55rem 1.1rem; font-size: 0.86rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Download .tcl</span>
+              </button>
+            </div>
+          </div>
+          <pre class="tcl-code-display" id="tclOutputCode"># Loading script...</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       NEW MODULE 4: Stage Gate Tapeout Checklists
+       ========================================================================= -->
+  <section class="section-spacer" id="checklists">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// TAPE-OUT QUALITY ASSURANCE</span>
+        <h2 class="section-title">Physical Design <span class="gradient-text">Stage Gate Checklists</span></h2>
+        <p class="section-subtitle">
+          Track verified tapeout criteria across each stage. Progress is saved automatically in your browser.
+        </p>
+      </div>
+
+      <div class="checklist-wrapper">
+        <div class="checklist-meta-header">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);" id="checklistScoreCount">0 of 26 Checks Passed</h3>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="checklistProgressBarFill" style="width: 0%;"></div>
+            </div>
+          </div>
+          <span class="badge badge-amber" id="checklistScoreBadge">0% Signoff Ready</span>
+        </div>
+
+        <!-- Stage Selector Pill Tabs -->
+        <div class="module-pill-nav" id="checklistStageTabs" style="margin-bottom: 1.5rem; justify-content: flex-start;">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+        <!-- Checklist Items List -->
+        <div class="checklist-items-list" id="checklistItemsContainer">
+          <!-- Populated via app.js -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RTL to GDSII Physical Design Roadmap -->
+  <section class="section-spacer roadmap-section" id="roadmap" style="background: rgba(11, 15, 25, 0.45);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// ARCHITECTURE & FLOW</span>
+        <h2 class="section-title">The Complete <span class="gradient-text">RTL-to-GDSII Journey</span></h2>
+        <p class="section-subtitle">
+          Explore the industry-standard ASIC Physical Design flow stages, input/output collateral, and closure objectives. Click any step to inspect details.
+        </p>
+      </div>
+
+      <div class="roadmap-timeline">
+        <!-- Step 1 -->
+        <div class="timeline-step">
+          <div class="step-marker">01</div>
+          <div class="step-card" id="stepRtl">
+            <div class="step-card-header">
+              <h3 class="step-name">1. Specification & RTL Architecture</h3>
+              <span class="badge badge-cyan">Front-End</span>
+            </div>
+            <p class="step-desc">
+              Defining architectural specifications, functional blocks, and coding synthesizable Verilog/SystemVerilog RTL. Verification, linting, and initial clock definitions are established.
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Inputs</div>
+                <div class="detail-val">Architectural Specs, PRD, ISA Definition</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Outputs</div>
+                <div class="detail-val">Verified RTL (.v / .sv), Testbenches</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Key Objective</div>
+                <div class="detail-val">Bug-free synthesizable functional logic</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="timeline-step">
+          <div class="step-marker">02</div>
+          <div class="step-card" id="stepSynthesis">
+            <div class="step-card-header">
+              <h3 class="step-name">2. Logic Synthesis & Netlist Generation</h3>
+              <span class="badge badge-purple">Synthesis</span>
+            </div>
+            <p class="step-desc">
+              Converts technology-independent RTL code into a technology-dependent gate-level netlist using foundry standard cell libraries (.lib / .db) and Synopsys Design Constraints (.sdc).
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Inputs</div>
+                <div class="detail-val">RTL (.v), Timing Constraints (.sdc), Target Libs (.lib)</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Outputs</div>
+                <div class="detail-val">Gate-Level Netlist (.v), Synthesis SDC, Area/Power Reports</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">EDA Tools</div>
+                <div class="detail-val">Design Compiler, Yosys, Genus</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="timeline-step">
+          <div class="step-marker">03</div>
+          <div class="step-card" id="stepFloorplan">
+            <div class="step-card-header">
+              <h3 class="step-name">3. Floorplanning & Power Mesh (P/G)</h3>
+              <span class="badge badge-cyan">Physical Design</span>
+            </div>
+            <p class="step-desc">
+              Establishes core & die boundaries, aspect ratio, utilization targets, macro placement with keepout halos, I/O pin allocation, and low-impedance VDD/VSS power rings and straps.
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Critical Cells</div>
+                <div class="detail-val">Tap cells (latchup), End-cap cells, Decap cells</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Key Metrics</div>
+                <div class="detail-val">Core Utilization %, Aspect Ratio (H/W), IR Drop bounds</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Blockages</div>
+                <div class="detail-val">Hard, Soft, and Partial density blockages</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="timeline-step">
+          <div class="step-marker">04</div>
+          <div class="step-card" id="stepPlacement">
+            <div class="step-card-header">
+              <h3 class="step-name">4. Standard Cell Placement & HFNS</h3>
+              <span class="badge badge-amber">Core Optimization</span>
+            </div>
+            <p class="step-desc">
+              Automated global placement, legalization to standard cell row sites, scan-chain reordering, high fanout net synthesis (HFNS), and timing-driven cell sizing / Vt swapping to eliminate setup violations.
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Placement Stages</div>
+                <div class="detail-val">Coarse Placement → Legalization → Detailed Opt</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Key Checks</div>
+                <div class="detail-val">Congestion Hotspots, WNS, TNS, Wirelength minimization</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">EDA Command</div>
+                <div class="detail-val"><code>legalize_placement</code>, <code>report_congestion</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="timeline-step">
+          <div class="step-marker">05</div>
+          <div class="step-card" id="stepCts">
+            <div class="step-card-header">
+              <h3 class="step-name">5. Clock Tree Synthesis (CTS)</h3>
+              <span class="badge badge-purple">Clock Network</span>
+            </div>
+            <p class="step-desc">
+              Synthesizes a low-skew, balanced clock distribution network across sequential registers using symmetric clock buffers/inverters, NDR routing rules (double width/spacing), and Integrated Clock Gating (ICG).
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Clock Metrics</div>
+                <div class="detail-val">Clock Skew (Local & Global), Insertion Latency, Jitter</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Exceptions</div>
+                <div class="detail-val">Stop pins, Exclude pins, Float pins (macros)</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">EDA Command</div>
+                <div class="detail-val"><code>clock_opt</code> (ICC2 / Innovus)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="timeline-step">
+          <div class="step-marker">06</div>
+          <div class="step-card" id="stepRouting">
+            <div class="step-card-header">
+              <h3 class="step-name">6. Routing & Signal Integrity</h3>
+              <span class="badge badge-cyan">Interconnect</span>
+            </div>
+            <p class="step-desc">
+              Executes Global Routing to plan paths through G-cells, followed by Detailed Routing to assign wires to precise metal tracks and via layers. Fixes crosstalk glitches, delta delay, and antenna effect violations.
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Phases</div>
+                <div class="detail-val">Global Routing → Track Assignment → Detailed Routing</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Reliability Fixes</div>
+                <div class="detail-val">Antenna Diodes, Metal Hopping, Net Shielding (VDD/VSS)</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">EDA Command</div>
+                <div class="detail-val"><code>route_global</code>, <code>route_auto</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="timeline-step">
+          <div class="step-marker">07</div>
+          <div class="step-card" id="stepSignoff">
+            <div class="step-card-header">
+              <h3 class="step-name">7. Physical Verification & Signoff</h3>
+              <span class="badge badge-emerald">Signoff Quality</span>
+            </div>
+            <p class="step-desc">
+              Final rigorous checks: Design Rule Check (DRC) against foundry design rules, Layout Versus Schematic (LVS) equivalence, Electrical Rule Check (ERC), and Multi-Corner Multi-Mode (MCMM) Static Timing Analysis.
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Verification Checks</div>
+                <div class="detail-val">DRC, LVS, ERC, Antenna, Electromigration (EM), IR Drop</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Timing Signoff</div>
+                <div class="detail-val">Setup Slack &ge; 0, Hold Slack &ge; 0, Max Transition/Cap</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Tools</div>
+                <div class="detail-val">PrimeTime, Calibre, IC Validator, OpenSTA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 8 -->
+        <div class="timeline-step">
+          <div class="step-marker">08</div>
+          <div class="step-card" id="stepTapeout">
+            <div class="step-card-header">
+              <h3 class="step-name">8. Tape-Out & Mask Data Preparation</h3>
+              <span class="badge badge-amber">Silicon Foundry</span>
+            </div>
+            <p class="step-desc">
+              Final layout streaming to industry-standard GDSII / OASIS stream format for optical lithography mask manufacturing at the foundry fab (TSMC, Intel, GlobalFoundries, SkyWater).
+            </p>
+            <div class="step-details-grid">
+              <div class="detail-block">
+                <div class="detail-title">Output Formats</div>
+                <div class="detail-val">GDSII (.gds), OASIS (.oas), MEBES</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Final Artifact</div>
+                <div class="detail-val">Photomasks for photolithography fabrication</div>
+              </div>
+              <div class="detail-block">
+                <div class="detail-title">Next Milestone</div>
+                <div class="detail-val">Wafer fabrication, Packaging, Post-silicon bringup</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Curated Video Lectures Section -->
+  <section class="section-spacer" id="videos">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// YOUTUBE LECTURES & MASTERCLASSES</span>
+        <h2 class="section-title">EducateVLSI <span class="gradient-text">Video Catalog</span></h2>
+        <p class="section-subtitle">
+          Watch industry-proven deep dives on TCL scripting, architecture, and semiconductor flows directly from the official YouTube channel.
+        </p>
+      </div>
+
+      <div class="videos-grid">
+        <!-- Video 1 -->
+        <div class="video-card">
+          <div class="video-thumb-wrap">
+            <img src="assets/EducateVLSI_Image.png" alt="TCL in VLSI Marathon" class="video-thumb-img">
+            <span class="video-duration-pill">3.5 Hours Marathon</span>
+            <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="play-overlay-btn">
+              <div class="play-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </div>
+            </a>
+          </div>
+          <div class="video-card-body">
+            <div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span class="badge badge-cyan">TCL Masterclass</span>
+                <span class="badge badge-purple">Automation</span>
+              </div>
+              <h3 class="video-title">TCL in VLSI: Complete Marathon Guide & Infographics</h3>
+              <p class="video-desc">
+                From basic syntax, strings, lists, and procs to real EDA shell automation and netlist inspection scripts. A comprehensive 3.5-hour roadmap for chip designers.
+              </p>
+            </div>
+            <div class="video-footer">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">EducateVLSI Series</span>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-watch-yt">
+                Watch on YouTube ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 2 -->
+        <div class="video-card">
+          <div class="video-thumb-wrap">
+            <img src="assets/EducateVLSI_BannerImage.jpg" alt="Code To Silicon" class="video-thumb-img">
+            <span class="video-duration-pill">Full Flow</span>
+            <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="play-overlay-btn">
+              <div class="play-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </div>
+            </a>
+          </div>
+          <div class="video-card-body">
+            <div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span class="badge badge-amber">Physical Design</span>
+                <span class="badge badge-cyan">Architecture</span>
+              </div>
+              <h3 class="video-title">Code To Silicon: The Architectural Journey</h3>
+              <p class="video-desc">
+                Follow the transition from HDL source code lines through logic gates, silicon layout geometries, down to microscopic transistors on a physical silicon wafer.
+              </p>
+            </div>
+            <div class="video-footer">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">EducateVLSI Series</span>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-watch-yt">
+                Watch on YouTube ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 3 -->
+        <div class="video-card">
+          <div class="video-thumb-wrap">
+            <img src="assets/Gemini_Generated_Image_mikegxmikegxmike.png" alt="Deciphering a Language" class="video-thumb-img">
+            <span class="video-duration-pill">EDA Syntax</span>
+            <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="play-overlay-btn">
+              <div class="play-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </div>
+            </a>
+          </div>
+          <div class="video-card-body">
+            <div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span class="badge badge-cyan">EDA Tooling</span>
+                <span class="badge badge-purple">Syntax</span>
+              </div>
+              <h3 class="video-title">Deciphering a Language: EDA Commands Demystified</h3>
+              <p class="video-desc">
+                Learn how tools parse commands, interact with databases (Milkyway / NDM), query collections, and execute timing queries with elegance.
+              </p>
+            </div>
+            <div class="video-footer">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">EducateVLSI Series</span>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-watch-yt">
+                Watch on YouTube ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 4 -->
+        <div class="video-card">
+          <div class="video-thumb-wrap">
+            <img src="assets/NotebookLM Mind Map.png" alt="The Pursuit of Performance" class="video-thumb-img">
+            <span class="video-duration-pill">Timing & PPA</span>
+            <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="play-overlay-btn">
+              <div class="play-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </div>
+            </a>
+          </div>
+          <div class="video-card-body">
+            <div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald">Optimization</span>
+                <span class="badge badge-cyan">STA</span>
+              </div>
+              <h3 class="video-title">The Pursuit of Performance: Timing Closure</h3>
+              <p class="video-desc">
+                Analyzing setup/hold slack, cycle borrowing, clock jitter, and the physical trade-offs between dynamic power, cell leakage, and maximum operating frequency.
+              </p>
+            </div>
+            <div class="video-footer">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">EducateVLSI Series</span>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-watch-yt">
+                Watch on YouTube ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 5 -->
+        <div class="video-card">
+          <div class="video-thumb-wrap">
+            <img src="assets/Screenshot 2025-11-28 134928.png" alt="From Chaos to Code" class="video-thumb-img">
+            <span class="video-duration-pill">Logic Synthesis</span>
+            <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="play-overlay-btn">
+              <div class="play-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </div>
+            </a>
+          </div>
+          <div class="video-card-body">
+            <div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span class="badge badge-purple">Synthesis</span>
+                <span class="badge badge-amber">Gate-Level</span>
+              </div>
+              <h3 class="video-title">From Chaos to Code: Synthesis Deep Dive</h3>
+              <p class="video-desc">
+                Step-by-step look at how RTL behavioral descriptions transform into structured Boolean logic equations and mapped technology cells.
+              </p>
+            </div>
+            <div class="video-footer">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">EducateVLSI Series</span>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-watch-yt">
+                Watch on YouTube ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 6 -->
+        <div class="video-card">
+          <div class="video-thumb-wrap">
+            <img src="assets/EducateVLSI_VideoWaterMark.jpg" alt="TCL Simple Explained" class="video-thumb-img">
+            <span class="video-duration-pill">Fast Track</span>
+            <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="play-overlay-btn">
+              <div class="play-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </div>
+            </a>
+          </div>
+          <div class="video-card-body">
+            <div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <span class="badge badge-cyan">TCL Rapid</span>
+                <span class="badge badge-emerald">Hands-On</span>
+              </div>
+              <h3 class="video-title">TCL Simple Explained: Scripting Fast Track</h3>
+              <p class="video-desc">
+                A rapid breakdown of core TCL syntax, control structures, associative arrays, regex parsing, and scripting productivity tricks for busy engineers.
+              </p>
+            </div>
+            <div class="video-footer">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">EducateVLSI Series</span>
+              <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-watch-yt">
+                Watch on YouTube ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDA Commands & TCL Interactive Terminal -->
+  <section class="section-spacer" id="terminal" style="background: rgba(11, 15, 25, 0.45);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// INDUSTRY TOOLS CHEATSHEET</span>
+        <h2 class="section-title">Synopsys ICC2 & EDA <span class="gradient-text">Command Terminal</span></h2>
+        <p class="section-subtitle">
+          Essential Physical Design commands tested on real industrial flows. Click "Copy" to quickly copy commands to your clipboard.
+        </p>
+      </div>
+
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="terminal-dot dot-red"></span>
+            <span class="terminal-dot dot-yellow"></span>
+            <span class="terminal-dot dot-green"></span>
+          </div>
+          <span class="terminal-title">icc2_shell & bash &bull; physical_design_flow.tcl</span>
+          <span class="badge badge-cyan" style="font-size: 0.7rem;">Synopsys ICC2</span>
+        </div>
+
+        <div class="terminal-body">
+          <div class="command-snippet-list">
+            <!-- Command 1 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">icc2_shell &gt; start_gui</span>
+                <span class="cmd-desc">Invokes the Synopsys ICC2 Graphical User Interface for layout inspection</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="start_gui">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 2 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">create_lib -technology tech.tf design.nlib</span>
+                <span class="cmd-desc">Initializes a new physical library and binds the foundry technology file</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="create_lib -technology tech.tf design.nlib">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 3 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">read_verilog -top top_module netlist.v</span>
+                <span class="cmd-desc">Imports synthesized gate-level Verilog netlist into the design workspace</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="read_verilog -top top_module netlist.v">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 4 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">check_netlist</span>
+                <span class="cmd-desc">Verifies design integrity, checks floating pins, and validates library bindings</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="check_netlist">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 5 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">legalize_placement</span>
+                <span class="cmd-desc">Legalizes standard cells on designated site rows and eliminates placement overlaps</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="legalize_placement">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 6 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">report_congestion -gr_based</span>
+                <span class="cmd-desc">Generates global routing congestion map to locate routing track overflow bottlenecks</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="report_congestion -gr_based">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 7 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">clock_opt</span>
+                <span class="cmd-desc">Builds balanced clock tree distribution and performs post-CTS timing optimization</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="clock_opt">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 8 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">route_global</span>
+                <span class="cmd-desc">Runs global routing to compute optimal interconnect paths across routing grid</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="route_global">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Command 9 -->
+            <div class="command-item">
+              <div class="cmd-code-wrap">
+                <span class="cmd-line">report_timing -delay_type max -max_paths 10</span>
+                <span class="cmd-desc">Dumps detailed Static Timing Analysis report for top critical setup paths</span>
+              </div>
+              <button class="btn-copy-cmd" data-cmd="report_timing -delay_type max -max_paths 10">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Curated Downloads & Resources -->
+  <section class="section-spacer" id="resources">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-pretitle">// KNOWLEDGE DOWNLOADS</span>
+        <h2 class="section-title">Guides & <span class="gradient-text">Study Collateral</span></h2>
+        <p class="section-subtitle">
+          Download comprehensive PDF roadmaps and high-resolution infographics curated for VLSI professionals.
+        </p>
+      </div>
+
+      <div class="resources-grid">
+        <!-- Resource 1 -->
+        <div class="resource-card">
+          <div>
+            <div class="resource-icon-wrap">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <h3 class="resource-title">VLSI Physical Design Journey</h3>
+            <p class="resource-desc">
+              Comprehensive 12+ MB master reference document detailing the complete ASIC Physical Design flow from netlist input to tapeout.
+            </p>
+          </div>
+          <div class="resource-actions">
+            <a href="assets/docs/VLSI_Physical_Design_Journey.pdf" download class="btn-primary" style="padding: 0.65rem 1.25rem; font-size: 0.88rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download PDF</span>
+            </a>
+            <a href="assets/docs/VLSI_Physical_Design_Journey.pdf" target="_blank" class="btn-secondary" style="padding: 0.65rem 1rem; font-size: 0.88rem;">
+              Preview ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Resource 2 -->
+        <div class="resource-card">
+          <div>
+            <div class="resource-icon-wrap" style="color: var(--accent-purple); background: rgba(139, 92, 246, 0.1);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+              </svg>
+            </div>
+            <h3 class="resource-title">The Odoo Blueprint</h3>
+            <p class="resource-desc">
+              Detailed 16+ MB architectural blueprint covering end-to-end modular workflows, engineering milestones, and framework architecture.
+            </p>
+          </div>
+          <div class="resource-actions">
+            <a href="assets/docs/The_Odoo_Blueprint.pdf" download class="btn-primary" style="padding: 0.65rem 1.25rem; font-size: 0.88rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download PDF</span>
+            </a>
+            <a href="assets/docs/The_Odoo_Blueprint.pdf" target="_blank" class="btn-secondary" style="padding: 0.65rem 1rem; font-size: 0.88rem;">
+              Preview ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Resource 3 -->
+        <div class="resource-card">
+          <div>
+            <div class="resource-icon-wrap" style="color: var(--accent-amber); background: rgba(245, 158, 11, 0.1);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="m10 14-3.5 3.5M14 10l3.5-3.5"/>
+              </svg>
+            </div>
+            <h3 class="resource-title">NotebookLM Mind Map</h3>
+            <p class="resource-desc">
+              Visual mind map diagram summarizing core semiconductor physical hierarchy, constraints, and timing closure concepts.
+            </p>
+          </div>
+          <div class="resource-actions">
+            <a href="assets/NotebookLM Mind Map.png" target="_blank" class="btn-primary" style="padding: 0.65rem 1.25rem; font-size: 0.88rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              <span>View Infographic</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community Subscribe Banner -->
+  <section class="container" style="margin-bottom: 4rem;">
+    <div class="community-banner">
+      <h2 class="banner-title">Accelerate Your VLSI Career with <span class="gradient-text">EducateVLSI</span></h2>
+      <p class="banner-desc">
+        Subscribe to our YouTube channel for weekly deep-dives on ASIC physical design, TCL automation, timing closure, and semiconductor interview preparation.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" class="btn-youtube-nav" style="padding: 0.85rem 2rem; font-size: 1rem; border-radius: var(--radius-md);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          <span>Subscribe on YouTube (@EducateVLSI)</span>
+        </a>
+        <a href="#calculators" class="btn-secondary" style="padding: 0.85rem 1.75rem;">
+          <span>Explore PD Calculators ↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="#" class="brand-link">
+            <img src="assets/EducateVLSI_Logo.jpg" alt="EducateVLSI" class="brand-logo-img">
+            <div class="brand-text-wrap">
+              <span class="brand-title">Educate<span class="gradient-text">VLSI</span></span>
+              <span class="brand-subtitle">Silicon Academy</span>
+            </div>
+          </a>
+          <p class="footer-brand-desc">
+            Empowering semiconductor engineers with clear, industry-grade knowledge of ASIC Physical Design, TCL EDA automation, and Static Timing Analysis.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Interactive Workstation</h4>
+          <ul class="footer-links">
+            <li><a href="#learn">'LEARN' Academy (24 Lessons)</a></li>
+            <li><a href="#study-vault">'STUDY' Vault &amp; Lab Manuals</a></li>
+            <li><a href="#flashcards">74 Interview Flashcards</a></li>
+            <li><a href="#calculators">12 Live PD Calculators</a></li>
+            <li><a href="#debug">EDA Debug Center &amp; Triage</a></li>
+            <li><a href="#tcl-generator">Production TCL Generator</a></li>
+            <li><a href="#checklists">Stage Gate Signoff Checklists</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Study Vault &amp; Labs</h4>
+          <ul class="footer-links">
+            <li><a href="study/day1_cmos_foundations.html" target="_blank">Day 1: CMOS Foundations Lab</a></li>
+            <li><a href="study/day2_sequential_logic.html" target="_blank">Day 2: Sequential Logic Lab</a></li>
+            <li><a href="study/Phase2_Part1_VLSI_Fundamentals.html" target="_blank">Phase 2: File Ecosystem (.lib/.lef)</a></li>
+            <li><a href="study/Phase2_Part2_Floorplan_Power_Placement.html" target="_blank">Phase 2: OpenROAD Placement Lab</a></li>
+            <li><a href="study/LMS_ICC_Lab_Manual.pdf" target="_blank">Synopsys ICC Lab Manual (PDF)</a></li>
+            <li><a href="study/LMS_PD_Notes.pdf" target="_blank">Complete PD Notes (22.7 MB)</a></li>
+            <li><a href="study/Blueprint_to_Silicon.pdf" target="_blank">Blueprint to Silicon Guide</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Official Channel</h4>
+          <ul class="footer-links">
+            <li><a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer">YouTube Channel</a></li>
+            <li><a href="https://www.youtube.com/@EducateVLSI/videos" target="_blank" rel="noopener noreferrer">Latest Videos</a></li>
+            <li><a href="https://www.youtube.com/@EducateVLSI/playlists" target="_blank" rel="noopener noreferrer">TCL Playlists</a></li>
+            <li><a href="https://www.youtube.com/@EducateVLSI/community" target="_blank" rel="noopener noreferrer">Community Updates</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 EducateVLSI. Built for the semiconductor & chip design community.
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <a href="https://www.youtube.com/@EducateVLSI" target="_blank" rel="noopener noreferrer" style="color: var(--accent-cyan);">
+            youtube.com/@EducateVLSI
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lesson Study Notes Modal / Drawer Dialog -->
+  <div class="lesson-modal-backdrop" id="lessonModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalLessonTitle">
+    <div class="lesson-modal-dialog">
+      <div class="lesson-modal-header">
+        <div>
+          <span class="badge badge-cyan" id="modalLessonTag" style="margin-bottom: 0.35rem; display: inline-block;">LESSON 1.1</span>
+          <h2 class="learn-card-title" id="modalLessonTitle" style="margin-bottom: 0.2rem; font-size: 1.45rem;">Semiconductor Physics & PN Junction</h2>
+          <span id="modalLessonSubtitle" style="font-size: 0.88rem; color: var(--text-muted); font-family: var(--font-mono);"></span>
+        </div>
+        <button class="btn-icon" id="closeLessonModalBtn" aria-label="Close modal dialog" title="Close (Esc)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="lesson-modal-scroll-body" id="modalLessonContent">
+        <!-- Injected dynamically by openLessonModal() -->
+      </div>
+
+      <div class="lesson-modal-footer">
+        <button class="btn-secondary" onclick="closeLessonModal()">
+          Close Study Notes
+        </button>
+        <button class="btn-primary" id="modalMarkStudiedBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Mark as Studied</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

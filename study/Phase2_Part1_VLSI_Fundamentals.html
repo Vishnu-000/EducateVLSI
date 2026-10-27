@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Phase 2 · Part 1 — VLSI & Digital Design Fundamentals</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#0a0e17;--bg2:#0f1520;--bg3:#141c2a;--bg4:#1a2235;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e2e8f0;--muted:#6b7a99;--muted2:#3d4a66;
+  --green:#22c55e;--blue:#3b82f6;--amber:#f59e0b;--orange:#f97316;
+  --purple:#a78bfa;--teal:#14b8a6;--red:#ef4444;--cyan:#06b6d4;
+  --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;--body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.65}
+/* circuit grid bg */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,14,23,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0;overflow-x:auto;padding:0 28px}
+.nav-brand{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--cyan);letter-spacing:.05em;padding:14px 0;margin-right:20px;white-space:nowrap}
+.nav a{display:block;padding:13px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.nav a:hover{color:var(--text)}
+.nav a.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+/* HERO */
+.hero{padding:56px 28px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:0;top:0;width:40%;height:100%;background:radial-gradient(ellipse at right center,rgba(6,182,212,0.07),transparent 70%);pointer-events:none}
+.wrap{max-width:1080px;margin:0 auto;position:relative}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--cyan);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.hero-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(6,182,212,.4)}50%{opacity:.6;box-shadow:0 0 0 5px rgba(6,182,212,0)}}
+.hero h1{font-family:var(--display);font-size:clamp(30px,5vw,54px);font-weight:800;color:#fff;line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--cyan)}
+.hero-sub{font-size:14px;color:var(--muted);max-width:580px;line-height:1.75;margin-bottom:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:4px;border:1px solid var(--border);color:var(--muted);background:var(--bg2)}
+.chip b{color:var(--text)}
+
+/* PAGE */
+.page{max-width:1080px;margin:0 auto;padding:36px 28px}
+
+/* DAY SECTIONS */
+.day{scroll-margin-top:58px;margin-bottom:64px}
+.day-hd{display:flex;align-items:flex-start;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.day-badge{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;padding:4px 11px;border-radius:4px;white-space:nowrap;margin-top:3px;flex-shrink:0}
+.db-cyan{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.db-blue{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.db-amber{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.day-ttl{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;line-height:1.15}
+.day-desc{font-size:13px;color:var(--muted);max-width:660px;line-height:1.7}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.card-hd{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.018)}
+.card-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.ci-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
+.ci-blue{background:rgba(59,130,246,.12);color:var(--blue)}
+.ci-amber{background:rgba(245,158,.11,.12);color:var(--amber)}
+.ci-green{background:rgba(34,197,94,.12);color:var(--green)}
+.ci-purple{background:rgba(167,139,250,.12);color:var(--purple)}
+.card-ttl{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.card-body{padding:18px}
+
+/* CONCEPTS */
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.cc{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:13px 15px}
+.cc-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.cc-lbl.cyan{color:var(--cyan)}
+.cc-lbl.blue{color:var(--blue)}
+.cc-lbl.amber{color:var(--amber)}
+.cc-lbl.green{color:var(--green)}
+.cc-lbl.purple{color:var(--purple)}
+.cc-lbl.red{color:var(--red)}
+.cc-lbl.teal{color:var(--teal)}
+.cc-ttl{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.cc-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse}
+.tbl tr{border-bottom:1px solid var(--border)}
+.tbl tr:last-child{border-bottom:none}
+.tbl tr:hover{background:rgba(255,255,255,.018)}
+.tbl td{padding:9px 12px;vertical-align:top}
+.tbl td:first-child{width:38%;min-width:160px}
+.tc{font-family:var(--mono);font-size:11.5px;color:var(--orange);background:rgba(249,115,22,.08);padding:3px 8px;border-radius:3px;display:inline-block;white-space:nowrap}
+.tc.blue{color:var(--blue);background:rgba(59,130,246,.08)}
+.tc.cyan{color:var(--cyan);background:rgba(6,182,212,.08)}
+.tc.amber{color:var(--amber);background:rgba(245,158,11,.08)}
+.tc.green{color:var(--green);background:rgba(34,197,94,.08)}
+.tc.purple{color:var(--purple);background:rgba(167,139,250,.08)}
+.td{font-size:13px;color:var(--text);line-height:1.5}
+.td-pd{font-size:11.5px;color:var(--teal);margin-top:3px;font-style:italic}
+.td-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* CODE */
+.codeblock{background:#07090f;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.cb-hd{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}
+.dots span{width:9px;height:9px;border-radius:50%}
+.dots span:nth-child(1){background:#ff5f57}
+.dots span:nth-child(2){background:#febc2e}
+.dots span:nth-child(3){background:#28c840}
+.cb-fn{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:4px}
+.cb-body{padding:18px;font-family:var(--mono);font-size:12px;line-height:1.85;overflow-x:auto;white-space:pre;color:#aac}
+.ck{color:#ff79c6}.cs{color:#a5d6ff}.cn{color:#f2cc60}.cf{color:#cfa8ff}.cm{color:#6e7681}.cv{color:#ffa657}.co{color:#79c0ff}
+
+/* LAB */
+.lab-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.lab-item{display:flex;gap:13px;align-items:flex-start}
+.lab-n{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:2px;color:#07090f}
+.ln-cyan{background:var(--cyan)}
+.ln-blue{background:var(--blue)}
+.ln-amber{background:var(--amber)}
+.lab-txt{font-size:13px;color:var(--muted);line-height:1.65}
+.lab-txt code{font-family:var(--mono);font-size:11px;color:var(--orange);background:rgba(249,115,22,.1);padding:1px 5px;border-radius:3px}
+.lab-txt strong{color:var(--text);font-weight:500}
+
+/* CALLOUTS */
+.cbox{display:flex;gap:11px;border-radius:6px;padding:13px 15px;margin-bottom:14px;font-size:13px;line-height:1.65}
+.cbox-tip{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#c49b20}
+.cbox-win{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.cbox-info{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:#6ba0e8}
+.cbox-warn{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#e07070}
+.cbox-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ANALOGY BOX */
+.analogy{background:linear-gradient(135deg,rgba(167,139,250,.07),rgba(6,182,212,.05));border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+.analogy-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--purple);margin-bottom:6px;text-transform:uppercase}
+.analogy-txt{font-size:13px;color:var(--text);line-height:1.7}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:16px;background:var(--bg3);border-radius:7px;margin-bottom:14px}
+.fnode{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:7px 13px;font-family:var(--mono);font-size:11px;color:var(--text);white-space:nowrap}
+.fnode.hl{border-color:var(--cyan);color:var(--cyan);background:rgba(6,182,212,.08)}
+.fnode.amber{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,.08)}
+.farr{color:var(--muted);font-size:13px;flex-shrink:0}
+
+/* FILE TYPE TABLE */
+.ft-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.ft-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:13px 15px}
+.ft-ext{font-family:var(--mono);font-size:16px;font-weight:600;margin-bottom:5px}
+.ft-name{font-size:12.5px;font-weight:500;color:var(--text);margin-bottom:4px}
+.ft-desc{font-size:12px;color:var(--muted);line-height:1.55}
+
+/* QUIZ */
+.quiz-wrap{display:flex;flex-direction:column;gap:14px}
+.qcard{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:16px}
+.qtxt{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:7px}
+.qopt{padding:9px 14px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;text-align:left;font-family:var(--body);transition:all .15s;width:100%}
+.qopt:hover:not(:disabled){border-color:rgba(6,182,212,.4);color:var(--text);background:rgba(6,182,212,.04)}
+.qopt.ok{border-color:var(--green)!important;color:var(--green)!important;background:rgba(34,197,94,.07)!important}
+.qopt.no{border-color:var(--red)!important;color:var(--red)!important;background:rgba(239,68,68,.07)!important}
+.qexp{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.6;display:none;padding:10px 13px;background:rgba(34,197,94,.05);border-radius:5px;border-left:2px solid var(--green)}
+.qexp.show{display:block}
+
+/* TIMING DIAGRAM */
+.timing-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+.timing-tbl td{padding:4px 10px;border:1px solid var(--muted2);color:var(--text)}
+.timing-tbl td:first-child{color:var(--cyan);background:var(--bg3);min-width:80px}
+.t-hi{background:rgba(34,197,94,.15);color:var(--green)}
+.t-lo{background:rgba(107,122,153,.1);color:var(--muted)}
+.t-rise{background:rgba(245,158,11,.15);color:var(--amber)}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:48px 0}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:28px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted2)}
+footer em{color:var(--cyan);font-style:normal}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:99px}
+@media(max-width:680px){.page,.hero{padding-left:16px;padding-right:16px}.nav{padding:0 12px}.cg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">PD · Phase 2 · Part 1</div>
+  <a href="#day15" onclick="hl(this)">Day 15</a>
+  <a href="#day16" onclick="hl(this)">Day 16</a>
+  <a href="#day17" onclick="hl(this)">Day 17</a>
+  <a href="#files" onclick="hl(this)">File Types</a>
+  <a href="#quiz" onclick="hl(this)">Quiz</a>
+</nav>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Phase 2 · Part 1 · VLSI Fundamentals</div>
+    <h1>VLSI &amp; <em>Digital Design</em><br>Fundamentals</h1>
+    <p class="hero-sub">Days 15–17 — CMOS transistors, logic gates, flip-flops, timing analysis, clock concepts, and the complete file ecosystem of a physical design project. The theory foundation every PD interview question builds on.</p>
+    <div class="chips">
+      <div class="chip">Days <b>15–17</b></div>
+      <div class="chip">Week <b>3</b></div>
+      <div class="chip">Topics <b>CMOS · Logic · Timing · Clocking · File types</b></div>
+      <div class="chip">Prerequisite <b>Phase 1 complete</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════════ DAY 15 -->
+<section class="day" id="day15">
+  <div class="day-hd">
+    <div class="day-badge db-cyan">DAY 15</div>
+    <div>
+      <div class="day-ttl">CMOS Technology &amp; Logic Gates</div>
+      <div class="day-desc">Understand the transistor — the fundamental building block of every digital chip. Learn how NMOS and PMOS pair to form CMOS logic, and how standard cells implement every Boolean function you'll ever route.</div>
+    </div>
+  </div>
+
+  <!-- CMOS fundamentals -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-cyan">T</div><div class="card-ttl">The MOSFET Transistor — Foundation of Everything</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl cyan">NMOS</div>
+          <div class="cc-ttl">N-type MOSFET</div>
+          <div class="cc-body">Gate = 1 → transistor ON (conducts). Gate = 0 → transistor OFF. Pulls output toward GND (0V). Made from P-type silicon with N-type source/drain regions. Fast but only pulls low.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl amber">PMOS</div>
+          <div class="cc-ttl">P-type MOSFET</div>
+          <div class="cc-body">Gate = 0 → transistor ON. Gate = 1 → transistor OFF. Pulls output toward VDD (supply voltage). Made from N-type silicon with P-type source/drain. Slower than NMOS, pulls high.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl green">CMOS</div>
+          <div class="cc-ttl">Complementary MOS — why we pair them</div>
+          <div class="cc-body">CMOS = NMOS + PMOS always working opposite each other. When NMOS is ON, PMOS is OFF — and vice versa. This means: no DC current path, near-zero static power, full voltage swing (rail-to-rail). This is why all modern chips use CMOS.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl purple">KEY INSIGHT</div>
+          <div class="cc-ttl">Static power ≈ 0 in CMOS</div>
+          <div class="cc-body">At any stable logic state, either NMOS or PMOS is OFF, blocking DC current. Power is only consumed during switching (dynamic power = C·V²·f). This is why CMOS enabled battery-powered electronics.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CMOS inverter -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-cyan">¬</div><div class="card-ttl">The CMOS Inverter — Simplest Gate, Deepest Lesson</div></div>
+    <div class="card-body">
+      <div class="cg" style="margin-bottom:14px">
+        <div class="cc">
+          <div class="cc-lbl cyan">CIRCUIT</div>
+          <div class="cc-ttl">PMOS on top, NMOS on bottom</div>
+          <div class="cc-body">VDD → PMOS source. PMOS drain → Output. Output → NMOS drain. NMOS source → GND. Both gates tied to Input. One transistor always OFF, preventing short circuit.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl amber">INPUT = 0</div>
+          <div class="cc-ttl">Output = 1 (VDD)</div>
+          <div class="cc-body">PMOS gate = 0 → PMOS ON → output connected to VDD. NMOS gate = 0 → NMOS OFF → output disconnected from GND. Result: output = VDD = logic 1.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl red">INPUT = 1</div>
+          <div class="cc-ttl">Output = 0 (GND)</div>
+          <div class="cc-body">PMOS gate = 1 → PMOS OFF → VDD disconnected. NMOS gate = 1 → NMOS ON → output connected to GND. Result: output = 0V = logic 0.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl green">PD RELEVANCE</div>
+          <div class="cc-ttl">The inverter is your timing reference</div>
+          <div class="cc-body">Inverter propagation delay (tp) is the benchmark cell in every technology node. When a PD tool reports "cell delay = 2 FO4", FO4 = delay of an inverter driving 4 identical inverters. Your entire timing budget is measured in inverter delays.</div>
+        </div>
+      </div>
+      <div class="analogy">
+        <div class="analogy-lbl">Memory Analogy</div>
+        <div class="analogy-txt"><strong>CMOS inverter = a seesaw with two kids.</strong> When one side goes up (NMOS ON, pulls to GND), the other must come down (PMOS OFF). They can never both be on the same side at the same time — that would short-circuit the power supply. This complementary action is why it's called <em>Complementary</em> MOS.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logic Gates -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-blue">⊕</div><div class="card-ttl">Standard Logic Gates — What PD Tools Place &amp; Route</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc blue">NAND2</span></td><td><span class="td">Output = NOT(A AND B). 2 series NMOS + 2 parallel PMOS. The most fundamental gate — NAND is logically complete (can implement any function). Fastest CMOS gate because PMOS pulls up in parallel.</span><div class="td-pd">PD: NAND is preferred over AND by synthesis tools because AND = NAND+INV = more transistors</div></td></tr>
+        <tr><td><span class="tc blue">NOR2</span></td><td><span class="td">Output = NOT(A OR B). 2 parallel NMOS + 2 series PMOS. Series PMOS makes it slower than NAND of same drive strength.</span><div class="td-pd">PD: NOR used for clock gating and reset logic where structure matters more than speed</div></td></tr>
+        <tr><td><span class="tc blue">INV</span></td><td><span class="td">Output = NOT(A). Smallest CMOS gate (1 NMOS + 1 PMOS). Used massively as clock buffers (CLKBUF = 2 cascaded inverters for equal rise/fall).</span><div class="td-pd">PD: inverter chains drive all clock trees. If you see CLKBUF in a netlist, it's two inverters inside</div></td></tr>
+        <tr><td><span class="tc blue">AND2 / OR2</span></td><td><span class="td">NAND2 + INV / NOR2 + INV. Physically larger than NAND/NOR by 1 inverter. Synthesis tools prefer NAND/NOR for area efficiency.</span><div class="td-pd">PD: AND/OR gates cost ~33% more area than NAND/NOR equivalents — matters at 85% utilization</div></td></tr>
+        <tr><td><span class="tc blue">XOR2</span></td><td><span class="td">Output = A⊕B = (A AND NOT_B) OR (NOT_A AND B). Complex gate — requires ~8–12 transistors. Critical for adders and CRC logic.</span><div class="td-pd">PD: XOR gates are large, slow, and create timing-critical paths. Flag them for manual timing review</div></td></tr>
+        <tr><td><span class="tc blue">MUX2</span></td><td><span class="td">Output = S ? B : A. Select between two inputs. Implemented as 2 transmission gates + 1 inverter. Used for clock muxing and data path selection.</span><div class="td-pd">PD: clock MUXes are the most timing-critical cells — wrong placement = clock skew disaster</div></td></tr>
+        <tr><td><span class="tc blue">BUF</span></td><td><span class="td">Output = A (non-inverting). Two cascaded inverters. Used to restore signal strength on long wires.</span><div class="td-pd">PD: the tool inserts BUFs automatically during placement to fix long-wire timing violations (buffering)</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Drive strength -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-amber">X</div><div class="card-ttl">Drive Strength — X1, X2, X4, X8 Cells</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl amber">WHAT IT IS</div>
+          <div class="cc-ttl">Wider transistors = more current</div>
+          <div class="cc-body">An X2 cell has transistors twice as wide as X1. It can charge/discharge the output capacitance twice as fast. INV_X1, INV_X2, INV_X4, INV_X8 are all the same function — different speeds and power.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl amber">TRADEOFF</div>
+          <div class="cc-ttl">Speed vs Area vs Power</div>
+          <div class="cc-body">X2 = 2× speed, 2× area, 2× dynamic power. You cannot get free speed. Upsizing a cell to fix a timing violation increases area and power — always check if it creates a new problem elsewhere.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl cyan">PD USAGE</div>
+          <div class="cc-ttl">ECO upsizing — daily PD task</div>
+          <div class="cc-body">After placement, timing violations are fixed by "upsizing" cells: changing INV_X1 → INV_X2 → INV_X4 on the critical path. In Innovus: <code>size_cell [get_cells inst_name] INV_X4</code>. This is called an ECO (Engineering Change Order).</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl green">RULE OF THUMB</div>
+          <div class="cc-ttl">Start with X2, push to X4</div>
+          <div class="cc-body">Most netlists from synthesis use X2 for data paths. Clock cells use X4–X8. Never use X1 on timing-critical paths — marginal design. Never use X8 everywhere — bloats area.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lab 15 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-green">⚡</div><div class="card-ttl">Lab — Day 15: TCL Script — Logic Gate Analyser</div></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Build a TCL script that models a CMOS inverter, NAND, and NOR gate. This reinforces the transistor-level truth — and uses everything from Phase 1.</p>
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day15_gates.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 15 Lab — Logic gate truth table generator</span>
+<span class="cm"># Run: tclsh day15_gates.tcl</span>
+
+<span class="ck">proc</span> <span class="cf">inv</span>  {a}   { <span class="ck">return</span> [<span class="co">expr</span> {!$a}] }
+<span class="ck">proc</span> <span class="cf">nand2</span> {a b} { <span class="ck">return</span> [<span class="co">expr</span> {!($a &amp;&amp; $b)}] }
+<span class="ck">proc</span> <span class="cf">nor2</span>  {a b} { <span class="ck">return</span> [<span class="co">expr</span> {!($a || $b)}] }
+<span class="ck">proc</span> <span class="cf">and2</span>  {a b} { <span class="ck">return</span> [<span class="co">expr</span> {$a &amp;&amp; $b}] }
+<span class="ck">proc</span> <span class="cf">xor2</span>  {a b} { <span class="ck">return</span> [<span class="co">expr</span> {$a ^ $b}] }
+<span class="ck">proc</span> <span class="cf">mux2</span>  {a b s} { <span class="ck">if</span> {$s} {<span class="ck">return</span> $b} <span class="ck">else</span> {<span class="ck">return</span> $a} }
+
+<span class="ck">proc</span> <span class="cf">print_truth_table</span> {gate inputs} {
+    <span class="co">puts</span> <span class="cs">"\n=== $gate ==="</span>
+    <span class="co">puts</span> [<span class="co">string</span> repeat - 30]
+    <span class="ck">foreach</span> row $inputs {
+        <span class="co">set</span> args [<span class="co">lrange</span> $row 0 end-1]
+        <span class="co">set</span> expected [<span class="co">lindex</span> $row end]
+        <span class="co">set</span> result [<span class="co">eval</span> [<span class="co">string</span> tolower $gate] $args]
+        <span class="co">set</span> status [<span class="ck">expr</span> {$result == $expected ? <span class="cs">"PASS"</span> : <span class="cs">"FAIL"</span>}]
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  in=(%s) out=%d  %s"</span> [<span class="co">join</span> $args ,] $result $status]
+    }
+}
+
+<span class="cm"># Truth tables: {inputs... expected_output}</span>
+<span class="co">print_truth_table</span> INV  {{0 1} {1 0}}
+<span class="co">print_truth_table</span> NAND2 {{0 0 1} {0 1 1} {1 0 1} {1 1 0}}
+<span class="co">print_truth_table</span> NOR2  {{0 0 1} {0 1 0} {1 0 0} {1 1 0}}
+<span class="co">print_truth_table</span> XOR2  {{0 0 0} {0 1 1} {1 0 1} {1 1 0}}
+
+<span class="cm"># Transistor count analysis</span>
+<span class="co">puts</span> <span class="cs">"\n=== Transistor Count by Gate ==="</span>
+<span class="ck">set</span> gates {INV 2 NAND2 4 NOR2 4 AND2 6 OR2 6 XOR2 12 MUX2 8}
+<span class="ck">foreach</span> {name count} $gates {
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  %-8s %2d transistors"</span> $name $count]
+}
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-cyan">01</span><span class="lab-txt">Save as <code>day15_gates.tcl</code> and run: <code>tclsh day15_gates.tcl</code></span></li>
+        <li class="lab-item"><span class="lab-n ln-cyan">02</span><span class="lab-txt">All truth table rows should show PASS — verify your understanding of each gate</span></li>
+        <li class="lab-item"><span class="lab-n ln-cyan">03</span><span class="lab-txt">Add a <code>buf</code> proc (two cascaded inv calls) and add its truth table test</span></li>
+        <li class="lab-item"><span class="lab-n ln-cyan">04</span><span class="lab-txt"><strong>Challenge:</strong> write a proc <code>half_adder {a b}</code> that returns a list {sum carry} using XOR and AND, then verify with all 4 input combinations</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ DAY 16 -->
+<section class="day" id="day16">
+  <div class="day-hd">
+    <div class="day-badge db-blue">DAY 16</div>
+    <div>
+      <div class="day-ttl">Sequential Logic — Flip-Flops, Latches &amp; Timing</div>
+      <div class="day-desc">Flip-flops are the memory elements of every digital design. Setup time, hold time, and clock-to-Q delay are the three timing parameters that define your entire PD timing closure problem. Master these completely.</div>
+    </div>
+  </div>
+
+  <!-- FF fundamentals -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-blue">D</div><div class="card-ttl">The D Flip-Flop — The Heart of Every Digital Design</div></div>
+    <div class="card-body">
+      <div class="cg">
+        <div class="cc">
+          <div class="cc-lbl blue">WHAT IS IT</div>
+          <div class="cc-ttl">A 1-bit memory element</div>
+          <div class="cc-body">A D flip-flop captures the value on its D (data) input at the rising edge of CLK and holds it at Q until the next rising edge. It is the building block of all registers, state machines, and pipelines.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl blue">PORTS</div>
+          <div class="cc-ttl">D, CLK, Q (and optionally QN, RN, SN)</div>
+          <div class="cc-body">D = data input. CLK = clock input. Q = data output. QN = inverted output. RN = active-low async reset. SN = active-low async set. In a netlist: <code>DFFRQ_X2 reg0 (.D(d_in), .CK(clk), .Q(q_out), .RN(rst_n));</code></div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl amber">SETUP TIME (tsu)</div>
+          <div class="cc-ttl">Data must be stable BEFORE clock edge</div>
+          <div class="cc-body">Setup time is the minimum time D must be stable before CLK rises. Typically 50–150ps in 28nm. If violated: data is sampled incorrectly — metastability. This is the most common timing violation in PD.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl red">HOLD TIME (th)</div>
+          <div class="cc-ttl">Data must be stable AFTER clock edge</div>
+          <div class="cc-body">Hold time is the minimum time D must remain stable after CLK rises. Typically 0–50ps. If violated: data is corrupted after capture. Hold violations are fixed by adding buffers on the data path — they cannot be fixed by faster logic (unlike setup).</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl green">CLK-TO-Q (tCQ)</div>
+          <div class="cc-ttl">Delay from clock edge to output changing</div>
+          <div class="cc-body">After CLK rises, Q changes after tCQ delay. Typically 100–300ps. This consumes part of the clock period budget. Total path: tCQ + logic_delay + wire_delay ≤ clock_period - tsu.</div>
+        </div>
+        <div class="cc">
+          <div class="cc-lbl purple">SLACK</div>
+          <div class="cc-ttl">Your timing margin</div>
+          <div class="cc-body">Slack = available_time - required_time. Positive slack = timing MET (you have margin). Negative slack = VIOLATED (path is too slow). WNS = Worst Negative Slack — the number you chase to zero in every PD project.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timing path -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-blue">→</div><div class="card-ttl">The Timing Path — What STA Actually Analyses</div></div>
+    <div class="card-body">
+      <div class="flow" style="margin-bottom:14px">
+        <div class="fnode hl">Launch FF</div><div class="farr">→</div>
+        <div class="fnode amber">tCQ</div><div class="farr">→</div>
+        <div class="fnode">Logic gates</div><div class="farr">→</div>
+        <div class="fnode">Wire delay</div><div class="farr">→</div>
+        <div class="fnode amber">D pin of</div><div class="farr">→</div>
+        <div class="fnode hl">Capture FF</div>
+      </div>
+      <table class="tbl">
+        <tr><td><span class="tc cyan">Data arrival time</span></td><td><span class="td">= clock_launch_time + tCQ(launch_FF) + Σ(gate_delays) + Σ(wire_delays)</span><div class="td-sub">The actual time the data reaches the capture FF's D pin</div></td></tr>
+        <tr><td><span class="tc cyan">Data required time</span></td><td><span class="td">= clock_capture_time - tsetup(capture_FF)</span><div class="td-sub">The latest time data must arrive to be safely captured</div></td></tr>
+        <tr><td><span class="tc cyan">Setup slack</span></td><td><span class="td">= required_time - arrival_time &nbsp;&nbsp; (must be ≥ 0)</span><div class="td-sub">Your safety margin. If negative → Setup Violation</div></td></tr>
+        <tr><td><span class="tc cyan">Hold slack</span></td><td><span class="td">= arrival_time - (clock_capture_time + thold)</span><div class="td-sub">Data must not arrive too fast either. If negative → Hold Violation</div></td></tr>
+      </table>
+      <div class="analogy" style="margin-top:14px">
+        <div class="analogy-lbl">Memory Analogy — Setup &amp; Hold</div>
+        <div class="analogy-txt"><strong>Think of a photo booth with a camera:</strong> The camera fires (= clock edge) at a fixed moment. Setup time = "stand still at least 0.1s before the flash" — you need to be in position before the photo. Hold time = "don't move for at least 0.05s after the flash" — stay still while the image registers. If you walk in too late (setup violation) or walk away too fast (hold violation), the photo is blurred (metastability). Physical design engineers spend 60% of their time ensuring no signal reaches any flip-flop at the wrong moment.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timing diagram -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-amber">~</div><div class="card-ttl">Timing Waveform — Reading the Diagram</div></div>
+    <div class="card-body">
+      <table class="timing-tbl" style="margin-bottom:14px">
+        <tr><td>CLK</td><td class="t-lo">0</td><td class="t-rise">↑</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-rise">↑</td><td class="t-hi">1</td></tr>
+        <tr><td>D (data in)</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-rise">→1</td><td class="t-hi">1</td><td class="t-hi">1 ✓</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-hi">1</td><td class="t-hi">1</td></tr>
+        <tr><td>Q (data out)</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-lo">0 +tCQ</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-lo">0</td><td class="t-lo">0 +tCQ</td><td class="t-hi">1</td></tr>
+      </table>
+      <div class="cg">
+        <div class="cc"><div class="cc-lbl cyan">SETUP WINDOW</div><div class="cc-ttl">D must be stable before ↑CLK</div><div class="cc-body">D changed to 1 at column 4. Clock rises at column 9. D was stable from column 4 to 9 — well within setup window. <span style="color:var(--green)">✓ Setup MET.</span></div></div>
+        <div class="cc"><div class="cc-lbl amber">CLK-TO-Q</div><div class="cc-ttl">Q changes after tCQ delay</div><div class="cc-body">Clock edge at column 9. Q becomes 1 at column 10 (after tCQ delay). The output only changes in response to the clock — not combinational.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latch vs FF -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-purple">L</div><div class="card-ttl">Latch vs Flip-Flop — Know the Difference</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc purple">D Flip-Flop</span></td><td><span class="td">Edge-triggered. Captures D only at clock edge (rising or falling). Q is stable between clock edges. Used in 99% of synchronous digital designs.</span><div class="td-pd">PD: standard cell name pattern: DFFR*, DFF_*, FF* — all edge-triggered</div></td></tr>
+        <tr><td><span class="tc purple">D Latch</span></td><td><span class="td">Level-sensitive. When CLK=1 (enable=1), Q follows D continuously (transparent). When CLK=0, Q holds last value. Used in specific low-power and ASIC designs.</span><div class="td-pd">PD: latches are harder to time-analyse — STA tools need special handling for latch-based designs</div></td></tr>
+        <tr><td><span class="tc purple">Why FFs win</span></td><td><span class="td">Edge-triggering means data is captured at a single predictable instant. Timing analysis is deterministic. Latches are transparent for a window of time — harder to constrain and route.</span><div class="td-pd">Interview question: "Why do we use flip-flops instead of latches?" — Answer: predictable timing, easier STA</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Lab 16 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-green">⚡</div><div class="card-ttl">Lab — Day 16: TCL Timing Path Analyser</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day16_timing.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 16 — Timing path calculator</span>
+
+<span class="ck">proc</span> <span class="cf">analyse_path</span> {period tcq gate_delays wire_delay tsu th} {
+    <span class="cm"># Arrival time</span>
+    <span class="co">set</span> logic_sum [<span class="ck">expr</span> {[<span class="co">tcl::mathop::+</span> {*}$gate_delays] + $wire_delay}]
+    <span class="co">set</span> arrival   [<span class="ck">expr</span> {$tcq + $logic_sum}]
+
+    <span class="cm"># Required times</span>
+    <span class="co">set</span> setup_req [<span class="ck">expr</span> {$period - $tsu}]
+    <span class="co">set</span> hold_req  [<span class="ck">expr</span> {0 + $th}]
+
+    <span class="cm"># Slacks</span>
+    <span class="co">set</span> setup_slack [<span class="ck">expr</span> {$setup_req - $arrival}]
+    <span class="co">set</span> hold_slack  [<span class="ck">expr</span> {$arrival - $hold_req}]
+
+    <span class="co">puts</span> <span class="cs">"\n========= Timing Analysis ========="</span>
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Clock period   : %.3f ns"</span>  $period]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  CLK-to-Q (tCQ) : %.3f ns"</span>  $tcq]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Logic delay    : %.3f ns"</span>  [<span class="co">expr</span> {$logic_sum - $wire_delay}]]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Wire delay     : %.3f ns"</span>  $wire_delay]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Arrival time   : %.3f ns"</span>  $arrival]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Setup required : %.3f ns"</span>  $setup_req]
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  Hold required  : %.3f ns"</span>  $hold_req]
+    <span class="co">puts</span> [<span class="co">string</span> repeat - 36]
+
+    <span class="ck">if</span> {$setup_slack >= 0} {
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  SETUP : MET    (+%.3f ns slack)"</span> $setup_slack]
+    } <span class="ck">else</span> {
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  SETUP : VIOLATED (%.3f ns)"</span> $setup_slack]
+    }
+    <span class="ck">if</span> {$hold_slack >= 0} {
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  HOLD  : MET    (+%.3f ns slack)"</span> $hold_slack]
+    } <span class="ck">else</span> {
+        <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  HOLD  : VIOLATED (%.3f ns)"</span> $hold_slack]
+    }
+}
+
+<span class="cm"># --- Test Case 1: 500MHz, 5-gate path ---</span>
+<span class="cm"># period=2ns tCQ=0.15 gates={0.08 0.07 0.09 0.08 0.06} wire=0.12 tsu=0.07 th=0.03</span>
+<span class="co">analyse_path</span> 2.0  0.15 {0.08 0.07 0.09 0.08 0.06} 0.12  0.07 0.03
+
+<span class="cm"># --- Test Case 2: 1GHz, same path — observe violation ---</span>
+<span class="co">analyse_path</span> 1.0  0.15 {0.08 0.07 0.09 0.08 0.06} 0.12  0.07 0.03
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-blue">01</span><span class="lab-txt">Run both test cases — observe Test 1 passes but Test 2 violates setup</span></li>
+        <li class="lab-item"><span class="lab-n ln-blue">02</span><span class="lab-txt">Modify Test 2: reduce gate delays to {0.04 0.03 0.04 0.03 0.03} — this simulates upsizing cells. Does it now pass at 1GHz?</span></li>
+        <li class="lab-item"><span class="lab-n ln-blue">03</span><span class="lab-txt">Add wire_delay=0.5ns to Test 1 — observe that long wires alone can cause violations. This is why placement quality matters so much.</span></li>
+        <li class="lab-item"><span class="lab-n ln-blue">04</span><span class="lab-txt"><strong>Key insight:</strong> The only ways to fix a setup violation are: 1) reduce logic delay (faster cells / fewer gates), 2) reduce wire delay (closer placement), 3) reduce clock period violation by pipelining. Write a comment in your script explaining each.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ DAY 17 -->
+<section class="day" id="day17">
+  <div class="day-hd">
+    <div class="day-badge db-amber">DAY 17</div>
+    <div>
+      <div class="day-ttl">RTL-to-GDSII Flow &amp; PD File Ecosystem</div>
+      <div class="day-desc">The complete journey from a Verilog description to a manufacturable chip. Understand every step, who owns it, what the inputs/outputs are — and master every file format you will encounter in a PD job.</div>
+    </div>
+  </div>
+
+  <!-- Full flow -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-amber">↓</div><div class="card-ttl">The Complete RTL-to-GDSII Flow — Every Step</div></div>
+    <div class="card-body">
+      <div class="flow" style="flex-direction:column;align-items:flex-start;gap:0">
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode hl" style="width:160px;text-align:center">RTL (.v files)</div>
+          <div class="farr" style="margin-left:8px">← Designer writes this. Behavioural description.</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓ <span style="color:var(--amber)">Logic Synthesis</span> (Synopsys DC / Cadence Genus)</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode" style="width:160px;text-align:center">Gate Netlist (.v)</div>
+          <div class="farr" style="margin-left:8px">← RTL mapped to library cells. No timing met yet.</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓ <span style="color:var(--cyan)">Physical Design begins here</span></div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode hl" style="width:160px;text-align:center;color:var(--cyan)">Floorplan</div>
+          <div class="farr" style="margin-left:8px">← Define die area, place macros, I/O pins</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode hl" style="width:160px;text-align:center;color:var(--cyan)">Power Planning</div>
+          <div class="farr" style="margin-left:8px">← VDD/VSS rings, stripes, well taps</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode hl" style="width:160px;text-align:center;color:var(--cyan)">Placement</div>
+          <div class="farr" style="margin-left:8px">← Assign XY coordinates to all standard cells</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode hl" style="width:160px;text-align:center;color:var(--cyan)">Clock Tree Synthesis</div>
+          <div class="farr" style="margin-left:8px">← Balance clock distribution to all FFs</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode hl" style="width:160px;text-align:center;color:var(--cyan)">Routing</div>
+          <div class="farr" style="margin-left:8px">← Connect all nets with metal wires on layers</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode amber" style="width:160px;text-align:center">Signoff (STA/DRC/LVS)</div>
+          <div class="farr" style="margin-left:8px">← Verify timing, physical rules, netlist match</div>
+        </div>
+        <div style="padding-left:78px;color:var(--muted);font-size:12px;font-family:var(--mono)">↓</div>
+        <div style="display:flex;align-items:center;gap:0;width:100%">
+          <div class="fnode" style="width:160px;text-align:center;border-color:var(--green);color:var(--green)">GDSII / OASIS</div>
+          <div class="farr" style="margin-left:8px">← The final file sent to the foundry for fabrication</div>
+        </div>
+      </div>
+      <div class="cbox cbox-info" style="margin-top:14px"><div class="cbox-icon">ℹ</div><div><strong>Where Physical Design begins and ends:</strong> PD engineers own everything from the gate netlist to the GDSII file. Synthesis (RTL→netlist) is owned by the logic design team. Signoff sign-off is shared between PD and the design verification team. The PD engineer's primary job is to implement the netlist as a physical layout that meets timing, area, and power targets.</div></div>
+    </div>
+  </div>
+
+  <!-- File types -->
+  <div class="card" id="files">
+    <div class="card-hd"><div class="card-icon ci-amber">📄</div><div class="card-ttl">Every PD File Format You Will Ever Encounter</div></div>
+    <div class="card-body">
+      <div class="ft-grid">
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--blue)">.v / .sv</div>
+          <div class="ft-name">Verilog / SystemVerilog</div>
+          <div class="ft-desc">RTL source (behavioural) or gate-level netlist (structural). Human-readable. PD reads the gate netlist, not the RTL.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--amber)">.sdc</div>
+          <div class="ft-name">Synopsys Design Constraints</div>
+          <div class="ft-desc">TCL-format timing constraints. Defines clocks, input/output delays, false paths, multicycle paths. PD engineers write and maintain this file throughout the project.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--green)">.lef</div>
+          <div class="ft-name">Library Exchange Format</div>
+          <div class="ft-desc">Abstract view of standard cells and macros. Describes cell footprint, pin locations, obstruction layers. PD tool uses this for placement — not the transistor details.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--green)">.lib / .db</div>
+          <div class="ft-name">Liberty Timing Library</div>
+          <div class="ft-desc">Timing and power data for each cell at each PVT corner. Contains setup/hold/tCQ values, input capacitance, leakage power. The STA tool reads this to compute path delays.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--cyan)">.def</div>
+          <div class="ft-name">Design Exchange Format</div>
+          <div class="ft-desc">Physical layout data: die area, row placement, cell placement XY coordinates, routing (if post-route). The main output of each PD step — grows from floorplan through route.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--orange)">.gds / .gdsii</div>
+          <div class="ft-name">Graphic Data System II</div>
+          <div class="ft-desc">Binary format. The final physical layout including all metal layers, vias, diffusion, poly. This file is sent to the foundry (TSMC, Samsung) for mask generation and fabrication.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--purple)">.spef</div>
+          <div class="ft-name">Standard Parasitic Extraction Format</div>
+          <div class="ft-desc">Post-route wire resistances and capacitances extracted from the actual layout. STA uses this for accurate timing — pre-route timing uses estimates only.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--teal)">.vcd / .saif</div>
+          <div class="ft-name">Switching Activity Files</div>
+          <div class="ft-desc">Simulation toggle rates for each net. Power analysis (Innovus, PrimeTime PX) uses this to compute dynamic power. Without it, power analysis uses default toggle rates (often wrong).</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--cyan)">.upf / .cpf</div>
+          <div class="ft-name">Unified/Common Power Format</div>
+          <div class="ft-desc">Defines power domains, voltage islands, isolation cells, retention FFs for low-power designs. Written in TCL format. Required for any design with multiple supply voltages.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--red)">.rpt</div>
+          <div class="ft-name">Report files</div>
+          <div class="ft-desc">Tool-generated text reports: timing (slack, path details), area (cell counts), DRC violations, power estimation. You grep these files — every PD run generates dozens.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--amber)">.tcl</div>
+          <div class="ft-name">TCL Script</div>
+          <div class="ft-desc">Your flow scripts, constraint scripts, ECO scripts, utility procs. Every PD tool command is a TCL command. The scripts you write control the entire flow.</div>
+        </div>
+        <div class="ft-card">
+          <div class="ft-ext" style="color:var(--blue)">.oas / .oasis</div>
+          <div class="ft-name">OASIS (replaces GDSII)</div>
+          <div class="ft-desc">Modern foundry layout format — more compact than GDSII for advanced nodes. At 7nm and below, GDSII files are too large; OASIS reduces file size by 10–30×.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key environments -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-cyan">🏭</div><div class="card-ttl">PD Tools by Flow Stage</div></div>
+    <div class="card-body">
+      <table class="tbl">
+        <tr><td><span class="tc cyan">Synthesis</span></td><td><span class="td"><strong>Synopsys Design Compiler (DC)</strong>, Cadence Genus. Converts RTL to gate netlist.</span><div class="td-pd">PD receives this output — not responsible for synthesis itself</div></td></tr>
+        <tr><td><span class="tc cyan">PnR (main PD tool)</span></td><td><span class="td"><strong>Cadence Innovus</strong>, Synopsys IC Compiler 2 (ICC2). Floorplan → Placement → CTS → Routing in one tool.</span><div class="td-pd">Your primary daily tool as a PD engineer</div></td></tr>
+        <tr><td><span class="tc cyan">Static Timing Analysis</span></td><td><span class="td"><strong>Synopsys PrimeTime (PT)</strong>, Cadence Tempus. Signoff-accurate timing analysis separate from PnR.</span><div class="td-pd">PD engineer runs PT daily to check if timing closure is achieved</div></td></tr>
+        <tr><td><span class="tc cyan">Physical Verification</span></td><td><span class="td"><strong>Mentor Calibre</strong> (DRC, LVS, ERC). Verifies layout against design rules and schematic.</span><div class="td-pd">Run at signoff — violations must be zero before tapeout</div></td></tr>
+        <tr><td><span class="tc cyan">Open Source (this course)</span></td><td><span class="td"><strong>OpenROAD / OpenLane</strong> for PnR, <strong>Magic</strong> for DRC/LVS, <strong>ngspice</strong> for SPICE simulation. SKY130 PDK from Google/SkyWater.</span><div class="td-pd">Free tools — identical flow concepts to commercial tools</div></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Lab 17 -->
+  <div class="card">
+    <div class="card-hd"><div class="card-icon ci-green">⚡</div><div class="card-ttl">Lab — Day 17: Flow Script + File Inspector</div></div>
+    <div class="card-body">
+      <div class="codeblock">
+        <div class="cb-hd"><div class="dots"><span></span><span></span><span></span></div><span class="cb-fn">day17_flow.tcl</span></div>
+        <div class="cb-body"><span class="cm"># Day 17 — RTL-to-GDS flow simulator with file tracking</span>
+
+<span class="ck">set</span> <span class="cv">flow_stages</span> {
+    {rtl_import    {.v  .sdc .lef .lib}  {netlist.v}}
+    {floorplan     {netlist.v .lef}       {floorplan.def}}
+    {power_plan    {floorplan.def}        {powerplan.def}}
+    {placement     {powerplan.def .sdc}   {placed.def}}
+    {cts           {placed.def .sdc}      {cts.def cts_timing.rpt}}
+    {routing       {cts.def}              {routed.def route_drc.rpt}}
+    {signoff_sta   {routed.def .spef .sdc} {timing_final.rpt}}
+    {gds_out       {routed.def}           {final.gds}}
+}
+
+<span class="ck">proc</span> <span class="cf">run_flow</span> {stages} {
+    <span class="co">puts</span> <span class="cs">"\n[string repeat = 52]"</span>
+    <span class="co">puts</span> <span class="cs">"  RTL-to-GDSII Flow Simulation"</span>
+    <span class="co">puts</span> <span class="cs">"[string repeat = 52]"</span>
+    <span class="ck">foreach</span> stage $stages {
+        <span class="co">lassign</span> $stage name inputs outputs
+        <span class="co">puts</span> <span class="cs">"\n  ▶ Stage: [string toupper $name]"</span>
+        <span class="co">puts</span> <span class="cs">"    Reads : [join $inputs {, }]"</span>
+        <span class="co">puts</span> <span class="cs">"    Writes: [join $outputs {, }]"</span>
+    }
+    <span class="co">puts</span> <span class="cs">"\n[string repeat = 52]"</span>
+    <span class="co">puts</span> <span class="cs">"  Flow complete — GDSII ready for foundry"</span>
+    <span class="co">puts</span> <span class="cs">"[string repeat = 52]\n"</span>
+}
+
+<span class="co">run_flow</span> $flow_stages
+
+<span class="cm"># File extension classifier</span>
+<span class="ck">proc</span> <span class="cf">classify_file</span> {filename} {
+    <span class="co">set</span> ext [<span class="co">file</span> extension $filename]
+    <span class="ck">switch</span> $ext {
+        .v    { <span class="ck">return</span> <span class="cs">"RTL/Netlist (Verilog)"</span> }
+        .sdc  { <span class="ck">return</span> <span class="cs">"Timing Constraints (SDC)"</span> }
+        .lef  { <span class="ck">return</span> <span class="cs">"Cell Abstract (LEF)"</span> }
+        .lib  { <span class="ck">return</span> <span class="cs">"Liberty Timing Library"</span> }
+        .def  { <span class="ck">return</span> <span class="cs">"Physical Layout (DEF)"</span> }
+        .gds  { <span class="ck">return</span> <span class="cs">"Final Layout (GDSII - goes to foundry)"</span> }
+        .spef { <span class="ck">return</span> <span class="cs">"Parasitic Extraction (SPEF)"</span> }
+        .rpt  { <span class="ck">return</span> <span class="cs">"Tool Report (grep for violations)"</span> }
+        .tcl  { <span class="ck">return</span> <span class="cs">"TCL Script (flow automation)"</span> }
+        .upf  { <span class="ck">return</span> <span class="cs">"Power Intent (UPF)"</span> }
+        default { <span class="ck">return</span> <span class="cs">"Unknown — check PDK documentation"</span> }
+    }
+}
+
+<span class="co">puts</span> <span class="cs">"=== File Type Classifier ==="</span>
+<span class="ck">foreach</span> f {top.v constraints.sdc sky130.lef cells.lib floorplan.def final.gds post_route.spef timing.rpt run.tcl} {
+    <span class="co">puts</span> [<span class="co">format</span> <span class="cs">"  %-22s → %s"</span> $f [<span class="cf">classify_file</span> $f]]
+}
+</div>
+      </div>
+      <ul class="lab-list">
+        <li class="lab-item"><span class="lab-n ln-amber">01</span><span class="lab-txt">Run the script and read the output. Map every stage to the flow diagram above.</span></li>
+        <li class="lab-item"><span class="lab-n ln-amber">02</span><span class="lab-txt">Add a stage <code>lvs_drc</code> between routing and gds_out. What are its inputs? What would it output?</span></li>
+        <li class="lab-item"><span class="lab-n ln-amber">03</span><span class="lab-txt">Add <code>.oas</code> and <code>.upf</code> to the file classifier with correct descriptions.</span></li>
+        <li class="lab-item"><span class="lab-n ln-amber">04</span><span class="lab-txt"><strong>Mental exercise:</strong> Given a PD project directory — in what order would you look at these files if you joined mid-project? Write your answer as comments in the script.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════ QUIZ -->
+<section class="day" id="quiz">
+  <div class="day-hd">
+    <div class="day-badge" style="background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3)">QUIZ</div>
+    <div>
+      <div class="day-ttl">Part 1 Self-Assessment — VLSI Fundamentals</div>
+      <div class="day-desc">10 questions covering CMOS, logic gates, flip-flop timing, and the PD flow. These exact question types appear in physical design engineer technical interviews.</div>
+    </div>
+  </div>
+  <div class="quiz-wrap">
+
+    <div class="qcard">
+      <div class="qtxt">Q1. In a CMOS NAND2 gate, both inputs are HIGH (1,1). What is the state of the NMOS and PMOS networks?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'With both inputs=1: both NMOS transistors are ON (series path to GND complete), and BOTH PMOS transistors are OFF (parallel path to VDD broken). Result: output = 0. Both NMOS must be ON (series) to pull low — one OFF breaks the path. Either PMOS ON pulls high.')">Both NMOS ON, one PMOS ON — output is undefined</button>
+        <button class="qopt" onclick="qa(this,true,'With both inputs=1: both NMOS transistors are ON (series path to GND complete), and BOTH PMOS transistors are OFF (parallel path to VDD broken). Result: output = 0. Both NMOS must be ON (series) to pull low — one OFF breaks the path. Either PMOS ON pulls high.')">Both NMOS ON (series path to GND complete), both PMOS OFF — output = 0</button>
+        <button class="qopt" onclick="qa(this,false,'With both inputs=1: both NMOS transistors are ON (series path to GND complete), and BOTH PMOS transistors are OFF (parallel path to VDD broken). Result: output = 0. Both NMOS must be ON (series) to pull low — one OFF breaks the path. Either PMOS ON pulls high.')">Both NMOS OFF, both PMOS ON — output = 1</button>
+        <button class="qopt" onclick="qa(this,false,'With both inputs=1: both NMOS transistors are ON (series path to GND complete), and BOTH PMOS transistors are OFF (parallel path to VDD broken). Result: output = 0. Both NMOS must be ON (series) to pull low — one OFF breaks the path. Either PMOS ON pulls high.')">One NMOS ON, one PMOS ON — current flows continuously</button>
+      </div>
+      <div class="qexp">With both inputs=1: both NMOS transistors are ON (their series path to GND is complete), and BOTH PMOS transistors are OFF (their parallel path to VDD is broken). Result: output = 0. Remember NAND: needs BOTH NMOS ON to pull low; needs EITHER PMOS ON to pull high. NAND(1,1)=0.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q2. A flip-flop has setup time tsu=0.08ns, hold time th=0.03ns, and tCQ=0.15ns. The clock period is 2.0ns. A combinational path has total delay (logic + wire) = 1.82ns. What is the setup slack?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Setup slack = (period - tsu) - (tCQ + logic+wire) = (2.0 - 0.08) - (0.15 + 1.82) = 1.92 - 1.97 = -0.05ns. VIOLATED by 50ps.')">+0.05ns — timing MET</button>
+        <button class="qopt" onclick="qa(this,true,'Setup slack = (period - tsu) - (tCQ + logic+wire) = (2.0 - 0.08) - (0.15 + 1.82) = 1.92 - 1.97 = -0.05ns. VIOLATED by 50ps.')">-0.05ns — setup violated by 50ps</button>
+        <button class="qopt" onclick="qa(this,false,'Setup slack = (period - tsu) - (tCQ + logic+wire) = (2.0 - 0.08) - (0.15 + 1.82) = 1.92 - 1.97 = -0.05ns. VIOLATED by 50ps.')">+0.10ns — timing MET</button>
+        <button class="qopt" onclick="qa(this,false,'Setup slack = (period - tsu) - (tCQ + logic+wire) = (2.0 - 0.08) - (0.15 + 1.82) = 1.92 - 1.97 = -0.05ns. VIOLATED by 50ps.')">-0.10ns — violated by 100ps</button>
+      </div>
+      <div class="qexp">Setup slack = required_time - arrival_time. Required = period - tsu = 2.0 - 0.08 = 1.92ns. Arrival = tCQ + delays = 0.15 + 1.82 = 1.97ns. Slack = 1.92 - 1.97 = -0.05ns. VIOLATED by 50ps. Fix: upsize cells on this path to reduce logic delay, or improve placement to reduce wire delay.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q3. What is the difference between a hold time violation and a setup time violation? How is each fixed in PD?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'Hold violation = data arrives too FAST (before capture FF can hold it). Fix: add delay buffers on the data path. Setup violation = data arrives too SLOW. Fix: faster cells, better placement, pipelining. Hold fixes INCREASE delay; setup fixes DECREASE delay.')">Both are fixed the same way — by upsizing logic cells</button>
+        <button class="qopt" onclick="qa(this,true,'Hold violation = data arrives too FAST (before capture FF can hold it). Fix: add delay buffers on the data path. Setup violation = data arrives too SLOW. Fix: faster cells, better placement, pipelining. Hold fixes INCREASE delay; setup fixes DECREASE delay.')">Setup = data arrives too slow (fix: faster logic, better placement). Hold = data arrives too fast (fix: insert delay buffers)</button>
+        <button class="qopt" onclick="qa(this,false,'Hold violation = data arrives too FAST (before capture FF can hold it). Fix: add delay buffers on the data path. Setup violation = data arrives too SLOW. Fix: faster cells, better placement, pipelining. Hold fixes INCREASE delay; setup fixes DECREASE delay.')">Setup = too much clock skew. Hold = not enough clock skew.</button>
+        <button class="qopt" onclick="qa(this,false,'Hold violation = data arrives too FAST (before capture FF can hold it). Fix: add delay buffers on the data path. Setup violation = data arrives too SLOW. Fix: faster cells, better placement, pipelining. Hold fixes INCREASE delay; setup fixes DECREASE delay.')">Setup violations only happen at low frequency; hold violations only at high frequency</button>
+      </div>
+      <div class="qexp">Setup violation = data arrives LATE (path is too slow) → fix by making logic faster: upsize cells, add buffers to reduce wire delays, improve placement proximity, or pipeline to break the path. Hold violation = data arrives TOO FAST (before hold time window closes) → fix by ADDING delay (insert buffers on data path). Critical: hold violations must be fixed WITHOUT increasing clock frequency — they're independent of period.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q4. In the RTL-to-GDSII flow, which file is sent to the semiconductor foundry for chip manufacturing?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'The foundry receives the GDSII (.gds) file — the complete physical layout with all metal layers, transistor geometries, vias, and text labels. The foundry uses this to create photolithographic masks for each layer. .v is the netlist (logic only), .def is the PD database (tool-internal), .lib is timing data.')">The .v (Verilog) netlist file</button>
+        <button class="qopt" onclick="qa(this,false,'The foundry receives the GDSII (.gds) file — the complete physical layout with all metal layers, transistor geometries, vias, and text labels. The foundry uses this to create photolithographic masks for each layer. .v is the netlist (logic only), .def is the PD database (tool-internal), .lib is timing data.')">The .def (Design Exchange Format) file</button>
+        <button class="qopt" onclick="qa(this,false,'The foundry receives the GDSII (.gds) file — the complete physical layout with all metal layers, transistor geometries, vias, and text labels. The foundry uses this to create photolithographic masks for each layer. .v is the netlist (logic only), .def is the PD database (tool-internal), .lib is timing data.')">The .lib (Liberty) timing file</button>
+        <button class="qopt" onclick="qa(this,true,'The foundry receives the GDSII (.gds) file — the complete physical layout with all metal layers, transistor geometries, vias, and text labels. The foundry uses this to create photolithographic masks for each layer. .v is the netlist (logic only), .def is the PD database (tool-internal), .lib is timing data.')">The .gds / .gdsii (GDSII) layout file</button>
+      </div>
+      <div class="qexp">The foundry receives the GDSII (.gds or .oas for advanced nodes) file — the binary physical layout with every metal layer, via, transistor polygon, and text label encoded precisely. TSMC/Samsung/GlobalFoundries reads this to create the photolithographic masks (one per metal layer) used to etch patterns into silicon wafers. This is the final deliverable of the entire design flow.</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qtxt">Q5. Why does a PD tool use .lef files rather than the full transistor-level SPICE netlists for cell placement?</div>
+      <div class="qopts">
+        <button class="qopt" onclick="qa(this,false,'LEF provides an abstract view — just the cell footprint, pin locations, and metal obstruction layers. This is all the placer needs: where can I put this cell, where are its pins to connect wires. Full SPICE (thousands of transistors per cell × millions of cells) would require terabytes and weeks to process. Abstraction is what makes modern chips with billions of transistors feasible to design.')">LEF files are newer and more accurate than SPICE</button>
+        <button class="qopt" onclick="qa(this,true,'LEF provides an abstract view — just the cell footprint, pin locations, and metal obstruction layers. This is all the placer needs: where can I put this cell, where are its pins to connect wires. Full SPICE (thousands of transistors per cell × millions of cells) would require terabytes and weeks to process. Abstraction is what makes modern chips with billions of transistors feasible to design.')">LEF provides only what placement needs (footprint + pin locations) — full transistor detail would make tools impossibly slow</button>
+        <button class="qopt" onclick="qa(this,false,'LEF provides an abstract view — just the cell footprint, pin locations, and metal obstruction layers. This is all the placer needs: where can I put this cell, where are its pins to connect wires. Full SPICE (thousands of transistors per cell × millions of cells) would require terabytes and weeks to process. Abstraction is what makes modern chips with billions of transistors feasible to design.')">SPICE files are confidential and not shared with PD engineers</button>
+        <button class="qopt" onclick="qa(this,false,'LEF provides an abstract view — just the cell footprint, pin locations, and metal obstruction layers. This is all the placer needs: where can I put this cell, where are its pins to connect wires. Full SPICE (thousands of transistors per cell × millions of cells) would require terabytes and weeks to process. Abstraction is what makes modern chips with billions of transistors feasible to design.')">LEF includes power data which SPICE does not</button>
+      </div>
+      <div class="qexp">LEF is an abstract view — it describes cell dimensions, pin positions, and which metal layers are blocked by the cell. The placer only needs: "how big is this cell, where are its pins, what metal layers does it use?" A full transistor-level view of 50,000 unique cells × millions of instances would be terabytes of data that the tool can't process in reasonable time. This is the principle of abstraction: use only the level of detail each task requires.</div>
+    </div>
+
+  </div>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <p>Phase 2 · Part 1 · VLSI &amp; Digital Design Fundamentals &nbsp;|&nbsp; Days 15–17 &nbsp;|&nbsp; <em>Physical Design Engineer Training</em></p>
+  <p style="margin-top:5px;font-size:10px">Next → Phase2_Part2_PD_Basics_Floorplan_Placement.html</p>
+</footer>
+
+<script>
+const navLinks=document.querySelectorAll('.nav a');
+function hl(el){navLinks.forEach(a=>a.classList.remove('on'));el.classList.add('on')}
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){const id=e.target.id;navLinks.forEach(a=>{a.classList.toggle('on',a.getAttribute('href')==='#'+id)})}});
+},{threshold:0.25});
+document.querySelectorAll('.day').forEach(s=>observer.observe(s));
+function qa(btn,correct,explain){
+  const card=btn.closest('.qcard');
+  card.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'ok':'no');
+  if(!correct)card.querySelectorAll('.qopt').forEach(b=>{if(!b.classList.contains('no'))b.classList.add('ok')});
+  const exp=card.querySelector('.qexp');
+  if(exp){exp.classList.add('show')}
+}
+</script>
+</body>
+</html>

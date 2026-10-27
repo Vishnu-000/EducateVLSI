@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 2 — Sequential Logic & Timing | PD Engineer Training</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #080b12;
+  --surface: #0d1220;
+  --card: #101827;
+  --border: #1a2540;
+  --border2: #253050;
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.12);
+  --accent2: #ff6b35;
+  --accent3: #39d98a;
+  --warn: #f5c842;
+  --danger: #ff4757;
+  --text: #dde4f0;
+  --muted: #5a6a8a;
+  --subtle: #8a9ab8;
+  --code-bg: #060910;
+  --heading-font: 'Rajdhani', sans-serif;
+  --body-font: 'Crimson Pro', serif;
+  --mono-font: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--body-font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 17px;
+}
+
+/* SCANLINE OVERLAY */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ─── HEADER ─────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: rgba(8,11,18,0.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  padding: 0 40px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.header-badge {
+  font-family: var(--mono-font);
+  font-size: 0.62rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.header-day {
+  font-family: var(--heading-font);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.header-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prog-bar {
+  width: 120px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.prog-fill {
+  height: 100%;
+  width: 8.3%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+}
+
+.prog-text {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+/* ─── HERO ───────────────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 70px 60px 60px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* grid bg */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+}
+
+/* glow orb */
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+  top: -150px;
+  right: -100px;
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; z-index: 1; max-width: 820px; }
+
+.hero-eyebrow {
+  font-family: var(--mono-font);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.hero h1 {
+  font-family: var(--heading-font);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 1px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.hero h1 .accent { color: var(--accent); }
+.hero h1 .accent2 { color: var(--accent2); }
+
+.hero-desc {
+  font-family: var(--body-font);
+  font-size: 1.05rem;
+  color: var(--subtle);
+  max-width: 600px;
+  line-height: 1.8;
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-stat .num {
+  font-family: var(--heading-font);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.hero-stat .lbl {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ─── LAYOUT ─────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  max-width: 1160px;
+  margin: 0 auto;
+  gap: 0;
+}
+
+/* ─── SIDEBAR ────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: 54px;
+  height: calc(100vh - 54px);
+  overflow-y: auto;
+  padding: 32px 24px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.sidebar-label {
+  font-family: var(--mono-font);
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.nav-item:hover { background: var(--accent-dim); }
+.nav-item.active { background: var(--accent-dim); border-left: 2px solid var(--accent); }
+
+.nav-num {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  color: var(--accent);
+  min-width: 22px;
+  margin-top: 2px;
+}
+
+.nav-text {
+  font-family: var(--mono-font);
+  font-size: 0.68rem;
+  color: var(--subtle);
+  line-height: 1.4;
+}
+
+.nav-item:hover .nav-text { color: var(--text); }
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+/* ─── MAIN CONTENT ───────────────────────── */
+.main {
+  padding: 48px 56px 100px;
+  max-width: 840px;
+}
+
+/* ─── SECTION ────────────────────────────── */
+.lesson-section {
+  margin-bottom: 80px;
+  scroll-margin-top: 70px;
+}
+
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-tag {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 4px 12px;
+  border-radius: 3px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.sec-tag.orange { background: var(--accent2); }
+.sec-tag.green { background: var(--accent3); color: #060910; }
+.sec-tag.yellow { background: var(--warn); color: #060910; }
+.sec-tag.red { background: var(--danger); }
+
+.sec-title {
+  font-family: var(--heading-font);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  line-height: 1.1;
+}
+
+/* ─── PROSE ──────────────────────────────── */
+p {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: #c8d4e8;
+  margin-bottom: 18px;
+  font-weight: 300;
+}
+
+h3 {
+  font-family: var(--heading-font);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 32px 0 12px;
+  letter-spacing: 0.5px;
+}
+
+h4 {
+  font-family: var(--mono-font);
+  font-size: 0.72rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 24px 0 10px;
+}
+
+ul, ol {
+  padding-left: 22px;
+  margin-bottom: 18px;
+}
+
+li {
+  font-size: 0.97rem;
+  line-height: 1.85;
+  color: #b8c8e0;
+  margin-bottom: 5px;
+  font-weight: 300;
+}
+
+li strong { color: #dde4f0; font-weight: 600; }
+
+strong { color: #e8f0ff; font-weight: 600; }
+
+/* ─── BOXES ──────────────────────────────── */
+.box {
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin: 22px 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.box-label {
+  font-family: var(--mono-font);
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.box p { margin: 0; font-size: 0.95rem; }
+
+.box-analogy {
+  background: rgba(245,200,66,0.07);
+  border-left: 3px solid var(--warn);
+}
+.box-analogy .box-label { color: var(--warn); }
+.box-analogy p { color: #d4c070; }
+
+.box-critical {
+  background: rgba(255,107,53,0.08);
+  border: 1px solid rgba(255,107,53,0.35);
+}
+.box-critical .box-label { color: var(--accent2); }
+.box-critical p { color: #e0a080; }
+
+.box-note {
+  background: rgba(0,212,255,0.06);
+  border-left: 3px solid var(--accent);
+}
+.box-note .box-label { color: var(--accent); }
+.box-note p { color: #90c8d8; }
+
+.box-danger {
+  background: rgba(255,71,87,0.07);
+  border: 1px solid rgba(255,71,87,0.3);
+}
+.box-danger .box-label { color: var(--danger); }
+.box-danger p { color: #e09090; }
+
+.box-success {
+  background: rgba(57,217,138,0.07);
+  border-left: 3px solid var(--accent3);
+}
+.box-success .box-label { color: var(--accent3); }
+.box-success p { color: #80d4a8; }
+
+/* ─── DIAGRAM ────────────────────────────── */
+.diagram {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin: 20px 0;
+  overflow-x: auto;
+  font-family: var(--mono-font);
+  font-size: 0.74rem;
+  line-height: 1.9;
+  white-space: pre;
+  color: #7a9abb;
+}
+
+.diagram .hi { color: #f6c842; }
+.diagram .green { color: #68d391; }
+.diagram .red { color: #fc8181; }
+.diagram .blue { color: #63b3ed; }
+.diagram .cyan { color: var(--accent); }
+.diagram .orange { color: var(--accent2); }
+.diagram .white { color: #e2e8f0; }
+.diagram .dim { color: #3a4a6a; }
+
+/* ─── FORMULA ────────────────────────────── */
+.formula-block {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+
+.formula-title {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.formula {
+  font-family: var(--mono-font);
+  font-size: 0.88rem;
+  color: var(--accent3);
+  line-height: 2;
+}
+
+.formula .var { color: var(--accent); }
+.formula .op { color: var(--accent2); }
+.formula .comment { color: var(--muted); font-size: 0.78rem; }
+
+/* ─── TABLE ──────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 0.88rem;
+}
+
+.data-table th {
+  background: var(--surface);
+  border-bottom: 2px solid var(--accent);
+  padding: 12px 16px;
+  text-align: left;
+  font-family: var(--mono-font);
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.data-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: #b0c0d8;
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.data-table .hi-row td { color: #e0eefc; background: rgba(0,212,255,0.04); }
+.data-table .warn-row td { color: #f0d090; background: rgba(245,200,66,0.04); }
+
+/* ─── TRUTH TABLE ────────────────────────── */
+.truth-table {
+  width: auto;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: var(--mono-font);
+  font-size: 0.82rem;
+}
+
+.truth-table th {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  padding: 10px 20px;
+  text-align: center;
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+.truth-table td {
+  border: 1px solid var(--border);
+  padding: 9px 20px;
+  text-align: center;
+  color: var(--subtle);
+}
+
+.truth-table .Q1 td:last-child { color: var(--accent3); font-weight: 600; }
+.truth-table .Q0 td:last-child { color: var(--danger); font-weight: 600; }
+.truth-table .invalid td { background: rgba(255,71,87,0.08); color: var(--danger); }
+
+/* ─── TIMING DIAGRAM ─────────────────────── */
+.timing-wrap {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.timing-label {
+  font-family: var(--mono-font);
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.timing-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.timing-name {
+  font-family: var(--mono-font);
+  font-size: 0.72rem;
+  color: var(--subtle);
+  min-width: 60px;
+  text-align: right;
+}
+
+.timing-wave {
+  font-family: var(--mono-font);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* ─── INTERACTIVE DEMO ───────────────────── */
+.demo-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+}
+
+.demo-title {
+  font-family: var(--mono-font);
+  font-size: 0.62rem;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.demo-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.demo-label {
+  font-family: var(--mono-font);
+  font-size: 0.72rem;
+  color: var(--subtle);
+}
+
+.signal-btn {
+  font-family: var(--mono-font);
+  font-size: 0.72rem;
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  background: var(--card);
+  color: var(--subtle);
+  transition: all 0.15s;
+}
+
+.signal-btn.active-high {
+  background: rgba(57,217,138,0.15);
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+.signal-btn.active-low {
+  background: rgba(255,71,87,0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.demo-output {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: var(--mono-font);
+  font-size: 0.8rem;
+  margin-top: 12px;
+  min-height: 60px;
+}
+
+.output-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.output-name { color: var(--muted); min-width: 48px; }
+.output-val-high { color: var(--accent3); font-weight: 600; font-size: 0.9rem; }
+.output-val-low { color: var(--danger); font-weight: 600; font-size: 0.9rem; }
+.output-comment { color: var(--muted); font-size: 0.7rem; }
+
+/* ─── TIMING PATH VIZ ────────────────────── */
+.path-viz {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.path-viz svg {
+  width: 100%;
+  min-width: 600px;
+  height: auto;
+}
+
+/* ─── QUIZ ───────────────────────────────── */
+.quiz-section {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 32px;
+  margin: 40px 0;
+}
+
+.quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.quiz-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.quiz-title {
+  font-family: var(--heading-font);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.quiz-sub {
+  font-family: var(--mono-font);
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.q-block {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.q-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.q-number {
+  font-family: var(--mono-font);
+  font-size: 0.62rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.q-text {
+  font-family: var(--body-font);
+  font-size: 1.05rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+
+.opt {
+  display: block;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--subtle);
+  padding: 11px 16px;
+  margin: 7px 0;
+  border-radius: 7px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: var(--body-font);
+  transition: all 0.15s;
+  line-height: 1.5;
+}
+
+.opt:hover:not(:disabled) {
+  border-color: var(--border2);
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
+}
+
+.opt.correct {
+  background: rgba(57,217,138,0.12);
+  border-color: var(--accent3);
+  color: #a8f0cc;
+}
+
+.opt.wrong {
+  background: rgba(255,71,87,0.1);
+  border-color: var(--danger);
+  color: #f0a8a8;
+}
+
+.opt:disabled { cursor: default; }
+
+.q-fb {
+  font-family: var(--mono-font);
+  font-size: 0.74rem;
+  line-height: 1.7;
+  padding: 12px 16px;
+  border-radius: 7px;
+  margin-top: 10px;
+  display: none;
+}
+
+.q-fb.show { display: block; }
+.q-fb.pass { background: rgba(57,217,138,0.1); color: #a0e8c0; }
+.q-fb.fail { background: rgba(255,71,87,0.1); color: #f0a8a8; }
+
+/* ─── CHECKLIST ──────────────────────────── */
+.checklist-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  margin: 40px 0;
+}
+
+.cl-title {
+  font-family: var(--mono-font);
+  font-size: 0.62rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.cl-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.cl-item:last-child { border-bottom: none; }
+
+.cl-box {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-family: var(--mono-font);
+  transition: all 0.2s;
+  color: transparent;
+}
+
+.cl-item.done .cl-box {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: #060910;
+}
+
+.cl-item.done .cl-text {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.cl-text { font-size: 0.92rem; color: var(--subtle); line-height: 1.5; }
+
+/* ─── SUMMARY CARDS ──────────────────────── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.sum-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.sum-card-title {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.sum-card-body {
+  font-size: 0.86rem;
+  color: var(--subtle);
+  line-height: 1.65;
+  font-family: var(--body-font);
+}
+
+/* ─── NEXT DAY ───────────────────────────── */
+.next-day-banner {
+  background: linear-gradient(135deg, var(--surface) 0%, #0a1428 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 4px solid var(--accent2);
+  padding: 50px 60px;
+  text-align: center;
+}
+
+.nd-eyebrow {
+  font-family: var(--mono-font);
+  font-size: 0.6rem;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.nd-title {
+  font-family: var(--heading-font);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.nd-desc {
+  font-size: 0.95rem;
+  color: var(--subtle);
+  margin-bottom: 24px;
+}
+
+.nd-chips {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nd-chip {
+  font-family: var(--mono-font);
+  font-size: 0.65rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .main { padding: 32px 24px 80px; }
+  .hero { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="site-header">
+  <div class="header-badge">PD Engineer Training · Phase 1</div>
+  <div class="header-day">DAY 02</div>
+  <div class="header-progress">
+    <div class="prog-bar"><div class="prog-fill"></div></div>
+    <div class="prog-text">Day 2 / 120</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Day 2 · Sequential Logic Module</div>
+    <h1>Latches, Flip-Flops,<br><span class="accent">Setup & Hold Time</span>,<br><span class="accent2">Metastability</span></h1>
+    <div class="hero-desc">This is the most important day in your entire PD career. Every timing report, every slack number, every DRC violation you will ever fix traces back to what you learn today. Take your time. Understand every concept deeply.</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">8</div><div class="lbl">Topics</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="lbl">Diagrams</div></div>
+      <div class="hero-stat"><div class="num">3</div><div class="lbl">Simulations</div></div>
+      <div class="hero-stat"><div class="num">10</div><div class="lbl">Quiz Qs</div></div>
+      <div class="hero-stat"><div class="num">4 hrs</div><div class="lbl">Study Time</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-label">Contents</div>
+  <a class="nav-item" href="#s1"><span class="nav-num">01</span><span class="nav-text">Combinational vs Sequential Logic</span></a>
+  <a class="nav-item" href="#s2"><span class="nav-num">02</span><span class="nav-text">SR Latch — The Memory Cell</span></a>
+  <a class="nav-item" href="#s3"><span class="nav-num">03</span><span class="nav-text">D Latch — Level Sensitive</span></a>
+  <a class="nav-item" href="#s4"><span class="nav-num">04</span><span class="nav-text">D Flip-Flop — Edge Triggered</span></a>
+  <a class="nav-item" href="#s5"><span class="nav-num">05</span><span class="nav-text">Setup Time — The Most Critical Spec</span></a>
+  <a class="nav-item" href="#s6"><span class="nav-num">06</span><span class="nav-text">Hold Time — The Insidious Violation</span></a>
+  <a class="nav-item" href="#s7"><span class="nav-num">07</span><span class="nav-text">Clock-to-Q Delay & Timing Paths</span></a>
+  <a class="nav-item" href="#s8"><span class="nav-num">08</span><span class="nav-text">Metastability & Clock Domain Crossing</span></a>
+  <div class="sidebar-divider"></div>
+  <a class="nav-item" href="#quiz"><span class="nav-num">Q</span><span class="nav-text">Day 2 Quiz · 10 Questions</span></a>
+  <a class="nav-item" href="#summary"><span class="nav-num">∑</span><span class="nav-text">Summary & Key Formulas</span></a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ════════════════════════════════════════ -->
+<!-- S1: COMBINATIONAL VS SEQUENTIAL         -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s1">
+  <div class="sec-header">
+    <div class="sec-tag">01</div>
+    <div class="sec-title">Combinational vs Sequential Logic</div>
+  </div>
+
+  <p>On Day 1 you studied gates — NAND, NOR, INV. Those are <strong>combinational logic</strong> circuits. Today we introduce <strong>sequential logic</strong> — circuits that have memory. Together, these two categories make up 100% of the digital logic inside any chip you will ever work on as a PD engineer.</p>
+
+  <h3>The Fundamental Difference</h3>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Property</th><th>Combinational Logic</th><th>Sequential Logic</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Output depends on</strong></td><td>Current inputs only</td><td>Current inputs + past state (memory)</td></tr>
+      <tr><td><strong>Memory</strong></td><td>None</td><td>Yes — stores 1 bit per element</td></tr>
+      <tr><td><strong>Clock needed</strong></td><td>No</td><td>Yes (for synchronous designs)</td></tr>
+      <tr><td><strong>Examples</strong></td><td>NAND, NOR, adder, MUX, encoder</td><td>Latch, flip-flop, register, FSM, memory</td></tr>
+      <tr><td><strong>In timing analysis</strong></td><td>Logic cones between flip-flops</td><td>Launch and capture endpoints</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-analogy">
+    <div class="box-label">🧠 Analogy</div>
+    <p>Combinational logic is like a light switch — flip it and the light responds immediately. Sequential logic is like a combination lock — what matters is the <em>history</em> of inputs (the sequence of numbers you dialed), not just what you're pressing right now. The lock "remembers" its state.</p>
+  </div>
+
+  <h3>Why This Matters Enormously for PD Engineers</h3>
+
+  <p>In Physical Design, <strong>flip-flops are the endpoints of every timing path</strong>. When you run Static Timing Analysis (STA) — which you will do constantly — the tool checks whether data arrives at each flip-flop's input at the right time relative to the clock. That "right time" is defined by setup time and hold time — which you will master today.</p>
+
+  <p>A typical 1GHz processor chip has <strong>hundreds of thousands to millions of flip-flops</strong>. Your job is to place them, route wires between them, and ensure timing is met at every single one. Understanding what a flip-flop is — down to the transistor level — is not optional. It is the foundation of your career.</p>
+
+  <div class="box box-critical">
+    <div class="box-label">⚡ PD Engineer Context</div>
+    <p>When a timing report shows "Endpoint: counter_reg[3]/D" — that "/D" is the Data input of a D flip-flop. When it shows "Startpoint: counter_reg[3]/Q" — that "/Q" is the output. When it says "CK" — that is the clock pin. Every path in a timing report starts and ends at sequential elements. Today you learn exactly what those elements are.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S2: SR LATCH                            -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s2">
+  <div class="sec-header">
+    <div class="sec-tag orange">02</div>
+    <div class="sec-title">SR Latch — The First Memory Cell</div>
+  </div>
+
+  <p>The SR Latch (Set-Reset Latch) is the simplest sequential circuit possible. It is the fundamental memory cell from which all latches and flip-flops are built. Understanding it gives you an intuition for how all storage works in silicon.</p>
+
+  <h3>Construction from Cross-Coupled NAND Gates</h3>
+
+  <p>The most common implementation uses two NAND gates with their outputs feeding back to the other gate's input — this cross-coupling is what creates memory:</p>
+
+  <div class="diagram"><span class="cyan">SR LATCH (NAND Implementation)</span>
+
+         S ──────┬────[NAND]──── Q
+                 │         ↑
+                 └──────── ┘  ← Cross-coupled feedback
+                 ┌──────── ┐
+                 │         ↓
+         R ──────┴────[NAND]──── Q̄ (Q-bar, complement of Q)
+
+  <span class="dim">The output of each NAND feeds back as input to the other NAND.</span>
+  <span class="dim">This feedback loop is what creates bistable behavior (two stable states).</span></div>
+
+  <h3>Truth Table — NOR-based SR Latch (Active High)</h3>
+
+  <p>The NOR-based version is easier to analyze first (inputs are active-HIGH):</p>
+
+  <table class="truth-table">
+    <thead><tr><th>S</th><th>R</th><th>Q (next)</th><th>Q̄ (next)</th><th>State</th></tr></thead>
+    <tbody>
+      <tr class="Q0"><td>0</td><td>0</td><td>Q (hold)</td><td>Q̄ (hold)</td><td>HOLD — no change</td></tr>
+      <tr class="Q1"><td>1</td><td>0</td><td>1</td><td>0</td><td>SET — Q goes HIGH</td></tr>
+      <tr class="Q0"><td>0</td><td>1</td><td>0</td><td>1</td><td>RESET — Q goes LOW</td></tr>
+      <tr class="invalid"><td>1</td><td>1</td><td>0*</td><td>0*</td><td>FORBIDDEN — both outputs 0, breaks Q̄=NOT(Q)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Why the S=1, R=1 State is Forbidden</h3>
+
+  <p>When both S and R are 1, both outputs are forced LOW simultaneously — so Q=0 AND Q̄=0. But by definition Q̄ must be the complement of Q (i.e., Q̄=NOT Q). Having Q=Q̄=0 violates this invariant and makes the circuit's next state unpredictable when inputs return to 0. This forbidden state leads directly to metastability — which you will study in Section 8.</p>
+
+  <div class="box box-analogy">
+    <div class="box-label">🧠 Analogy</div>
+    <p>Imagine a light switch wired to two people: Person S (Sets it ON) and Person R (Resets it OFF). If both do nothing (S=R=0) — the light stays as it was. If only S acts — light turns ON. If only R acts — light turns OFF. If BOTH act simultaneously with equal force — you get a tug-of-war with no valid winner. That's the forbidden state: the output races between 0 and 1 unpredictably.</p>
+  </div>
+
+  <h3>The Key Property: Bistability</h3>
+
+  <p>The cross-coupled feedback creates two stable equilibrium states: Q=1,Q̄=0 or Q=0,Q̄=1. The circuit holds one state indefinitely with no power needed to maintain it (unlike a capacitor, which leaks). This is static storage — the basis of all SRAM cells and flip-flops.</p>
+
+  <div class="box box-note">
+    <div class="box-label">📌 PD Relevance</div>
+    <p>Every SRAM memory bitcell (used in caches, register files) is essentially a 6-transistor cross-coupled inverter pair — the CMOS analog of the SR latch. When you place memory macros during floorplanning, you are placing billions of these cells. The forbidden state / metastability concern you're learning now is the same physics that governs SRAM sense amp timing.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S3: D LATCH                             -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s3">
+  <div class="sec-header">
+    <div class="sec-tag">03</div>
+    <div class="sec-title">D Latch — Level Sensitive Storage</div>
+  </div>
+
+  <p>The SR Latch has a serious problem: the forbidden state. The D Latch solves this by reducing the two independent inputs (S and R) to a <strong>single data input (D)</strong>, with R always equal to NOT(D). This eliminates the forbidden state entirely.</p>
+
+  <h3>D Latch Circuit</h3>
+
+  <div class="diagram"><span class="cyan">D LATCH</span>
+
+         D ────┬────────────[NAND]──── Q
+               │                 ↑
+              [INV]      (cross-coupled)
+               │                 ↓
+               └────────────[NAND]──── Q̄
+
+         EN ──── (gate enables both NAND paths)
+
+  <span class="green">Simpler view:</span>
+
+         D ───────[  ]──────── Q
+         EN ──────[ Latch ]
+                  [  ]──────── Q̄
+
+  <span class="hi">When EN=1 (HIGH): latch is TRANSPARENT — Q follows D</span>
+  <span class="dim">When EN=0 (LOW):  latch is OPAQUE — Q holds last value</span></div>
+
+  <h3>Truth Table</h3>
+
+  <table class="truth-table">
+    <thead><tr><th>EN</th><th>D</th><th>Q (next)</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr class="Q1"><td>1</td><td>1</td><td>1</td><td>Transparent — Q follows D=1</td></tr>
+      <tr class="Q0"><td>1</td><td>0</td><td>0</td><td>Transparent — Q follows D=0</td></tr>
+      <tr><td>0</td><td>X</td><td>Q_prev</td><td>Opaque — Q holds previous value</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Critical Problem: Transparency and Timing Hazard</h3>
+
+  <p>Because a latch is transparent while EN is HIGH, data can "ripple through" multiple latches if EN is held HIGH for too long. This makes timing analysis complicated — data can pass through a latch mid-clock-cycle, creating what's called a <strong>timing race condition</strong>.</p>
+
+  <div class="box box-danger">
+    <div class="box-label">⚠️ Danger: Latch Transparency</div>
+    <p>In a system with multiple D latches, if the enable is HIGH across multiple latch stages simultaneously, data can race through the entire chain in a single cycle. This makes functional verification extremely difficult and timing analysis complex. This is why synchronous digital design almost universally uses D Flip-Flops (edge-triggered) instead of latches for state storage.</p>
+  </div>
+
+  <h3>When Latches Are Used in PD</h3>
+
+  <p>Despite the complexity, latches are not obsolete. They appear in:</p>
+  <ul>
+    <li><strong>Time-borrowing</strong>: in high-performance pipelines, latches allow a fast stage to "borrow" time from the next stage — a specific optimization technique</li>
+    <li><strong>SRAM bitcell</strong>: the core of all cache memory</li>
+    <li><strong>ICG (Integrated Clock Gate)</strong>: the latch inside a clock gate cell holds the enable signal, preventing glitchy gated clocks — you'll see this constantly in CTS</li>
+    <li><strong>Reset synchronizers</strong>: for clean reset release across clock domains</li>
+  </ul>
+
+  <!-- Interactive Latch Demo -->
+  <div class="demo-box">
+    <div class="demo-title">⚡ Interactive D Latch Simulator</div>
+    <div class="demo-controls">
+      <div class="demo-label">EN:</div>
+      <button class="signal-btn" id="btn-en" onclick="toggleLatch('en')">EN = 0 (Opaque)</button>
+      <div class="demo-label" style="margin-left:16px">D:</div>
+      <button class="signal-btn" id="btn-d" onclick="toggleLatch('d')">D = 0</button>
+    </div>
+    <div class="demo-output" id="latch-output">
+      <div class="output-row">
+        <span class="output-name">Q :</span>
+        <span id="latch-q" class="output-val-low">0</span>
+        <span id="latch-comment" class="output-comment">— Latch OPAQUE, holding state</span>
+      </div>
+      <div class="output-row" style="margin-top:8px">
+        <span style="font-family:var(--mono-font);font-size:0.7rem;color:var(--muted)" id="latch-state">State: OPAQUE (EN=0) — Q is locked, ignoring D input</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S4: D FLIP-FLOP                         -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s4">
+  <div class="sec-header">
+    <div class="sec-tag green">04</div>
+    <div class="sec-title">D Flip-Flop — Edge-Triggered Storage</div>
+  </div>
+
+  <p>The D Flip-Flop (DFF) is <strong>the single most important sequential element in digital design</strong>. Every register, every pipeline stage, every state machine is built from DFFs. As a PD engineer, every timing path you analyze starts at a DFF output (Q) or ends at a DFF input (D).</p>
+
+  <h3>How a D Flip-Flop is Built</h3>
+
+  <p>A D Flip-Flop is constructed from <strong>two D latches in a master-slave configuration</strong>:</p>
+
+  <div class="diagram"><span class="cyan">D FLIP-FLOP = MASTER LATCH + SLAVE LATCH</span>
+
+                  CLK                   CLK
+                   │                     │
+                   ▼                     ▼
+  D ──── [Master D Latch] ──── [Slave D Latch] ──── Q
+                EN = CLK              EN = CLK̄
+
+  <span class="dim">Master: transparent when CLK=0, opaque when CLK=1</span>
+  <span class="dim">Slave:  transparent when CLK=1, opaque when CLK=0</span>
+
+  <span class="green">At CLK rising edge (0→1):</span>
+  <span class="green">  Master becomes OPAQUE  (locks current D value)</span>
+  <span class="green">  Slave  becomes TRANSPARENT (passes captured D to Q)</span>
+  <span class="hi">Result: Q captures D exactly at the rising clock edge</span>
+  <span class="hi">        and holds it for the entire clock cycle</span></div>
+
+  <h3>Key Behavior: Edge-Triggered</h3>
+
+  <p>Unlike a latch (level-sensitive), the DFF only captures data at one <strong>instant</strong> — the rising clock edge (for a positive-edge-triggered DFF). Between edges, the output Q is stable regardless of what D does. This makes timing analysis clean and predictable — which is exactly why synchronous design dominates the industry.</p>
+
+  <div class="diagram"><span class="cyan">TIMING DIAGRAM — D Flip-Flop (Positive Edge Triggered)</span>
+
+  CLK  :  ___   ___   ___   ___   ___
+         |   | |   | |   | |   | |   |
+         |   |_|   |_|   |_|   |_|   |_
+          ↑     ↑     ↑     ↑     ↑
+         edge1 edge2 edge3 edge4 edge5  ← data captured at each ↑
+
+  D    :  ─────────┐     ┌──────┐
+                   └─────┘      └──────  ← D changes freely
+
+  Q    :  ─────────────────┐     ┌─────  ← Q only changes AFTER rising edge
+                           └─────┘        captures whatever D was at that instant
+
+  <span class="dim">Notice: D changed between edge1 and edge2 → Q updates at edge2 only</span>
+  <span class="dim">        D was HIGH at edge3 → Q goes HIGH, holds until edge where D=LOW</span></div>
+
+  <h3>CMOS Implementation of D Flip-Flop</h3>
+
+  <p>In standard cell libraries, a DFF is implemented using <strong>transmission gates</strong> (pass transistors) rather than NAND latches — this gives a more compact and faster implementation:</p>
+
+  <div class="diagram"><span class="cyan">CMOS DFF (Transmission Gate Implementation)</span>
+
+  D ──[TG1]──┬──[INV1]──[TG2]──┬──[INV3]──[TG3]──┬──[INV5]── Q
+  CLK̄  CLK   │                  │  CLK  CLK̄        │
+             [INV2]             [INV4]              [INV6]
+              │                  │  (feedback)       │
+              └──────────────────┘                   └──(feedback)
+
+  TG = Transmission Gate (NMOS + PMOS in parallel, controlled by CLK and CLK̄)
+  <span class="dim">~20–28 transistors total in a typical DFF implementation</span>
+  <span class="hi">Key outputs used in PD timing analysis:</span>
+  <span class="green">  D  → Data input    (setup/hold time measured here)</span>
+  <span class="green">  Q  → Data output   (clock-to-Q delay starts from clock edge)</span>
+  <span class="green">  CK → Clock input   (reference for all timing measurements)</span>
+  <span class="green">  QN → Inverted Q output (available in some DFF variants)</span></div>
+
+  <h3>Important DFF Variants You'll See in Netlists</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Cell Name (example)</th><th>Description</th><th>When Used</th></tr></thead>
+    <tbody>
+      <tr><td><code>DFFX1</code></td><td>Standard positive-edge DFF, drive strength 1</td><td>Default register</td></tr>
+      <tr><td><code>DFFX2, DFFX4</code></td><td>Higher drive strength (bigger, more power)</td><td>Driving many loads, critical paths</td></tr>
+      <tr><td><code>DFFRX1</code></td><td>DFF with synchronous Reset</td><td>Resettable registers</td></tr>
+      <tr><td><code>DFFSX1</code></td><td>DFF with synchronous Set</td><td>Registers that power up to 1</td></tr>
+      <tr><td><code>DFFNSRX1</code></td><td>DFF with async Set AND Reset</td><td>Power-on reset logic</td></tr>
+      <tr class="hi-row"><td><code>ICG (TLATNX1)</code></td><td>Integrated Clock Gate (latch-based)</td><td>Clock gating — reduces dynamic power</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S5: SETUP TIME                          -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s5">
+  <div class="sec-header">
+    <div class="sec-tag yellow">05</div>
+    <div class="sec-title">Setup Time — The Most Critical Timing Spec</div>
+  </div>
+
+  <p>You will fix setup violations every single day as a PD engineer. Understanding what setup time physically means — not just memorizing the definition — is what separates engineers who debug timing quickly from those who struggle.</p>
+
+  <h3>Definition</h3>
+
+  <p><strong>Setup time (T_su)</strong> is the minimum amount of time that the data input D must be <em>stable and valid</em> BEFORE the active clock edge arrives at the flip-flop.</p>
+
+  <div class="box box-analogy">
+    <div class="box-label">🧠 Analogy — The Train</div>
+    <p>Setup time is like a train departure. The train (clock edge) departs at a fixed time. If you (data) arrive at the platform fewer than 5 minutes before departure, you miss the train. The "5 minutes" is setup time — the minimum time you must be present before the clock edge. Arrive late → you miss the capture → the flip-flop captures garbage → chip fails.</p>
+  </div>
+
+  <h3>Why Setup Time Exists — The Physics</h3>
+
+  <p>Recall that a DFF is built from two latches with transmission gates. When the clock edge arrives:</p>
+  <ol>
+    <li>The master latch must transition from transparent to opaque</li>
+    <li>The transmission gates switch states — this takes finite time (TG propagation)</li>
+    <li>The internal nodes of the master latch must reach their stable final values before the slave latch opens</li>
+  </ol>
+  <p>If data D arrives too late (less than T_su before the clock edge), the master latch's internal nodes haven't settled — the DFF captures an incorrect value. This is a setup violation.</p>
+
+  <h3>Setup Time in a Timing Path</h3>
+
+  <div class="diagram"><span class="cyan">REGISTER-TO-REGISTER TIMING PATH (Most Common)</span>
+
+  ┌─────────┐        combinational logic          ┌─────────┐
+  │ Launch  │ Q ──────────[gates]─────────────── D│ Capture │
+  │   FF    │                                      │   FF    │
+  │       CK│◄── Launch clock                    CK│◄── Capture clock
+  └─────────┘                                      └─────────┘
+        │                                                │
+   Launch edge                                    Capture edge
+   (CLK rises here)                               (CLK rises here,
+                                                   T_period later)
+
+  <span class="hi">Timeline:</span>
+
+  t=0    : Launch clock edge rises
+  t=Tcq  : Launch FF output Q transitions (clock-to-Q delay)
+  t=Tcq  : Data starts propagating through combinational logic
+  t=Tcq+Tlogic : Data arrives at Capture FF's D input
+
+  Required: Data must arrive by  T_period - T_setup - T_uncertainty
+  Actual:   Data arrives at      Tcq + Tlogic + T_net
+
+  <span class="green">Setup Slack = (T_period - T_setup) - (Tcq + Tlogic + T_net)</span>
+  <span class="green">            = Required Arrival Time - Actual Arrival Time</span>
+
+  <span class="dim">Positive slack → PASS ✓</span>
+  <span class="red">Negative slack → VIOLATION ✗ — must be fixed before tapeout</span></div>
+
+  <h3>Setup Check Equation</h3>
+
+  <div class="formula-block">
+    <div class="formula-title">Setup Timing Check</div>
+    <div class="formula">
+<span class="var">T_launch</span> + <span class="var">Tcq</span> + <span class="var">T_logic</span> + <span class="var">T_net</span> ≤ <span class="var">T_capture</span> - <span class="var">T_setup</span> - <span class="var">T_uncertainty</span>
+
+<span class="comment">Where:
+  T_launch      = time of launch clock edge (e.g. 0)
+  Tcq           = clock-to-Q delay of launch FF (from library)
+  T_logic       = total propagation delay through combinational logic
+  T_net         = wire delay (parasitic RC, extracted from layout)
+  T_capture     = time of capture clock edge (= T_launch + T_period)
+  T_setup       = setup time of capture FF (from library)
+  T_uncertainty = clock uncertainty (jitter + skew margin)</span>
+
+<span class="op">Setup Slack</span> = <span class="var">T_capture</span> - <span class="var">T_setup</span> - <span class="var">T_uncertainty</span> - (<span class="var">T_launch</span> + <span class="var">Tcq</span> + <span class="var">T_logic</span> + <span class="var">T_net</span>)
+           <span class="comment">= Required Arrival Time - Actual Arrival Time</span>
+    </div>
+  </div>
+
+  <h3>How to Fix Setup Violations</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Fix Method</th><th>What It Does</th><th>Trade-off</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Upsize cells</strong></td><td>Use higher drive-strength cell (X2, X4) → faster switching</td><td>More area, more power</td></tr>
+      <tr><td><strong>Replace with faster Vt</strong></td><td>Swap HVT → SVT or LVT cell → lower Vt → faster</td><td>Increased leakage power</td></tr>
+      <tr><td><strong>Buffer/rebuffer net</strong></td><td>Insert buffer on long wire → reduces net delay</td><td>More cells, slight area</td></tr>
+      <tr><td><strong>Logic restructuring</strong></td><td>Reduce logic depth (fewer gate levels on critical path)</td><td>Can change netlist significantly</td></tr>
+      <tr><td><strong>Useful clock skew</strong></td><td>Make capture clock arrive later → more time for data</td><td>Can hurt other paths</td></tr>
+      <tr class="warn-row"><td><strong>Reduce clock frequency</strong></td><td>Increase T_period → more time available</td><td>Performance loss — last resort</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-critical">
+    <div class="box-label">⚡ Key Interview Insight</div>
+    <p>Setup violations are a <strong>function of frequency</strong> — they disappear if you run the chip slower. This is why a chip with setup violations is called "frequency-limited." Every ns you reduce the clock period helps setup. Hold violations, on the other hand, are independent of frequency — they exist at any speed. This fundamental difference drives completely different fix strategies.</p>
+  </div>
+
+  <!-- Interactive Setup Demo -->
+  <div class="demo-box">
+    <div class="demo-title">⚡ Setup Timing Calculator</div>
+    <div class="demo-controls" style="flex-direction:column;align-items:flex-start;gap:12px">
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <span class="demo-label">Clock Period (ps):</span>
+        <input type="range" id="clk-period" min="500" max="2000" value="1000" oninput="calcSetup()" style="width:140px;accent-color:var(--accent)">
+        <span class="demo-label" id="period-val" style="color:var(--accent);font-family:var(--mono-font)">1000ps</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <span class="demo-label">Logic Delay (ps):</span>
+        <input type="range" id="logic-delay" min="100" max="900" value="400" oninput="calcSetup()" style="width:140px;accent-color:var(--accent2)">
+        <span class="demo-label" id="logic-val" style="color:var(--accent2);font-family:var(--mono-font)">400ps</span>
+      </div>
+    </div>
+    <div class="demo-output" id="setup-result" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S6: HOLD TIME                           -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s6">
+  <div class="sec-header">
+    <div class="sec-tag orange">06</div>
+    <div class="sec-title">Hold Time — The Insidious Violation</div>
+  </div>
+
+  <p>Hold time is the <strong>second pillar of timing analysis</strong> and arguably the more dangerous of the two violations — because unlike setup, hold violations cannot be fixed by running the chip slower. They exist at every frequency and will cause functional failure at all speeds.</p>
+
+  <h3>Definition</h3>
+
+  <p><strong>Hold time (T_hold)</strong> is the minimum amount of time that data at input D must remain <em>stable and unchanged</em> AFTER the active clock edge. The flip-flop is still in the process of "latching" the data during this window — if data changes before this time expires, the captured value may be corrupted.</p>
+
+  <div class="box box-analogy">
+    <div class="box-label">🧠 Analogy — The Scanner</div>
+    <p>Hold time is like a document scanner. After you press SCAN (clock edge), you must keep the document still for at least T_hold seconds while the scanner reads it. If you yank the paper out too early — the scan captures a blurred, corrupted image. The data "moved" before the capture was complete.</p>
+  </div>
+
+  <h3>Why Hold Time Exists — The Physics</h3>
+
+  <p>At the clock edge, the transmission gates inside the DFF are switching. During this transition:</p>
+  <ol>
+    <li>The master latch is becoming opaque — but this takes a finite time</li>
+    <li>The slave latch is becoming transparent — it begins passing data to Q</li>
+    <li>If data D changes during this window, the partially-transparent master latch may partially capture the new data, resulting in an unknown intermediate state</li>
+  </ol>
+
+  <h3>The Hold Check Equation</h3>
+
+  <div class="formula-block">
+    <div class="formula-title">Hold Timing Check</div>
+    <div class="formula">
+<span class="var">T_launch</span> + <span class="var">Tcq</span> + <span class="var">T_logic</span> + <span class="var">T_net</span>  ≥  <span class="var">T_capture</span> + <span class="var">T_hold</span> + <span class="var">T_uncertainty</span>
+
+<span class="comment">For a same-edge capture (both FFs launch and capture on same edge):</span>
+
+<span class="op">Hold Slack</span> = (<span class="var">Tcq</span> + <span class="var">T_logic</span> + <span class="var">T_net</span>) - (<span class="var">T_hold</span> + <span class="var">T_uncertainty</span>)
+           <span class="comment">= Actual data arrival - Minimum required hold time
+             Must be ≥ 0 for no violation</span>
+    </div>
+  </div>
+
+  <h3>Hold Violations: When and Why They Occur</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Scenario</th><th>Why Hold Violation Happens</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Short combinational path</strong></td><td>If logic between two FFs is very fast (or zero — direct connection), data arrives at capture FF too quickly after clock edge — before hold time expires</td></tr>
+      <tr><td><strong>Zero-logic path (direct FF-to-FF)</strong></td><td>No combinational delay → data at capture D changes almost immediately after launch Q → most common source of hold violations</td></tr>
+      <tr class="hi-row"><td><strong>Post-CTS hold violations</strong></td><td>After CTS, actual clock delays are inserted. If launch FF gets clock earlier than capture FF, the effective "time available" shrinks → hold violations appear that weren't there pre-CTS</td></tr>
+      <tr><td><strong>Negative clock skew</strong></td><td>Capture FF clock arrives before launch FF clock → data can arrive too quickly at capture before hold window closes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>How to Fix Hold Violations</h3>
+
+  <div class="box box-danger">
+    <div class="box-label">⚠️ The Golden Rule of Hold Fixing</div>
+    <p>NEVER fix a hold violation by modifying the clock path. ALWAYS add delay to the DATA path. Adding buffers to the clock path to delay the clock on the capture side will create hold violations on other paths and can cascade into an unfixable mess.</p>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>Fix Method</th><th>Mechanism</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Insert delay buffers (BUFD, DLYND)</strong></td><td>Add delay cells on the data path to increase Tlogic + Tnet</td><td>Most common PD fix. Adds area.</td></tr>
+      <tr><td><strong>Insert inverter pairs</strong></td><td>INV+INV = delay + no logic change</td><td>Fast to implement in ECO</td></tr>
+      <tr><td><strong>Route data net on higher resistance layer</strong></td><td>Increases RC delay of wire</td><td>Done during ECO routing</td></tr>
+      <tr><td><strong>Use lower-drive-strength cells</strong></td><td>Smaller cells drive more slowly → adds delay naturally</td><td>Only if timing allows elsewhere</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Setup vs Hold — The Complete Comparison</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Property</th><th>Setup Violation</th><th>Hold Violation</th></tr></thead>
+    <tbody>
+      <tr><td>When does data fail?</td><td>Arrives TOO LATE before clock edge</td><td>Leaves TOO EARLY after clock edge</td></tr>
+      <tr><td>Frequency dependent?</td><td>Yes — reduce freq → setup fixes itself</td><td>No — exists at ALL frequencies</td></tr>
+      <tr class="hi-row"><td>Which is more dangerous?</td><td>Less — can prototype at lower speed</td><td>More — chip fails completely at any speed</td></tr>
+      <tr><td>Primary fix</td><td>Speed up data path / upsize cells</td><td>Slow down data path / add delay buffers</td></tr>
+      <tr><td>When do they usually appear?</td><td>Throughout PD, especially post-route</td><td>Massively after CTS (clock insertion)</td></tr>
+      <tr><td>Fix direction</td><td>Reduce delay in data path</td><td>Increase delay in data path</td></tr>
+      <tr><td>Can fixing one cause the other?</td><td>Yes — speeding up data too much → hold violation</td><td>Yes — slowing data too much → setup violation</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-critical">
+    <div class="box-label">⚡ PD Engineer Reality</div>
+    <p>In a real PD project: after CTS, hundreds to thousands of hold violations appear because inserting real clock buffers changes the relative clock arrival times across the chip. PD tools (ICC2, Innovus) automatically fix holds by inserting delay buffers. Your job is to review the reports, ensure the fixes didn't create new setup violations, and verify that hold fixing didn't cause routing congestion in critical regions.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S7: CLOCK-TO-Q & TIMING PATHS           -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s7">
+  <div class="sec-header">
+    <div class="sec-tag">07</div>
+    <div class="sec-title">Clock-to-Q Delay & Complete Timing Path Analysis</div>
+  </div>
+
+  <p>Now that you understand setup and hold time, let's build a complete picture of all the timing parameters involved in a register-to-register path — the bread and butter of STA.</p>
+
+  <h3>Clock-to-Q Delay (Tcq)</h3>
+
+  <p><strong>Tcq</strong> is the propagation delay from the active clock edge at CK to when the output Q settles to its new stable value. It is a <strong>fixed parameter from the cell library</strong> — the PD tool reads it from the .lib file.</p>
+
+  <ul>
+    <li>Tcq depends on: load capacitance at Q, input slew on CK, temperature, voltage (from PVT corners)</li>
+    <li>Typical Tcq range: <strong>100ps – 400ps</strong> at 28nm, faster at 7nm</li>
+    <li>There are two Tcqs: <strong>Tcq_rise</strong> (Q transitions 0→1) and <strong>Tcq_fall</strong> (Q transitions 1→0)</li>
+  </ul>
+
+  <div class="box box-note">
+    <div class="box-label">📌 In Timing Reports</div>
+    <p>In a PrimeTime or OpenSTA timing report, you will see a line like:<br>
+    <code>DFFX1/CK → DFFX1/Q  (rise)  0.24ns</code><br>
+    That 0.24ns is Tcq. It is the first delay in every timing path and eats into your available clock period before data has even entered the combinational logic.</p>
+  </div>
+
+  <h3>All Timing Parameters Together</h3>
+
+  <div class="diagram"><span class="cyan">COMPLETE REGISTER-TO-REGISTER TIMING PATH</span>
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                     ONE CLOCK PERIOD (T_period)                  │
+  └──────────────────────────────────────────────────────────────────┘
+  │←Tcq→│←────── T_logic ────────→│←T_net→│← T_setup →│
+  │     │  gate1  gate2  gate3     │ wire  │            │
+  CK↑  Q stable                  D arrives          CK↑(next)
+
+  <span class="hi">Budget equation:</span>
+  <span class="hi">T_period ≥ Tcq + T_logic + T_net + T_setup + T_uncertainty</span>
+
+  <span class="dim">What eats your clock period:</span>
+  <span class="dim">  Tcq          : ~10-20% of budget (library property)</span>
+  <span class="dim">  T_logic      : ~50-60% of budget (combinational logic)</span>
+  <span class="dim">  T_net        : ~15-25% of budget (wire parasitic RC)</span>
+  <span class="dim">  T_setup      : ~5-10% of budget (library property)</span>
+  <span class="dim">  T_uncertainty: ~5% of budget (clock jitter + skew)</span>
+
+  <span class="green">Critical Path = the timing path with the WORST (least positive) slack</span>
+  <span class="green">WNS = Worst Negative Slack = slack of the critical path (must be ≥ 0)</span>
+  <span class="green">TNS = Total Negative Slack = sum of all negative slacks in design</span></div>
+
+  <h3>Types of Timing Paths</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Path Type</th><th>Startpoint</th><th>Endpoint</th><th>Frequency</th></tr></thead>
+    <tbody>
+      <tr class="hi-row"><td><strong>Reg-to-Reg</strong></td><td>FF clock pin</td><td>FF data pin (D)</td><td>Most common — 90%+ of paths</td></tr>
+      <tr><td><strong>Input-to-Reg</strong></td><td>Input port</td><td>FF data pin (D)</td><td>Constrained by set_input_delay in SDC</td></tr>
+      <tr><td><strong>Reg-to-Output</strong></td><td>FF clock pin</td><td>Output port</td><td>Constrained by set_output_delay</td></tr>
+      <tr><td><strong>Input-to-Output</strong></td><td>Input port</td><td>Output port</td><td>Pure combinational path — rare</td></tr>
+      <tr><td><strong>False Path</strong></td><td>Any</td><td>Any</td><td>Physically exists but never active — excluded from analysis</td></tr>
+      <tr><td><strong>Multicycle Path</strong></td><td>FF clock pin</td><td>FF data pin</td><td>Intentionally allowed N cycles to complete</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Slack — The Number You Live By</h3>
+
+  <div class="formula-block">
+    <div class="formula-title">Slack Definitions</div>
+    <div class="formula">
+<span class="op">Setup Slack</span> = Required Arrival Time - Actual Arrival Time
+             = (T_capture - T_setup - T_uncertainty) - (T_launch + Tcq + T_logic + T_net)
+
+<span class="op">Hold Slack</span>  = Actual Arrival Time - Minimum Required Time
+             = (Tcq + T_logic + T_net) - (T_hold + T_uncertainty)
+
+<span class="comment">Both must be ≥ 0 for timing to be MET</span>
+<span class="comment">WNS = min(all setup slacks across entire design)  → must be ≥ 0</span>
+<span class="comment">TNS = sum of all negative setup slacks              → must be 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- S8: METASTABILITY                       -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="s8">
+  <div class="sec-header">
+    <div class="sec-tag red">08</div>
+    <div class="sec-title">Metastability & Clock Domain Crossing</div>
+  </div>
+
+  <p>Metastability is one of the most important and subtle concepts in digital design. It causes chip failures that are intermittent and extremely difficult to reproduce — making it a nightmare for any design team. As a PD engineer, your awareness of metastability shapes how you handle certain types of design structures.</p>
+
+  <h3>What is Metastability?</h3>
+
+  <p>Recall that a flip-flop captures data at the clock edge. Setup and hold times define a <strong>forbidden window</strong> around the clock edge. If data transitions happen to change exactly within this window, the DFF's internal circuit is in an indeterminate state — it cannot decide between 0 and 1. This is <strong>metastability</strong>.</p>
+
+  <div class="diagram"><span class="cyan">METASTABILITY WINDOW</span>
+
+                      Clock Edge
+                           ↓
+  ───────────────────────────────────────────────────► time
+              │←T_hold→│   │←T_setup→│
+              └─────────┴───┴─────────┘
+                      FORBIDDEN WINDOW
+                 (Data must NOT change here)
+
+  <span class="red">If D transitions within this window:</span>
+  <span class="red">  → FF enters metastable state</span>
+  <span class="red">  → Output Q hovers near VDD/2 (indeterminate)</span>
+  <span class="red">  → Eventually resolves to 0 or 1 after an unpredictable time</span>
+  <span class="red">  → Resolution time can be picoseconds OR microseconds (probabilistic!)</span>
+
+  <span class="dim">Key property: the FF ALWAYS eventually resolves — but if resolution</span>
+  <span class="dim">takes longer than one clock period, the downstream logic samples</span>
+  <span class="dim">VDD/2 → logic malfunction.</span></div>
+
+  <h3>Mean Time Between Failures (MTBF)</h3>
+
+  <p>Metastability cannot be completely eliminated — only its probability of causing failure can be reduced. The metric is MTBF:</p>
+
+  <div class="formula-block">
+    <div class="formula-title">Metastability MTBF</div>
+    <div class="formula">
+<span class="op">MTBF</span> = exp(T_resolution / τ) / (f_clk × f_data × T_window)
+
+<span class="comment">T_resolution = time available for FF to resolve (usually 1 clock period)
+τ            = technology-dependent time constant (~20-50ps)
+f_clk        = clock frequency
+f_data       = rate of data transitions
+T_window     = metastability window width (≈ T_setup + T_hold)</span>
+    </div>
+  </div>
+
+  <h3>Clock Domain Crossing (CDC)</h3>
+
+  <p>The most common cause of metastability in real chips is <strong>Clock Domain Crossing (CDC)</strong> — when data generated in one clock domain (e.g., 100MHz) is captured by a flip-flop in a different clock domain (e.g., 150MHz). Because the two clocks are asynchronous (no fixed phase relationship), the data can arrive at any time relative to the capture clock edge.</p>
+
+  <div class="diagram"><span class="cyan">CLOCK DOMAIN CROSSING (CDC)</span>
+
+  Domain A (100MHz)        Domain B (150MHz)
+  ─────────────────        ─────────────────
+
+  CLK_A: ┌─┐ ┌─┐ ┌─┐      CLK_B: ┌──┐  ┌──┐  ┌──┐
+         │ │ │ │ │ │               │  │  │  │  │  │
+         ┘ └─┘ └─┘ └─             ┘  └──┘  └──┘  └
+
+  FF_A ──────────────────────────────────► FF_B
+                                              ↑
+                                      DANGER: data from CLK_A domain
+                                      captured by CLK_B — not synchronous!
+                                      Metastability risk!
+
+  <span class="green">SOLUTION: 2-Flop Synchronizer</span>
+
+  FF_A ──► [FF_sync1] ──► [FF_sync2] ──► rest of CLK_B domain
+            CLK_B           CLK_B
+
+  <span class="dim">FF_sync1 may go metastable, but has nearly 1 full CLK_B period to resolve</span>
+  <span class="dim">FF_sync2 almost certainly sees a valid 0 or 1 → safe capture</span>
+  <span class="dim">This is the standard 2-FF synchronizer — used everywhere in real chips</span></div>
+
+  <h3>PD Engineer's Role in CDC</h3>
+
+  <ul>
+    <li><strong>Identify CDC paths</strong>: formal CDC verification tools (Cadence JasperCDC, Synopsys SpyGlass) check for unsynchronized CDC signals</li>
+    <li><strong>Implement synchronizer structures</strong>: 2-FF synchronizer, FIFO-based synchronizer, handshake synchronizer — based on data rate and latency requirements</li>
+    <li><strong>Placement of synchronizer FFs</strong>: synchronizer flip-flops must be placed close together (minimal routing delay between the two FFs) to maximize MTBF</li>
+    <li><strong>False path setting</strong>: CDC paths should be marked as false paths in SDC (<code>set_false_path -from CLK_A -to CLK_B</code>) since standard STA cannot check them meaningfully</li>
+  </ul>
+
+  <div class="box box-success">
+    <div class="box-label">✅ Key Takeaway</div>
+    <p>Metastability cannot be eliminated — but it can be made statistically negligible. A well-designed 2-FF synchronizer targeting 1000-year MTBF is more than adequate for any real product. The PD engineer's job is to recognize CDC structures in the netlist, ensure they are properly constrained in SDC, place synchronizer FFs close together, and ensure CDC analysis tools give a clean report before tapeout.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- QUIZ                                    -->
+<!-- ════════════════════════════════════════ -->
+<div class="lesson-section" id="quiz">
+  <div class="quiz-section">
+    <div class="quiz-header">
+      <div class="quiz-icon">📝</div>
+      <div>
+        <div class="quiz-title">Day 2 Assessment</div>
+        <div class="quiz-sub">Sequential Logic · Setup & Hold · Metastability · 10 Questions</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 01 / 10</div>
+      <div class="q-text">A D Latch has EN=1 and D=1, so Q=1. Then EN goes LOW (EN=0). After EN goes LOW, D changes to 0. What is Q?</div>
+      <button class="opt" onclick="ans(this,false,'When EN=0, the latch becomes OPAQUE — it locks its output. Q retains its last value when EN went LOW, which was 1. D changing after EN=0 has no effect.')">A. Q = 0, because D is now 0</button>
+      <button class="opt" onclick="ans(this,true,'Correct! When EN goes LOW, the latch becomes OPAQUE and locks Q at its current value (1). Changes to D are ignored. This is the fundamental storage behavior of a latch.')">B. Q = 1, because latch is opaque and holds its last captured value</button>
+      <button class="opt" onclick="ans(this,false,'The output is fully deterministic — it holds the last captured value. No undefined behavior here.')">C. Q is undefined — D changed after EN</button>
+      <button class="opt" onclick="ans(this,false,'Q does not follow D when EN=0. That is the entire point of a storage element.')">D. Q = 0.5, partially following D</button>
+      <div class="q-fb" id="fb1"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 02 / 10</div>
+      <div class="q-text">What is the fundamental structural difference between a D Latch and a D Flip-Flop?</div>
+      <button class="opt" onclick="ans(this,false,'Both latches and flip-flops are typically clocked elements in synchronous design.')">A. A DFF uses a clock, a D latch does not</button>
+      <button class="opt" onclick="ans(this,false,'Both can store a single bit. The difference is HOW they capture, not how much they store.')">B. A DFF stores more bits than a D latch</button>
+      <button class="opt" onclick="ans(this,true,'Correct! A DFF is a master-slave configuration of two D latches. The master is transparent when CLK=0, slave when CLK=1. This means the DFF only captures at the EDGE of the clock, not during an entire level, making timing predictable and clean.')">C. A DFF is two D latches in master-slave configuration — capturing only at the clock edge, not at a level</button>
+      <button class="opt" onclick="ans(this,false,'A DFF is more complex (2 latches) than a single D latch.')">D. A D latch is more complex than a DFF</button>
+      <div class="q-fb" id="fb2"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 03 / 10</div>
+      <div class="q-text">A timing path has: Tcq=200ps, T_logic=550ps, T_net=150ps, T_setup=80ps, T_uncertainty=50ps. The clock period is 1000ps. What is the setup slack and does timing pass?</div>
+      <button class="opt" onclick="ans(this,false,'Recalculate: Actual = 200+550+150 = 900ps. Required = 1000-80-50 = 870ps. Slack = 870-900 = -30ps.')">A. Slack = +30ps, PASS</button>
+      <button class="opt" onclick="ans(this,true,'Correct! Actual arrival = Tcq + T_logic + T_net = 200+550+150 = 900ps. Required arrival = T_period - T_setup - T_uncertainty = 1000-80-50 = 870ps. Slack = 870-900 = -30ps. NEGATIVE → SETUP VIOLATION. The path fails by 30ps.')">B. Slack = -30ps, FAIL — setup violation</button>
+      <button class="opt" onclick="ans(this,false,'Sum all delays: 200+550+150=900ps. Required = 1000-80-50=870ps. Slack = -30ps.')">C. Slack = -80ps, FAIL</button>
+      <button class="opt" onclick="ans(this,false,'Setup uncertainty must be subtracted from required time: 1000-80-50=870, not 1000-80=920.')">D. Slack = +20ps, PASS</button>
+      <div class="q-fb" id="fb3"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 04 / 10</div>
+      <div class="q-text">A designer doubles the clock frequency (period halves). The design had zero setup violations before. What happens?</div>
+      <button class="opt" onclick="ans(this,false,'Hold violations are independent of frequency — they do not improve or worsen when frequency changes.')">A. Hold violations disappear because the clock is faster</button>
+      <button class="opt" onclick="ans(this,true,'Correct! Halving the clock period halves the available time for data to travel from launch FF to capture FF. All existing timing paths now have half the required arrival time. Paths that had small positive slack will now have negative slack → new setup violations appear across the design.')">B. New setup violations appear — available time budget halved</button>
+      <button class="opt" onclick="ans(this,false,'Faster clock = less time per cycle = more setup violations, not fewer.')">C. Setup violations improve because faster clock helps timing</button>
+      <button class="opt" onclick="ans(this,false,'Timing is directly impacted by frequency change.')">D. Nothing changes — timing is independent of frequency</button>
+      <div class="q-fb" id="fb4"></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 05 / 10</div>
+      <div class="q-text">After CTS is complete, a PD engineer sees 2,000 hold violations that didn't exist before CTS. What is the most likely explanation?</div>
+      <button class="opt" onclick="ans(this,false,'Setup and hold are different checks. CTS introducing clock buffers primarily creates new hold violations, not setup violations (though it can affect both).')">A. The logic synthesis was incorrect</button>
+      <button class="opt" onclick="ans(this,false,'Congestion does not directly cause hold violations.')">B. Routing congestion is too high</button>
+      <button class="opt" onclick="ans(this,true,'Correct! Before CTS, the tool uses ideal clock (zero latency everywhere). After CTS, real buffers are inserted with non-zero delays. Different parts of the design receive the clock at different times (skew). Where the launch FF gets the clock EARLIER than the capture FF, the data travels very quickly to the capture D, arriving before the hold time expires — a hold violation. This is completely normal and expected after CTS. PD tools fix it by inserting delay buffers on data paths.')">C. CTS inserted real clock buffers creating different arrival times — where launch clock arrives before capture clock, data travels too fast → hold violations</button>
+      <button class="opt" onclick="ans(this,false,'Hold violations appear after CTS due to real clock insertion, not power planning issues.')">D. Power grid is weak, causing supply voltage drop</button>
+      <div class="q-fb" id="fb5"></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 06 / 10</div>
+      <div class="q-text">A hold violation exists on a path. An engineer inserts a delay buffer on the CLOCK path to the capture flip-flop to delay the capture clock. Is this the correct approach?</div>
+      <button class="opt" onclick="ans(this,false,'This is actually the WRONG approach — it fixes one hold but breaks others.')">A. Yes — delaying capture clock gives data more time to satisfy hold</button>
+      <button class="opt" onclick="ans(this,true,'Correct! NEVER fix hold by modifying the clock path. Delaying the capture clock fixes one hold violation but makes the launch clock arrive even EARLIER relative to the capture on adjacent paths — creating new hold violations. Always fix hold by adding delay buffers to the DATA path, not the clock path.')">B. No — never modify the clock path for hold fixing. Always add delay to the DATA path only.</button>
+      <button class="opt" onclick="ans(this,false,'This is specifically wrong. Clock path modifications for hold fixing cascade into unfixable problems.')">C. Either approach works equally well</button>
+      <button class="opt" onclick="ans(this,false,'Hold violations must be fixed — they cause functional failure. The question is HOW to fix them correctly.')">D. Hold violations don't need fixing — they resolve at lower frequencies</button>
+      <div class="q-fb" id="fb6"></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 07 / 10</div>
+      <div class="q-text">What is WNS and TNS in timing analysis? Why do PD engineers care about both?</div>
+      <button class="opt" onclick="ans(this,false,'WNS stands for Worst Negative Slack and TNS stands for Total Negative Slack. Neither is a measure of frequency.')">A. WNS = working noise suppression, TNS = total noise score — both measure signal integrity</button>
+      <button class="opt" onclick="ans(this,false,'WNS and TNS are both about timing slack, not power metrics.')">B. WNS = wasted net slack, TNS = total node switching — both measure power</button>
+      <button class="opt" onclick="ans(this,true,'Correct! WNS (Worst Negative Slack) is the slack of the single most critical failing path — it tells you how far you are from meeting timing on the worst path. TNS (Total Negative Slack) is the sum of all negative slacks — it tells you the overall magnitude of timing problems. WNS=0 but TNS=-5000 means one path is barely passing but hundreds of others are failing. You need BOTH metrics: WNS shows your worst case, TNS shows your workload to fix everything.')">C. WNS = worst single failing path slack; TNS = sum of all negative slacks — WNS shows severity, TNS shows magnitude of overall timing problem</button>
+      <button class="opt" onclick="ans(this,false,'WNS is the worst slack (most negative), not best slack.')">D. WNS = best passing slack, TNS = worst failing slack</button>
+      <div class="q-fb" id="fb7"></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 08 / 10</div>
+      <div class="q-text">Data from a 200MHz clock domain crosses to a 133MHz clock domain through a single flip-flop. What is the risk, and what is the standard fix?</div>
+      <button class="opt" onclick="ans(this,false,'A higher-speed clock does not eliminate the CDC risk — the clocks are asynchronous regardless of their relative frequencies.')">A. No risk — the 200MHz domain is faster so data always arrives safely</button>
+      <button class="opt" onclick="ans(this,false,'Reducing clock frequency does not eliminate the metastability risk from asynchronous clock domains.')">B. Reduce both clocks to the same frequency to eliminate the problem</button>
+      <button class="opt" onclick="ans(this,true,'Correct! Two asynchronous clocks have no fixed phase relationship — data can arrive at the capture FF at ANY time relative to the capture clock edge, including within the metastability window. A single FF synchronizer is insufficient because if it goes metastable, it immediately drives logic in the 133MHz domain with an indeterminate value. The standard fix is a 2-FF synchronizer: the first FF may go metastable but has nearly one full 133MHz period to resolve; the second FF then captures a clean 0 or 1.')">C. Metastability risk — fix with a 2-FF synchronizer to give the first FF time to resolve before driving logic</button>
+      <button class="opt" onclick="ans(this,false,'Metastability cannot be fixed by using a DFF with lower threshold voltage.')">D. Use a lower-Vt flip-flop — it resolves metastability faster</button>
+      <div class="q-fb" id="fb8"></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 09 / 10</div>
+      <div class="q-text">An SR latch has S=1, R=1 applied. Both inputs then return to S=0, R=0 simultaneously. What happens and why is this a problem?</div>
+      <button class="opt" onclick="ans(this,false,'S=1,R=1 forces Q=Q̄=0, which violates the complementary invariant. When both return to 0, the state is unpredictable.')">A. The latch settles cleanly to Q=1, Q̄=0 — the SET state</button>
+      <button class="opt" onclick="ans(this,false,'The latch does not reliably settle to the RESET state from the forbidden state.')">B. The latch settles cleanly to Q=0, Q̄=1 — the RESET state</button>
+      <button class="opt" onclick="ans(this,true,'Correct! When S=R=1, the forbidden state forces Q=Q̄=0 (violating the complementary invariant Q̄=NOT Q). When both inputs return to 00 simultaneously, the two NAND gates are in identical states and are both trying to resolve. Which state wins (Q=1 or Q=0) depends on tiny random differences in transistor speeds — it is non-deterministic. This is metastability at the circuit level. The D latch eliminates this by ensuring S and R are always complementary.')">C. The outcome is unpredictable — both gates are symmetric and race to a random state (metastability)</button>
+      <button class="opt" onclick="ans(this,false,'The latch does eventually resolve — but to an unpredictable state, not a predictable one.')">D. The latch locks up permanently and never resolves</button>
+      <div class="q-fb" id="fb9"></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="q-block">
+      <div class="q-number">QUESTION 10 / 10</div>
+      <div class="q-text">In a timing report you see a path with setup slack = +500ps. Another path has setup slack = -20ps. Which path is the "critical path" and what action is needed?</div>
+      <button class="opt" onclick="ans(this,false,'The path with +500ps slack has plenty of margin — it is NOT the critical path.')">A. +500ps path is critical — it has more slack and needs to be optimized</button>
+      <button class="opt" onclick="ans(this,true,'Correct! The critical path is always the path with the WORST (most negative or least positive) slack. The -20ps path is failing by 20ps and MUST be fixed before tapeout — it is the critical path. The +500ps path is comfortably meeting timing and requires no action. PD engineers sort timing reports by slack (ascending) and work from the worst violations upward.')">B. -20ps path is critical — it is failing and must be fixed. +500ps path is meeting timing and needs no action.</button>
+      <button class="opt" onclick="ans(this,false,'The critical path is the one with the worst (most negative) slack, not both.')">C. Both are critical — any path needs to be optimized</button>
+      <button class="opt" onclick="ans(this,false,'-20ps means timing is failing by 20ps — this is absolutely a problem that must be fixed before tapeout.')">D. Neither — -20ps is within acceptable tolerance</button>
+      <div class="q-fb" id="fb10"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="checklist-box">
+  <div class="cl-title">Day 2 Completion Checklist</div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 1: Combinational vs Sequential Logic distinction</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 2: SR Latch — understood cross-coupling and forbidden state</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 3: D Latch — level sensitive, transparency, ICG use case</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 4: D Flip-Flop — master-slave structure, edge-triggered, all variants</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 5: Setup Time — physics, equation, all fix methods</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 6: Hold Time — physics, equation, golden fix rule (DATA path only)</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 7: Tcq, WNS, TNS, all 4 path types</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 8: Metastability, CDC, 2-FF synchronizer</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Completed all 10 quiz questions — reviewed wrong answers</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Drew a register-to-register path from memory with all timing parameters labeled</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Calculated setup slack by hand for a given Tcq/Tlogic/Tnet/Tsetup/Period</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Can explain: "Why do hold violations appear after CTS?" from memory</div></div>
+</div>
+
+<!-- SUMMARY -->
+<div class="lesson-section" id="summary">
+  <div class="sec-header">
+    <div class="sec-tag green">∑</div>
+    <div class="sec-title">Day 2 — What to Remember Forever</div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card">
+      <div class="sum-card-title">SR Latch</div>
+      <div class="sum-card-body">Cross-coupled gates = bistable memory. S=SET, R=RESET, S=R=1 = FORBIDDEN (metastability risk). Foundation of all storage.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">D Latch</div>
+      <div class="sum-card-body">EN=1 → transparent (Q follows D). EN=0 → opaque (Q holds). Level-sensitive. Used in ICG cells (clock gating).</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">D Flip-Flop</div>
+      <div class="sum-card-body">Two latches, master-slave. Captures ONLY at clock edge. Edge-triggered. Start and endpoint of EVERY timing path.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">Setup Time</div>
+      <div class="sum-card-body">Data must be stable BEFORE clock edge for T_su. Fix: speed up data path. Frequency dependent — slow the clock and it disappears.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">Hold Time</div>
+      <div class="sum-card-body">Data must stay stable AFTER clock edge for T_hold. Fix: slow down DATA path ONLY. Frequency independent — exists at all speeds.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">Tcq</div>
+      <div class="sum-card-body">Clock-to-Q delay. First delay in every path. Library property. Eats ~10-20% of clock period before data even enters logic.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">WNS / TNS</div>
+      <div class="sum-card-body">WNS = worst single path slack (how bad is the worst). TNS = sum of all violations (how much total work to fix). Both must be 0 at tapeout.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-title">Metastability / CDC</div>
+      <div class="sum-card-body">D changes in forbidden window → indeterminate Q. Fix: 2-FF synchronizer at every CDC crossing. Mark CDC paths as false_path in SDC.</div>
+    </div>
+  </div>
+
+  <div class="formula-block" style="margin-top:24px">
+    <div class="formula-title">Master Formula Sheet — Day 2</div>
+    <div class="formula">
+<span class="comment">SETUP SLACK  =  (T_period - T_setup - T_uncertainty)  -  (Tcq + T_logic + T_net)</span>
+<span class="comment">HOLD  SLACK  =  (Tcq + T_logic + T_net)  -  (T_hold + T_uncertainty)</span>
+<span class="comment">BOTH must be ≥ 0 at every endpoint for the design to tape out</span>
+
+<span class="op">Fix setup</span> → reduce Tcq+T_logic+T_net  (upsize, LVT swap, restructure logic)
+<span class="op">Fix hold</span>  → increase Tcq+T_logic+T_net  (add delay buffers to DATA path ONLY)
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- NEXT DAY -->
+<div class="next-day-banner">
+  <div class="nd-eyebrow">Coming Up Next</div>
+  <div class="nd-title">Day 3 — Power Dissipation, VLSI Flow & Verilog RTL Basics</div>
+  <div class="nd-desc">Complete the Phase 1 foundations: dynamic vs static power in depth, the full VLSI design flow from spec to GDSII, and synthesizable Verilog RTL writing that PD engineers must read and understand.</div>
+  <div class="nd-chips">
+    <span class="nd-chip">Dynamic Power</span>
+    <span class="nd-chip">Leakage Power</span>
+    <span class="nd-chip">Clock Gating</span>
+    <span class="nd-chip">VLSI Design Flow</span>
+    <span class="nd-chip">Verilog RTL Basics</span>
+    <span class="nd-chip">Synthesis Intro</span>
+    <span class="nd-chip">Liberty Files</span>
+  </div>
+</div>
+
+<script>
+// ── QUIZ ──────────────────────────────────────────
+function ans(btn, correct, explanation) {
+  const block = btn.closest('.q-block');
+  block.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const fbEls = block.querySelectorAll('.q-fb');
+  if (fbEls.length) {
+    const fb = fbEls[0];
+    fb.textContent = (correct ? '✓ ' : '✗ ') + explanation;
+    fb.className = 'q-fb show ' + (correct ? 'pass' : 'fail');
+  }
+}
+
+// ── CHECKLIST ─────────────────────────────────────
+function ck(el) {
+  el.classList.toggle('done');
+  el.querySelector('.cl-box').textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── D LATCH SIMULATOR ─────────────────────────────
+let latchState = { en: 0, d: 0, q: 0 };
+
+function toggleLatch(sig) {
+  if (sig === 'en') {
+    latchState.en = latchState.en === 0 ? 1 : 0;
+    const btn = document.getElementById('btn-en');
+    if (latchState.en === 1) {
+      btn.textContent = 'EN = 1 (Transparent)';
+      btn.className = 'signal-btn active-high';
+    } else {
+      btn.textContent = 'EN = 0 (Opaque)';
+      btn.className = 'signal-btn active-low';
+    }
+  } else {
+    latchState.d = latchState.d === 0 ? 1 : 0;
+    const btn = document.getElementById('btn-d');
+    if (latchState.d === 1) {
+      btn.textContent = 'D = 1';
+      btn.className = 'signal-btn active-high';
+    } else {
+      btn.textContent = 'D = 0';
+      btn.className = 'signal-btn active-low';
+    }
+  }
+
+  if (latchState.en === 1) {
+    latchState.q = latchState.d;
+  }
+  // if en=0, q holds
+
+  const qEl = document.getElementById('latch-q');
+  const commentEl = document.getElementById('latch-comment');
+  const stateEl = document.getElementById('latch-state');
+
+  qEl.textContent = latchState.q;
+  qEl.className = latchState.q === 1 ? 'output-val-high' : 'output-val-low';
+
+  if (latchState.en === 1) {
+    commentEl.textContent = '— Latch TRANSPARENT, Q following D';
+    commentEl.style.color = 'var(--accent3)';
+    stateEl.textContent = 'State: TRANSPARENT (EN=1) — Q tracks D in real-time';
+    stateEl.style.color = 'var(--accent3)';
+  } else {
+    commentEl.textContent = '— Latch OPAQUE, holding state';
+    commentEl.style.color = 'var(--muted)';
+    stateEl.textContent = 'State: OPAQUE (EN=0) — Q is locked, ignoring D input';
+    stateEl.style.color = 'var(--muted)';
+  }
+}
+
+// ── SETUP CALCULATOR ──────────────────────────────
+function calcSetup() {
+  const period = parseInt(document.getElementById('clk-period').value);
+  const logic  = parseInt(document.getElementById('logic-delay').value);
+  document.getElementById('period-val').textContent = period + 'ps';
+  document.getElementById('logic-val').textContent  = logic  + 'ps';
+
+  const tcq    = 200;
+  const tnet   = 150;
+  const tsetup = 80;
+  const tunc   = 50;
+
+  const actual   = tcq + logic + tnet;
+  const required = period - tsetup - tunc;
+  const slack    = required - actual;
+  const pass     = slack >= 0;
+
+  const el = document.getElementById('setup-result');
+  el.innerHTML = `
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-family:var(--mono-font);font-size:0.74rem">
+  <div style="color:var(--muted)">Tcq (fixed):</div><div style="color:var(--text)">200 ps</div>
+  <div style="color:var(--muted)">Logic delay:</div><div style="color:var(--accent2)">${logic} ps</div>
+  <div style="color:var(--muted)">Net delay (fixed):</div><div style="color:var(--text)">150 ps</div>
+  <div style="color:var(--muted)">Actual arrival:</div><div style="color:var(--text);font-weight:600">${actual} ps</div>
+  <div style="color:var(--muted)">Required arrival:</div><div style="color:var(--text);font-weight:600">${required} ps</div>
+  <div style="color:var(--muted)">Setup slack:</div>
+  <div style="color:${pass ? 'var(--accent3)' : 'var(--danger)'};font-weight:700;font-size:0.9rem">
+    ${slack >= 0 ? '+' : ''}${slack} ps  ${pass ? '✓ PASS' : '✗ VIOLATION'}
+  </div>
+</div>`;
+}
+
+calcSetup();
+
+// ── SIDEBAR ACTIVE STATE ──────────────────────────
+const sections = document.querySelectorAll('.lesson-section');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navItems.forEach(n => {
+        n.classList.toggle('active', n.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

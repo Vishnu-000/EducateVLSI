@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 3 — Power, VLSI Flow & Verilog | PD Engineer Training</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Fira+Code:wght@300;400;500;600&display=swap');
+
+:root {
+  --navy:   #04080f;
+  --navy2:  #080e1c;
+  --navy3:  #0c1526;
+  --navy4:  #101d35;
+  --border: #1a2d50;
+  --border2:#243d68;
+  --amber:  #f5a623;
+  --amber2: #ffc94d;
+  --amber3: #ffe099;
+  --amber-dim: rgba(245,166,35,0.10);
+  --amber-glow: rgba(245,166,35,0.04);
+  --green:  #3dd68c;
+  --red:    #ff5757;
+  --blue:   #4fc3f7;
+  --white:  #e8eef8;
+  --muted:  #4a6080;
+  --subtle: #6a8aaa;
+  --display:'Archivo Black', sans-serif;
+  --body:   'Libre Baskerville', serif;
+  --mono:   'Fira Code', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: var(--body);
+  background: var(--navy);
+  color: var(--white);
+  line-height: 1.75;
+  font-size: 16px;
+  cursor: crosshair;
+}
+
+/* ── BLUEPRINT GRID BACKGROUND ────────────── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px),
+    linear-gradient(rgba(245,166,35,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,166,35,0.015) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+  pointer-events:none; z-index:0;
+}
+
+/* ── AMBER CORNER MARKS ───────────────────── */
+body::after {
+  content:'';
+  position:fixed;
+  top:20px; left:20px;
+  width:40px; height:40px;
+  border-top:2px solid var(--amber);
+  border-left:2px solid var(--amber);
+  opacity:0.4;
+  pointer-events:none; z-index:2;
+}
+
+.page { position:relative; z-index:1; }
+
+/* ── CORNER MARKS ─────────────────────────── */
+.corner-tr {
+  position:fixed; top:20px; right:20px;
+  width:40px; height:40px;
+  border-top:2px solid var(--amber);
+  border-right:2px solid var(--amber);
+  opacity:0.4; z-index:2;
+}
+.corner-bl {
+  position:fixed; bottom:20px; left:20px;
+  width:40px; height:40px;
+  border-bottom:2px solid var(--amber);
+  border-left:2px solid var(--amber);
+  opacity:0.4; z-index:2;
+}
+.corner-br {
+  position:fixed; bottom:20px; right:20px;
+  width:40px; height:40px;
+  border-bottom:2px solid var(--amber);
+  border-right:2px solid var(--amber);
+  opacity:0.4; z-index:2;
+}
+
+/* ── TOP BAR ──────────────────────────────── */
+.topbar {
+  position:sticky; top:0; z-index:500;
+  background:rgba(4,8,15,0.97);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  padding:0 48px;
+  height:52px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+}
+
+.tb-left {
+  font-family:var(--mono);
+  font-size:0.6rem;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+.tb-center {
+  font-family:var(--display);
+  font-size:0.85rem;
+  letter-spacing:4px;
+  color:var(--amber);
+  text-transform:uppercase;
+}
+
+.tb-right {
+  display:flex; align-items:center; gap:12px;
+}
+
+.tb-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--amber);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(0.7); }
+}
+
+.tb-status {
+  font-family:var(--mono);
+  font-size:0.6rem;
+  color:var(--muted);
+  letter-spacing:1px;
+}
+
+/* ── HERO ─────────────────────────────────── */
+.hero {
+  position:relative; overflow:hidden;
+  padding:64px 48px 56px;
+  border-bottom:1px solid var(--border);
+}
+
+.hero-grid-accent {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 70% at 80% 50%, rgba(245,166,35,0.05) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.hero-num {
+  font-family:var(--display);
+  font-size:clamp(8rem,20vw,18rem);
+  color:rgba(245,166,35,0.04);
+  position:absolute;
+  right:-20px; top:-20px;
+  line-height:1;
+  pointer-events:none;
+  letter-spacing:-8px;
+}
+
+.hero-inner { position:relative; z-index:1; max-width:780px; }
+
+.hero-eyebrow {
+  display:flex; align-items:center; gap:14px;
+  font-family:var(--mono);
+  font-size:0.62rem;
+  letter-spacing:4px;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+
+.hero-eyebrow-line {
+  flex:0 0 40px; height:1px;
+  background:var(--amber);
+}
+
+.hero h1 {
+  font-family:var(--display);
+  font-size:clamp(2rem,5vw,3.6rem);
+  line-height:1.05;
+  color:var(--white);
+  margin-bottom:22px;
+  letter-spacing:-0.5px;
+}
+
+.hero h1 .amber { color:var(--amber); }
+.hero h1 .blue  { color:var(--blue);  }
+
+.hero-desc {
+  font-family:var(--body);
+  font-size:1rem;
+  color:var(--subtle);
+  max-width:580px;
+  line-height:1.85;
+  margin-bottom:36px;
+  font-style:italic;
+}
+
+.hero-meta {
+  display:flex; gap:0;
+  border:1px solid var(--border);
+  width:fit-content;
+}
+
+.hero-meta-item {
+  padding:12px 24px;
+  border-right:1px solid var(--border);
+  text-align:center;
+}
+.hero-meta-item:last-child { border-right:none; }
+
+.hero-meta-num {
+  font-family:var(--display);
+  font-size:1.5rem;
+  color:var(--amber);
+  line-height:1;
+  margin-bottom:4px;
+}
+
+.hero-meta-label {
+  font-family:var(--mono);
+  font-size:0.55rem;
+  color:var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+/* ── TWO-COLUMN LAYOUT ────────────────────── */
+.layout {
+  display:grid;
+  grid-template-columns:220px 1fr;
+  max-width:1140px;
+  margin:0 auto;
+}
+
+/* ── SIDEBAR ──────────────────────────────── */
+.sidebar {
+  position:sticky; top:52px;
+  height:calc(100vh - 52px);
+  overflow-y:auto;
+  border-right:1px solid var(--border);
+  background:var(--navy2);
+  padding:28px 0;
+}
+
+.sb-section {
+  padding:0 20px;
+  margin-bottom:8px;
+}
+
+.sb-label {
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+}
+
+.sb-link {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:8px 10px;
+  border-radius:4px;
+  text-decoration:none;
+  margin-bottom:2px;
+  transition:all 0.15s;
+  cursor:pointer;
+}
+
+.sb-link:hover { background:var(--amber-dim); }
+.sb-link.active {
+  background:var(--amber-dim);
+  border-left:2px solid var(--amber);
+  padding-left:8px;
+}
+
+.sb-n {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  color:var(--amber);
+  min-width:20px;
+  margin-top:2px;
+  letter-spacing:1px;
+}
+
+.sb-t {
+  font-family:var(--mono);
+  font-size:0.64rem;
+  color:var(--subtle);
+  line-height:1.45;
+}
+
+.sb-link:hover .sb-t,
+.sb-link.active .sb-t { color:var(--white); }
+
+/* ── MAIN ─────────────────────────────────── */
+.main {
+  padding:52px 60px 100px;
+  max-width:820px;
+}
+
+/* ── SECTION ──────────────────────────────── */
+.ls {
+  margin-bottom:80px;
+  scroll-margin-top:68px;
+}
+
+.sec-hdr {
+  display:flex; align-items:center; gap:16px;
+  margin-bottom:30px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border2);
+  position:relative;
+}
+
+.sec-hdr::after {
+  content:'';
+  position:absolute; bottom:-1px; left:0;
+  width:60px; height:2px;
+  background:var(--amber);
+}
+
+.sec-badge {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:2px;
+  padding:5px 12px;
+  border:1px solid var(--amber);
+  color:var(--amber);
+  border-radius:2px;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.sec-badge.green { border-color:var(--green); color:var(--green); }
+.sec-badge.blue  { border-color:var(--blue);  color:var(--blue);  }
+.sec-badge.red   { border-color:var(--red);   color:var(--red);   }
+
+.sec-title {
+  font-family:var(--display);
+  font-size:1.55rem;
+  color:var(--white);
+  line-height:1.1;
+  letter-spacing:-0.3px;
+}
+
+/* ── PROSE ────────────────────────────────── */
+p {
+  font-size:0.97rem;
+  line-height:1.9;
+  color:#aabbd0;
+  margin-bottom:18px;
+  font-weight:400;
+}
+
+h3 {
+  font-family:var(--display);
+  font-size:1.1rem;
+  color:var(--white);
+  margin:30px 0 12px;
+  letter-spacing:0.3px;
+}
+
+h4 {
+  font-family:var(--mono);
+  font-size:0.68rem;
+  color:var(--amber);
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin:22px 0 10px;
+}
+
+ul, ol { padding-left:22px; margin-bottom:18px; }
+
+li {
+  font-size:0.95rem;
+  line-height:1.85;
+  color:#9aadc8;
+  margin-bottom:5px;
+}
+
+li strong { color:var(--white); }
+strong { color:var(--white); }
+
+/* ── CALLOUT BOXES ────────────────────────── */
+.box {
+  border-radius:4px;
+  padding:18px 22px;
+  margin:22px 0;
+  position:relative;
+  overflow:hidden;
+}
+
+.box-label {
+  font-family:var(--mono);
+  font-size:0.57rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.box p { margin:0; font-size:0.92rem; line-height:1.75; }
+
+.box-analogy {
+  background:rgba(245,166,35,0.06);
+  border:1px solid rgba(245,166,35,0.25);
+}
+.box-analogy .box-label { color:var(--amber2); }
+.box-analogy p { color:#c8a060; }
+
+.box-critical {
+  background:rgba(255,87,87,0.06);
+  border:1px solid rgba(255,87,87,0.25);
+}
+.box-critical .box-label { color:var(--red); }
+.box-critical p { color:#c08080; }
+
+.box-note {
+  background:rgba(79,195,247,0.05);
+  border-left:3px solid var(--blue);
+}
+.box-note .box-label { color:var(--blue); }
+.box-note p { color:#80a8c0; }
+
+.box-success {
+  background:rgba(61,214,140,0.05);
+  border-left:3px solid var(--green);
+}
+.box-success .box-label { color:var(--green); }
+.box-success p { color:#70b890; }
+
+/* ── DIAGRAM ──────────────────────────────── */
+.diagram {
+  background:var(--navy2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:22px 26px;
+  margin:20px 0;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:0.73rem;
+  line-height:1.9;
+  white-space:pre;
+  color:#5a7a9a;
+}
+
+.diagram .a  { color:var(--amber);  }
+.diagram .a2 { color:var(--amber2); }
+.diagram .g  { color:var(--green);  }
+.diagram .r  { color:var(--red);    }
+.diagram .b  { color:var(--blue);   }
+.diagram .w  { color:var(--white);  }
+.diagram .d  { color:#2a3a52;       }
+
+/* ── CODE BLOCK ───────────────────────────── */
+.code-wrap {
+  position:relative;
+  margin:18px 0;
+}
+
+.code-lang {
+  position:absolute; top:0; right:0;
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:2px;
+  background:var(--amber);
+  color:var(--navy);
+  padding:3px 10px;
+  border-radius:0 4px 0 4px;
+  text-transform:uppercase;
+  font-weight:600;
+}
+
+.code-block {
+  background:var(--navy2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:22px 26px 22px 26px;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:0.73rem;
+  line-height:1.9;
+  white-space:pre;
+  color:#6a9aba;
+  tab-size:2;
+}
+
+.kw  { color:#e06c75; }  /* keywords */
+.ty  { color:#e5c07b; }  /* types */
+.str { color:#98c379; }  /* strings/values */
+.cmt { color:#4a6280; font-style:italic; }  /* comments */
+.num { color:#d19a66; }  /* numbers */
+.mod { color:#c678dd; }  /* modules */
+.sig { color:#61afef; }  /* signals */
+.op  { color:var(--amber); }  /* operators/key terms */
+
+/* ── FORMULA ──────────────────────────────── */
+.formula-box {
+  background:var(--navy3);
+  border:1px solid var(--border2);
+  border-left:4px solid var(--amber);
+  border-radius:0 4px 4px 0;
+  padding:20px 24px;
+  margin:20px 0;
+}
+
+.formula-title {
+  font-family:var(--mono);
+  font-size:0.57rem;
+  letter-spacing:3px;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+.formula {
+  font-family:var(--mono);
+  font-size:0.82rem;
+  color:var(--green);
+  line-height:2.1;
+  white-space:pre;
+}
+
+.formula .fv  { color:var(--amber2); }
+.formula .fc  { color:var(--muted); font-size:0.72rem; }
+.formula .fop { color:var(--red);   }
+
+/* ── TABLE ────────────────────────────────── */
+.data-table {
+  width:100%;
+  border-collapse:collapse;
+  margin:20px 0;
+  font-size:0.86rem;
+}
+
+.data-table th {
+  background:var(--navy3);
+  border-bottom:2px solid var(--amber);
+  border-top:1px solid var(--border2);
+  padding:11px 15px;
+  text-align:left;
+  font-family:var(--mono);
+  font-size:0.6rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+
+.data-table td {
+  padding:10px 15px;
+  border-bottom:1px solid var(--border);
+  color:#8aaac0;
+  vertical-align:top;
+  line-height:1.6;
+}
+
+.data-table tr:hover td { background:var(--amber-glow); }
+.data-table .hi td { color:var(--white); background:rgba(245,166,35,0.04); }
+.data-table .gr td { color:#70a880; background:rgba(61,214,140,0.03); }
+
+/* ── FLOW DIAGRAM ─────────────────────────── */
+.flow-container {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:0;
+  margin:24px 0;
+  padding:28px;
+  background:var(--navy2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  position:relative;
+  overflow:hidden;
+}
+
+.flow-container::before {
+  content:'VLSI DESIGN FLOW';
+  position:absolute; top:14px; right:18px;
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:3px;
+  color:var(--border2);
+}
+
+.flow-stage {
+  display:flex; align-items:stretch; gap:0;
+  width:100%;
+}
+
+.flow-left {
+  width:36px; flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+.flow-dot {
+  width:12px; height:12px;
+  border:2px solid var(--amber);
+  border-radius:50%;
+  background:var(--navy);
+  flex-shrink:0;
+  margin-top:14px;
+  z-index:1;
+  position:relative;
+}
+
+.flow-dot.active {
+  background:var(--amber);
+  box-shadow:0 0 8px rgba(245,166,35,0.5);
+}
+
+.flow-line {
+  width:2px;
+  flex:1;
+  background:var(--border2);
+  margin-left:5px;
+}
+
+.flow-stage:last-child .flow-line { background:transparent; }
+
+.flow-content {
+  flex:1;
+  padding:10px 0 18px 18px;
+}
+
+.flow-stage-name {
+  font-family:var(--display);
+  font-size:0.9rem;
+  color:var(--white);
+  margin-bottom:4px;
+  display:flex; align-items:center; gap:12px;
+}
+
+.flow-stage-name .tag {
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:2px;
+  padding:2px 8px;
+  border:1px solid var(--border2);
+  color:var(--muted);
+  border-radius:2px;
+  text-transform:uppercase;
+}
+
+.flow-stage-name .tag.pd {
+  border-color:rgba(245,166,35,0.5);
+  color:var(--amber);
+  background:rgba(245,166,35,0.08);
+}
+
+.flow-desc {
+  font-family:var(--mono);
+  font-size:0.67rem;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.flow-files {
+  margin-top:6px;
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+
+.flow-file {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  padding:2px 8px;
+  background:var(--navy3);
+  border:1px solid var(--border);
+  color:var(--subtle);
+  border-radius:2px;
+}
+
+/* ── POWER CALC ───────────────────────────── */
+.calc-box {
+  background:var(--navy2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:24px;
+  margin:24px 0;
+}
+
+.calc-title {
+  font-family:var(--mono);
+  font-size:0.6rem;
+  letter-spacing:3px;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+
+.calc-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:16px;
+}
+
+.calc-field {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.calc-label {
+  font-family:var(--mono);
+  font-size:0.62rem;
+  color:var(--subtle);
+  letter-spacing:1px;
+}
+
+.calc-input {
+  -webkit-appearance:none;
+  width:100%;
+  height:4px;
+  border-radius:2px;
+  background:var(--border2);
+  outline:none;
+  accent-color:var(--amber);
+  cursor:pointer;
+}
+
+.calc-val {
+  font-family:var(--mono);
+  font-size:0.7rem;
+  color:var(--amber2);
+}
+
+.calc-result {
+  background:var(--navy);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:16px 18px;
+  font-family:var(--mono);
+  font-size:0.78rem;
+  line-height:2;
+}
+
+/* ── QUIZ ─────────────────────────────────── */
+.quiz-wrap {
+  background:var(--navy2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:32px;
+  margin:40px 0;
+  position:relative;
+}
+
+.quiz-wrap::before {
+  content:'ASSESSMENT';
+  position:absolute; top:-1px; left:28px;
+  background:var(--amber);
+  color:var(--navy);
+  font-family:var(--mono);
+  font-size:0.55rem;
+  letter-spacing:3px;
+  padding:3px 12px;
+  border-radius:0 0 4px 4px;
+  font-weight:600;
+}
+
+.q-block {
+  margin-bottom:28px;
+  padding-bottom:28px;
+  border-bottom:1px solid var(--border);
+}
+
+.q-block:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+
+.q-num {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  color:var(--amber);
+  letter-spacing:2px;
+  margin-bottom:8px;
+}
+
+.q-text {
+  font-family:var(--body);
+  font-size:1rem;
+  color:var(--white);
+  line-height:1.65;
+  margin-bottom:14px;
+}
+
+.opt {
+  display:block; width:100%;
+  background:var(--navy3);
+  border:1px solid var(--border);
+  color:var(--subtle);
+  padding:11px 16px;
+  margin:7px 0;
+  border-radius:3px;
+  text-align:left;
+  cursor:pointer;
+  font-size:0.9rem;
+  font-family:var(--body);
+  transition:all 0.15s;
+  line-height:1.5;
+}
+
+.opt:hover:not(:disabled) {
+  border-color:var(--amber);
+  color:var(--white);
+  background:var(--amber-dim);
+}
+
+.opt.correct {
+  background:rgba(61,214,140,0.1);
+  border-color:var(--green);
+  color:#a0ddb8;
+}
+
+.opt.wrong {
+  background:rgba(255,87,87,0.08);
+  border-color:var(--red);
+  color:#d89898;
+}
+
+.opt:disabled { cursor:default; }
+
+.q-fb {
+  font-family:var(--mono);
+  font-size:0.7rem;
+  line-height:1.7;
+  padding:12px 16px;
+  border-radius:3px;
+  margin-top:10px;
+  display:none;
+}
+
+.q-fb.show { display:block; }
+.q-fb.pass { background:rgba(61,214,140,0.08); color:#80c898; border:1px solid rgba(61,214,140,0.2); }
+.q-fb.fail { background:rgba(255,87,87,0.08);  color:#d09090; border:1px solid rgba(255,87,87,0.2); }
+
+/* ── CHECKLIST ────────────────────────────── */
+.checklist-wrap {
+  background:var(--navy2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:28px;
+  margin:40px 0;
+}
+
+.cl-title {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:18px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+
+.cl-item {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(26,45,80,0.5);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+
+.cl-item:last-child { border-bottom:none; }
+.cl-item:hover { padding-left:4px; }
+
+.cl-box {
+  width:18px; height:18px;
+  border:1px solid var(--border2);
+  border-radius:2px;
+  flex-shrink:0; margin-top:3px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:0.65rem;
+  color:transparent;
+  transition:all 0.2s;
+}
+
+.cl-item.done .cl-box { background:var(--green); border-color:var(--green); color:var(--navy); }
+.cl-item.done .cl-text { text-decoration:line-through; color:var(--muted); }
+
+.cl-text { font-size:0.9rem; color:var(--subtle); line-height:1.55; font-family:var(--body); }
+
+/* ── SUMMARY ──────────────────────────────── */
+.summary-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(195px,1fr));
+  gap:10px;
+  margin:22px 0;
+}
+
+.sum-card {
+  background:var(--navy2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:16px 16px;
+  border-top:2px solid var(--amber);
+}
+
+.sum-t {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:2px;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.sum-b {
+  font-size:0.84rem;
+  color:var(--subtle);
+  line-height:1.65;
+  font-family:var(--body);
+}
+
+/* ── NEXT DAY ─────────────────────────────── */
+.next-banner {
+  background:var(--navy2);
+  border-top:2px solid var(--amber);
+  padding:50px 48px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:40px; align-items:center;
+}
+
+.nb-left {}
+
+.nb-eyebrow {
+  font-family:var(--mono);
+  font-size:0.58rem;
+  letter-spacing:4px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.nb-title {
+  font-family:var(--display);
+  font-size:1.8rem;
+  color:var(--white);
+  margin-bottom:10px;
+  line-height:1.1;
+}
+
+.nb-desc {
+  font-size:0.9rem;
+  color:var(--subtle);
+  max-width:500px;
+  line-height:1.75;
+  font-style:italic;
+}
+
+.nb-chips {
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;
+}
+
+.nb-chip {
+  font-family:var(--mono);
+  font-size:0.6rem;
+  padding:5px 12px;
+  border:1px solid var(--border2);
+  color:var(--muted);
+  border-radius:2px;
+  letter-spacing:0.5px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:var(--navy); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+
+@media(max-width:900px){
+  .layout { grid-template-columns:1fr; }
+  .sidebar { display:none; }
+  .main { padding:32px 24px 80px; }
+  .hero { padding:40px 24px; }
+  .topbar { padding:0 24px; }
+  .next-banner { grid-template-columns:1fr; padding:36px 24px; }
+  .hero-meta { flex-wrap:wrap; }
+  .calc-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="corner-tr"></div>
+<div class="corner-bl"></div>
+<div class="corner-br"></div>
+
+<div class="page">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-left">PD Engineer Training · Phase 1 · Foundations</div>
+  <div class="tb-center">Day 03</div>
+  <div class="tb-right">
+    <div class="tb-dot"></div>
+    <div class="tb-status">Day 3 / 120 &nbsp;·&nbsp; Phase 1 of 6</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid-accent"></div>
+  <div class="hero-num">03</div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      Day 3 · Phase 1 Completion
+    </div>
+    <h1>Power Dissipation,<br><span class="amber">VLSI Design Flow</span><br>&amp; <span class="blue">Verilog RTL</span> Basics</h1>
+    <div class="hero-desc">Today you close Phase 1 — the foundational layer. Master power (the dominant constraint in modern SoC design), the complete RTL-to-GDSII pipeline where your PD role lives, and the Verilog RTL you must read fluently every day on the job.</div>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <div class="hero-meta-num">8</div>
+        <div class="hero-meta-label">Topics</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-num">3</div>
+        <div class="hero-meta-label">Simulators</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-num">10</div>
+        <div class="hero-meta-label">Quiz Qs</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-num">4 hrs</div>
+        <div class="hero-meta-label">Study Time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Power</div>
+    <a class="sb-link" href="#s1"><span class="sb-n">01</span><span class="sb-t">Dynamic Power — The V² Law</span></a>
+    <a class="sb-link" href="#s2"><span class="sb-n">02</span><span class="sb-t">Static Leakage Power</span></a>
+    <a class="sb-link" href="#s3"><span class="sb-n">03</span><span class="sb-t">Power Reduction Techniques</span></a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">VLSI Flow</div>
+    <a class="sb-link" href="#s4"><span class="sb-n">04</span><span class="sb-t">Full RTL-to-GDSII Pipeline</span></a>
+    <a class="sb-link" href="#s5"><span class="sb-n">05</span><span class="sb-t">Key File Formats in PD</span></a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Verilog RTL</div>
+    <a class="sb-link" href="#s6"><span class="sb-n">06</span><span class="sb-t">Verilog Basics PD Engineers Must Know</span></a>
+    <a class="sb-link" href="#s7"><span class="sb-n">07</span><span class="sb-t">Synthesizable vs Non-Synthesizable RTL</span></a>
+    <a class="sb-link" href="#s8"><span class="sb-n">08</span><span class="sb-t">Reading a Gate-Level Netlist</span></a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Assessment</div>
+    <a class="sb-link" href="#quiz"><span class="sb-n">Q</span><span class="sb-t">Day 3 Quiz · 10 Questions</span></a>
+    <a class="sb-link" href="#summary"><span class="sb-n">∑</span><span class="sb-t">Summary & Formula Sheet</span></a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ═══════════════════════════════════ -->
+<!-- S1: DYNAMIC POWER                  -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s1">
+  <div class="sec-hdr">
+    <div class="sec-badge">01 · Power</div>
+    <div class="sec-title">Dynamic Power — The V² Law</div>
+  </div>
+
+  <p>Power is the dominant design constraint in modern SoCs. Mobile phones, AI chips, and data-center processors are all power-limited — not transistor-limited. As a PD engineer, you will optimize for power at every stage: floorplan, placement, CTS, routing, and signoff. This section gives you the physics you need.</p>
+
+  <h3>The Three Components of Total Power</h3>
+
+  <div class="formula-box">
+    <div class="formula-title">Total Power Budget</div>
+    <div class="formula"><span class="fv">P_total</span> = <span class="fv">P_dynamic</span> + <span class="fv">P_short_circuit</span> + <span class="fv">P_leakage</span>
+
+<span class="fc">P_dynamic      ≈ 60–80% of total  (dominant in older nodes: 180nm–65nm)</span>
+<span class="fc">P_short_circuit ≈ 5–10% of total  (brief PMOS+NMOS overlap during switching)</span>
+<span class="fc">P_leakage      ≈ 20–40% of total  (dominant in advanced nodes: 28nm–3nm)</span></div>
+  </div>
+
+  <h3>Dynamic Power — Deep Dive</h3>
+
+  <p>Every time a node in your design switches from 0→1 or 1→0, it charges or discharges the capacitance on that wire. That charging takes energy from the power supply. The energy spent per switching event is what we call <strong>dynamic power</strong>.</p>
+
+  <div class="formula-box">
+    <div class="formula-title">Dynamic Power Formula</div>
+    <div class="formula"><span class="fv">P_dynamic</span> = <span class="fop">α</span> × <span class="fop">C_L</span> × <span class="fop">V²_DD</span> × <span class="fop">f</span>
+
+<span class="fc">α   = Activity factor (0 → 1.0)
+      Probability that a node switches each clock cycle
+      Clock net: α ≈ 1.0  |  data bus: α ≈ 0.1–0.3  |  rare signals: α ≈ 0.01
+
+C_L = Load capacitance at output node
+      = Wire capacitance + input capacitances of fan-out gates
+      Unit: fF or pF  |  Typical: 10fF – 500fF per net
+
+V_DD = Supply voltage  ← THE MOST POWERFUL LEVER (appears squared!)
+       Reducing VDD 20% → P_dynamic drops 36%
+       Reducing VDD 30% → P_dynamic drops 51%
+
+f   = Clock frequency
+      Linear relationship — 2× frequency → 2× dynamic power</span></div>
+  </div>
+
+  <div class="box box-analogy">
+    <div class="box-label">🧠 Blueprint Analogy</div>
+    <p>Think of dynamic power as filling and draining a water tank every clock cycle. The tank size is C_L (capacitance). The water pressure is V_DD (voltage). The fill/drain rate is frequency f. The activity factor α is how often the pump actually runs. If you lower the pressure (VDD) by 30%, you spend only 49% as much energy per fill — because energy = ½·C·V². That squared relationship is why voltage scaling is so powerful.</p>
+  </div>
+
+  <h3>Understanding Activity Factor (α) in PD</h3>
+
+  <p>The activity factor is what makes power analysis complex in real chips. Different nets switch at vastly different rates:</p>
+
+  <table class="data-table">
+    <thead><tr><th>Net Type</th><th>Typical α</th><th>Why</th><th>PD Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Clock tree</strong></td><td>1.0</td><td>Toggles every single cycle by definition</td><td>Clock gating — most impactful power fix</td></tr>
+      <tr><td><strong>Arithmetic data (ALU)</strong></td><td>0.3–0.5</td><td>Operands change frequently during computation</td><td>Operand isolation, power gating</td></tr>
+      <tr><td><strong>Control signals</strong></td><td>0.05–0.15</td><td>Change only when mode/state changes</td><td>Minimal concern</td></tr>
+      <tr><td><strong>Status/flag bits</strong></td><td>0.01–0.05</td><td>Rarely change</td><td>Negligible dynamic power</td></tr>
+      <tr class="hi"><td><strong>Glitch nodes</strong></td><td>up to 2.0!</td><td>Multiple spurious transitions before settling</td><td>Balance logic paths, add buffers to eliminate glitches</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-critical">
+    <div class="box-label">⚡ Critical PD Insight — Glitching</div>
+    <p>Glitches occur when paths through combinational logic have different delays — faster paths arrive at the output and cause spurious transitions before the slower paths settle. Glitches can give α &gt; 1.0, consuming MORE power than expected. PD engineers fix glitches by balancing path delays through buffer insertion or netlist restructuring. This is checked during post-route power analysis.</p>
+  </div>
+
+  <h3>Short-Circuit Power</h3>
+
+  <p>During a signal transition, there is a brief moment when both PMOS (pull-up) and NMOS (pull-down) transistors are partially ON simultaneously — creating a direct current path from VDD to GND. This is short-circuit (or crowbar) current.</p>
+
+  <ul>
+    <li>Duration: determined by input rise/fall time (slew rate)</li>
+    <li>Faster input transitions → shorter overlap → less short-circuit power</li>
+    <li>Very slow slews → long overlap → significant power and heat</li>
+    <li><strong>PD fix</strong>: max_transition constraints in SDC prevent excessively slow slews; tools insert buffers to restore signal integrity</li>
+  </ul>
+
+  <!-- INTERACTIVE POWER CALCULATOR -->
+  <div class="calc-box">
+    <div class="calc-title">⚡ Dynamic Power Calculator</div>
+    <div class="calc-grid">
+      <div class="calc-field">
+        <div class="calc-label">Activity Factor (α)</div>
+        <input type="range" class="calc-input" id="alpha" min="0.01" max="1" step="0.01" value="0.2" oninput="calcPow()">
+        <div class="calc-val" id="alpha-v">α = 0.20</div>
+      </div>
+      <div class="calc-field">
+        <div class="calc-label">Load Capacitance C_L (fF)</div>
+        <input type="range" class="calc-input" id="cap" min="10" max="500" value="100" oninput="calcPow()">
+        <div class="calc-val" id="cap-v">C_L = 100 fF</div>
+      </div>
+      <div class="calc-field">
+        <div class="calc-label">Supply Voltage VDD (V)</div>
+        <input type="range" class="calc-input" id="vdd" min="0.5" max="1.5" step="0.05" value="1.0" oninput="calcPow()">
+        <div class="calc-val" id="vdd-v">VDD = 1.00 V</div>
+      </div>
+      <div class="calc-field">
+        <div class="calc-label">Clock Frequency (MHz)</div>
+        <input type="range" class="calc-input" id="freq" min="100" max="3000" step="100" value="1000" oninput="calcPow()">
+        <div class="calc-val" id="freq-v">f = 1000 MHz</div>
+      </div>
+    </div>
+    <div class="calc-result" id="pow-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S2: LEAKAGE POWER                  -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s2">
+  <div class="sec-hdr">
+    <div class="sec-badge">02 · Power</div>
+    <div class="sec-title">Static Leakage Power</div>
+  </div>
+
+  <p>Leakage power is what a chip consumes even when it is completely idle — no clock, no switching. At 28nm and below, leakage can equal or exceed dynamic power. Understanding leakage lets you make smart PD decisions about cell selection and placement.</p>
+
+  <h3>Three Sources of Leakage</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Leakage Type</th><th>Mechanism</th><th>Dominance</th><th>Scales With Node?</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Subthreshold Leakage</strong></td><td>Current flows even when VGS &lt; Vt — exponential in (VGS−Vt). Dominant leakage source.</td><td>60–80% of total leakage</td><td>Worsens severely at advanced nodes</td></tr>
+      <tr><td><strong>Gate Oxide Leakage</strong></td><td>Electrons tunnel through ultra-thin gate oxide (&lt;3nm thick) directly from gate to channel</td><td>10–20% at 45nm+</td><td>Worsens with thinner oxide (FinFET uses high-k to mitigate)</td></tr>
+      <tr><td><strong>Junction Leakage</strong></td><td>Reverse-biased p-n junction leakage between drain/source and bulk</td><td>5–10%</td><td>Less critical at modern nodes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Subthreshold Leakage — The Key Equation</h3>
+
+  <div class="formula-box">
+    <div class="formula-title">Subthreshold Leakage Current</div>
+    <div class="formula"><span class="fv">I_sub</span> = I₀ × exp(<span class="fop">(VGS − Vt)</span> / (n × <span class="fop">Vth</span>))
+
+<span class="fc">I₀   = process-dependent current at VGS = Vt
+VGS  = gate-to-source voltage (= 0 when transistor is "off")
+Vt   = threshold voltage
+n    = subthreshold swing factor (1.0–1.5 for bulk CMOS)
+Vth  = thermal voltage = kT/q ≈ 26mV at room temperature
+
+KEY INSIGHT: Every 100mV increase in Vt → 10× reduction in I_sub
+→ This is exactly why High-Vt (HVT) cells leak far less!</span></div>
+  </div>
+
+  <div class="box box-analogy">
+    <div class="box-label">🧠 Analogy</div>
+    <p>Subthreshold leakage is like a leaky faucet that you can never fully close. Higher Vt is like a tighter washer — much less drip. But a tighter washer also requires more force to turn the tap on (higher gate voltage needed = slower switching). This is the fundamental speed-power tradeoff in every library cell.</p>
+  </div>
+
+  <h3>Multi-Vt Strategy in PD</h3>
+
+  <p>Standard cell libraries provide the same logic function (e.g., NAND2) in multiple threshold voltage variants. The PD engineer's job is to choose the right one for each cell in the design:</p>
+
+  <table class="data-table">
+    <thead><tr><th>Cell Type</th><th>Threshold Voltage</th><th>Speed</th><th>Leakage</th><th>Use Case</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>LVT</strong> (Low Vt)</td><td>~0.2–0.3V</td><td>Fastest</td><td>Highest (~10–100×)</td><td>Critical timing paths only — WNS is negative</td></tr>
+      <tr><td><strong>SVT</strong> (Standard Vt)</td><td>~0.35–0.45V</td><td>Medium</td><td>Medium (baseline)</td><td>Default for most logic — balanced design</td></tr>
+      <tr><td><strong>HVT</strong> (High Vt)</td><td>~0.5–0.6V</td><td>Slowest</td><td>Lowest (~10–100× less)</td><td>Non-critical paths — maximum power saving</td></tr>
+      <tr><td><strong>ULVT</strong> (Ultra-Low Vt)</td><td>&lt;0.2V</td><td>Fastest</td><td>Extremely High</td><td>Extreme performance paths only</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-note">
+    <div class="box-label">📌 PD Engineer's Multi-Vt Workflow</div>
+    <p>After routing, run post-route STA. All paths with setup slack &gt; 300ps are non-critical — swap those cells from SVT to HVT. This can reduce total leakage by 20–40% with zero timing impact. Then re-run STA to verify. This "Vt migration" ECO is a standard step in any PD signoff flow.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S3: POWER REDUCTION TECHNIQUES     -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s3">
+  <div class="sec-hdr">
+    <div class="sec-badge">03 · Power</div>
+    <div class="sec-title">Power Reduction Techniques</div>
+  </div>
+
+  <p>Real PD engineers use a toolkit of techniques across the entire design flow to meet power budgets. You will implement all of these by Phase 6 of your training.</p>
+
+  <h3>Clock Gating — The Single Most Impactful Technique</h3>
+
+  <p>Since the clock tree has α=1.0 and drives every flip-flop in the design, it consumes 20–40% of total chip power. Clock gating turns off the clock to idle blocks — setting their effective α to 0.</p>
+
+  <div class="diagram"><span class="a">BEFORE CLOCK GATING (wasteful)</span>
+
+  CLK ──────────────────────── FF_1
+               │                 ↑ switching every cycle even if D doesn't change
+               ├──────────────── FF_2   ← wasting power
+               └──────────────── FF_N
+
+<span class="g">AFTER CLOCK GATING (efficient)</span>
+
+  CLK ───[ICG Cell]──────────── FF_1
+          │ ↑                     ↑ clock only when ENABLE is HIGH
+          │ ENABLE                  (data is actually changing)
+          └──────────────────── FF_2
+
+<span class="d">ICG = Integrated Clock Gate = latch + AND gate in one cell
+      The latch prevents glitches on the gated clock output</span>
+<span class="a">Power saving: up to 30-40% reduction in clock network power</span></div>
+
+  <div class="box box-note">
+    <div class="box-label">📌 PD Engineer's Role in Clock Gating</div>
+    <p>RTL designers insert clock gating logic. Synthesis tools map it to ICG cells. PD engineers must: (1) ensure ICG cells are placed close to the FF clusters they gate, (2) check that CTS handles gated clocks correctly — ICG outputs are treated as clock roots, (3) verify that clock gating doesn't create new hold violations on ungated paths.</p>
+  </div>
+
+  <h3>Power Gating — Shutting Off Entire Blocks</h3>
+
+  <p>When a circuit block is completely idle (e.g., a GPU shader unit when no graphics work is queued), we can cut its power supply entirely using a <strong>power switch (header/footer cell)</strong>:</p>
+
+  <div class="diagram">  VDD (always on)
+        │
+     [HEADER SWITCH]  ← PMOS transistor, large W/L to minimize R_on
+        │
+      VDD_sw (switched domain) ────┬── cells in power-gated block
+                                   └── (leakage = 0 when switch is OFF)
+
+<span class="g">Power gating requires:</span>
+<span class="g">  1. Isolation cells — clamp outputs to known level when block is off</span>
+<span class="g">  2. State retention FFs — save FF state before power off, restore after</span>
+<span class="g">  3. Wakeup sequencing — ramp power, release reset, restore state</span>
+
+<span class="a">Defined in UPF (Unified Power Format) files — you implement this in Phase 6</span></div>
+
+  <h3>Voltage Scaling and Multi-Voltage Domains</h3>
+
+  <p>Since P_dynamic ∝ V², running a block at lower VDD is the most powerful single power reduction. Modern SoCs have multiple voltage domains:</p>
+
+  <table class="data-table">
+    <thead><tr><th>Domain</th><th>Voltage</th><th>Why This Voltage</th><th>PD Requirement</th></tr></thead>
+    <tbody>
+      <tr><td><strong>High-performance core</strong></td><td>1.0V–1.1V</td><td>Maximum frequency needed</td><td>Standard PD flow</td></tr>
+      <tr><td><strong>Standard logic</strong></td><td>0.9V</td><td>Balanced perf/power</td><td>Standard cells optimized for this VDD</td></tr>
+      <tr><td><strong>Memory (SRAM)</strong></td><td>0.8V–0.9V</td><td>Optimized read margin</td><td>Separate PDN, level shifters at boundary</td></tr>
+      <tr class="hi"><td><strong>Always-on domain</strong></td><td>0.7V–0.8V</td><td>Minimum needed to hold state</td><td>Level shifters at every domain crossing</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-critical">
+    <div class="box-label">⚡ PD Impact of Multi-Voltage</div>
+    <p>Every boundary between voltage domains requires <strong>Level Shifter cells</strong> (to safely cross from low to high VDD or vice versa) and <strong>Isolation cells</strong> (to clamp outputs to a known value when the source domain is powered off). PD engineers must place these cells exactly at the domain boundary in the floorplan, route their supply connections carefully, and ensure STA is run separately for each domain corner.</p>
+  </div>
+
+  <h3>Additional Techniques Summary</h3>
+
+  <table class="data-table">
+    <thead><tr><th>Technique</th><th>What It Does</th><th>Typical Saving</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Multi-Vt optimization</strong></td><td>Swap non-critical SVT → HVT cells</td><td>20–40% leakage reduction</td></tr>
+      <tr><td><strong>Clock gating</strong></td><td>Disable clock to idle FFs via ICG cells</td><td>20–40% dynamic power</td></tr>
+      <tr><td><strong>Power gating</strong></td><td>Cut VDD to idle blocks entirely</td><td>90–100% leakage in gated block</td></tr>
+      <tr><td><strong>Voltage scaling (DVS)</strong></td><td>Reduce VDD for lower performance modes</td><td>50%+ dynamic power at 0.7× VDD</td></tr>
+      <tr><td><strong>Operand isolation</strong></td><td>Mask datapath inputs to prevent spurious switching</td><td>5–20% dynamic in datapaths</td></tr>
+      <tr><td><strong>Memory banking</strong></td><td>Activate only needed SRAM banks</td><td>60–80% of memory power</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S4: VLSI DESIGN FLOW               -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s4">
+  <div class="sec-hdr">
+    <div class="sec-badge blue">04 · Flow</div>
+    <div class="sec-title">Full RTL-to-GDSII Pipeline</div>
+  </div>
+
+  <p>Every chip manufactured in the world goes through this pipeline. As a PD engineer, you own the back half — from synthesis handoff to GDSII tapeout. Understanding every stage — even those you don't own — makes you a far better PD engineer because you understand the inputs you receive and the constraints they carry.</p>
+
+  <div class="flow-container">
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">1. System Specification <span class="tag">ARCH TEAM</span></div>
+        <div class="flow-desc">Define chip architecture: frequency targets, power budget, area constraints, features, interfaces. Output: architecture spec document, performance targets.</div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">2. RTL Design <span class="tag">RTL DESIGN TEAM</span></div>
+        <div class="flow-desc">Write synthesizable Verilog/VHDL. Functional verification via simulation and formal. Output: verified .v RTL files.</div>
+        <div class="flow-files"><span class="flow-file">design.v</span><span class="flow-file">constraints.xdc</span><span class="flow-file">testbench.v</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">3. Logic Synthesis <span class="tag">SYNTHESIS TEAM</span></div>
+        <div class="flow-desc">Map RTL to standard cell gate-level netlist using Synopsys DC or Cadence Genus. Optimize for timing, area, power per SDC constraints. Output: gate netlist + timing reports.</div>
+        <div class="flow-files"><span class="flow-file">netlist.v</span><span class="flow-file">constraints.sdc</span><span class="flow-file">timing.rpt</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot active"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">4. Floorplanning <span class="tag pd">YOUR JOB — PD</span></div>
+        <div class="flow-desc">Define die/core area, utilization, place macros (memories, IPs), define IO placement, insert power grid (rings + straps), add tap/end-cap cells. First physical view of the chip.</div>
+        <div class="flow-files"><span class="flow-file">floorplan.def</span><span class="flow-file">power.def</span><span class="flow-file">icc2_fp.tcl</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot active"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">5. Placement <span class="tag pd">YOUR JOB — PD</span></div>
+        <div class="flow-desc">Place all standard cells — global placement (minimize wirelength) then legalization (no overlaps) then detailed placement (timing optimization). Pre-CTS timing analysis.</div>
+        <div class="flow-files"><span class="flow-file">placement.def</span><span class="flow-file">congestion.rpt</span><span class="flow-file">pre_cts_timing.rpt</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot active"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">6. Clock Tree Synthesis (CTS) <span class="tag pd">YOUR JOB — PD</span></div>
+        <div class="flow-desc">Build balanced clock distribution network. Control skew, latency, insertion delay. Fix setup/hold violations introduced by real clock delays.</div>
+        <div class="flow-files"><span class="flow-file">cts.def</span><span class="flow-file">clock_tree.rpt</span><span class="flow-file">post_cts_timing.rpt</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot active"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">7. Routing <span class="tag pd">YOUR JOB — PD</span></div>
+        <div class="flow-desc">Global routing assigns nets to routing regions. Detailed routing assigns exact tracks, layers, vias. Fix DRC violations. Extract parasitics (SPEF).</div>
+        <div class="flow-files"><span class="flow-file">routed.def</span><span class="flow-file">design.spef</span><span class="flow-file">drc.rpt</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot active"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">8. Signoff Verification <span class="tag pd">YOUR JOB — PD</span></div>
+        <div class="flow-desc">DRC (design rules), LVS (layout vs schematic), STA with parasitics (post-route timing), IR drop (power grid integrity), EM (electromigration), antenna checks.</div>
+        <div class="flow-files"><span class="flow-file">drc_clean.rpt</span><span class="flow-file">lvs_clean.rpt</span><span class="flow-file">final_sta.rpt</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot"></div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">9. GDSII Tapeout <span class="tag">BACK TO FAB</span></div>
+        <div class="flow-desc">Export final GDSII layout. Submit to foundry (TSMC, Samsung, GlobalFoundries). Fabrication: 4–12 weeks. Then packaging, testing, ship.</div>
+        <div class="flow-files"><span class="flow-file">final.gds</span><span class="flow-file">lef_abstract.lef</span></div>
+      </div>
+    </div>
+
+    <div class="flow-stage">
+      <div class="flow-left"><div class="flow-dot"></div><div class="flow-line" style="background:transparent"></div></div>
+      <div class="flow-content">
+        <div class="flow-stage-name">10. Silicon &amp; Validation <span class="tag">VALIDATION TEAM</span></div>
+        <div class="flow-desc">First silicon characterized. Speed, power, functionality tested at wafer level. Any failures → post-silicon debug → ECO → re-spin (expensive!).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="box box-success">
+    <div class="box-label">✅ Your Role Summary</div>
+    <p>Steps 4 through 8 are Physical Design — that is your domain. You receive the gate-level netlist from synthesis and deliver a verified GDSII to the foundry. Every day at work you will be running one of these stages, reading reports from them, or fixing violations they reveal. The entire chip's physical existence depends on your work.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S5: KEY FILE FORMATS               -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s5">
+  <div class="sec-hdr">
+    <div class="sec-badge">05 · Flow</div>
+    <div class="sec-title">Key File Formats in Physical Design</div>
+  </div>
+
+  <p>PD tools communicate through a set of standard file formats. You will read, write, and debug these files daily. Knowing what each contains and why it exists is essential.</p>
+
+  <table class="data-table">
+    <thead><tr><th>Format</th><th>Extension</th><th>Contains</th><th>Used By</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><strong>Verilog Netlist</strong></td><td>.v</td><td>Gate-level netlist — instantiates standard cells and connects them. Your starting point in PD.</td><td>PnR tools, STA, LVS</td></tr>
+      <tr><td><strong>SDC</strong></td><td>.sdc</td><td>Synopsys Design Constraints — clock definitions, input/output delays, exceptions. Drives all timing analysis.</td><td>Synthesis, PnR, STA</td></tr>
+      <tr class="hi"><td><strong>LEF</strong></td><td>.lef</td><td>Library Exchange Format — abstract physical view of cells: pin locations, dimensions, obstruction layers. NOT transistor details.</td><td>PnR tools (placement, routing)</td></tr>
+      <tr><td><strong>Liberty (.lib)</strong></td><td>.lib / .db</td><td>Timing/power model for each cell: setup/hold tables, Tcq, pin capacitances, leakage. The timing bible.</td><td>Synthesis, STA, PnR</td></tr>
+      <tr class="hi"><td><strong>DEF</strong></td><td>.def</td><td>Design Exchange Format — physical design database: die area, placed cell locations, routing. Grows through PD flow.</td><td>PnR tools</td></tr>
+      <tr><td><strong>SPEF</strong></td><td>.spef</td><td>Standard Parasitic Exchange Format — extracted RC parasitics from routed layout. Enables accurate post-route STA.</td><td>STA (PrimeTime), power analysis</td></tr>
+      <tr class="hi"><td><strong>GDSII / GDS2</strong></td><td>.gds</td><td>Graphic Database System — the actual mask data sent to the foundry. Contains every polygon on every layer.</td><td>Foundry, DRC/LVS tools</td></tr>
+      <tr><td><strong>UPF</strong></td><td>.upf</td><td>Unified Power Format — defines power domains, supply voltages, power gating, level shifter requirements.</td><td>Synthesis, PnR, simulation</td></tr>
+      <tr class="hi"><td><strong>SDF</strong></td><td>.sdf</td><td>Standard Delay Format — back-annotated timing delays for gate-level simulation. Post-route timing verification.</td><td>Gate-level simulation</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-note">
+    <div class="box-label">📌 The PD File Flow</div>
+    <p>At the start of your PD run you receive: <strong>.v</strong> (netlist) + <strong>.sdc</strong> (constraints) + <strong>.lef</strong> (cell abstracts) + <strong>.lib</strong> (timing models). You produce: <strong>.def</strong> files at each stage, culminating in a final <strong>.gds</strong>. After routing you extract <strong>.spef</strong> parasitics and feed them back into STA. This file handoff chain is your daily workflow.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S6: VERILOG BASICS                 -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s6">
+  <div class="sec-hdr">
+    <div class="sec-badge green">06 · Verilog</div>
+    <div class="sec-title">Verilog Basics Every PD Engineer Must Know</div>
+  </div>
+
+  <p>PD engineers are NOT expected to write RTL from scratch — that is the RTL designer's job. However, you <strong>must be able to read and understand Verilog</strong> because: you debug netlists, you read gate-level Verilog from synthesis, you write Tcl scripts that reference cell and port names, and you communicate with RTL designers about timing paths that reference specific registers by their hierarchical names.</p>
+
+  <h3>Module and Port Declaration</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Verilog</div>
+    <div class="code-block"><span class="kw">module</span> <span class="mod">alu_block</span> (
+    <span class="kw">input</span>  <span class="ty">wire</span>        <span class="sig">clk</span>,      <span class="cmt">// clock — this drives all FFs inside</span>
+    <span class="kw">input</span>  <span class="ty">wire</span>        <span class="sig">rst_n</span>,    <span class="cmt">// active-low reset</span>
+    <span class="kw">input</span>  <span class="ty">wire</span> [<span class="num">7</span>:<span class="num">0</span>]  <span class="sig">data_in</span>, <span class="cmt">// 8-bit input bus</span>
+    <span class="kw">input</span>  <span class="ty">wire</span> [<span class="num">1</span>:<span class="num">0</span>]  <span class="sig">op_sel</span>,  <span class="cmt">// 2-bit operation select</span>
+    <span class="kw">output</span> <span class="ty">reg</span>  [<span class="num">7</span>:<span class="num">0</span>]  <span class="sig">result</span>,  <span class="cmt">// 8-bit registered output</span>
+    <span class="kw">output</span> <span class="ty">wire</span>        <span class="sig">valid</span>    <span class="cmt">// combinational valid flag</span>
+);
+<span class="cmt">// ... module body here ...</span>
+<span class="kw">endmodule</span>
+
+<span class="cmt">// PD NOTE: Each module = one hierarchical block in your design
+// In timing reports you will see paths like: alu_block/result_reg[3]/Q
+// That means: module alu_block, register "result", bit 3, output Q</span></div>
+  </div>
+
+  <h3>Combinational Logic — assign Statement</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Verilog</div>
+    <div class="code-block"><span class="kw">wire</span> [<span class="num">7</span>:<span class="num">0</span>] <span class="sig">sum</span>;
+<span class="kw">wire</span>        <span class="sig">carry_out</span>;
+<span class="kw">wire</span>        <span class="sig">overflow</span>;
+
+<span class="cmt">// Continuous assignment — combinational logic</span>
+<span class="kw">assign</span> {<span class="sig">carry_out</span>, <span class="sig">sum</span>} = <span class="sig">data_in</span> + <span class="sig">operand_b</span>;
+<span class="kw">assign</span> <span class="sig">overflow</span> = <span class="sig">carry_out</span> ^ <span class="sig">sum</span>[<span class="num">7</span>];
+<span class="kw">assign</span> <span class="sig">valid</span>    = (<span class="sig">op_sel</span> != <span class="num">2'b11</span>);  <span class="cmt">// valid when not idle</span>
+
+<span class="cmt">// PD NOTE: Every assign statement synthesizes to combinational gates
+// These form the logic cones BETWEEN flip-flops in your timing paths
+// The delay through these cones = T_logic in your STA equations</span></div>
+  </div>
+
+  <h3>Sequential Logic — always Block (The Most Important Pattern)</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Verilog</div>
+    <div class="code-block"><span class="cmt">// Synchronous reset D Flip-Flop — THE standard pattern</span>
+<span class="kw">always</span> @(<span class="kw">posedge</span> <span class="sig">clk</span> or <span class="kw">negedge</span> <span class="sig">rst_n</span>) <span class="kw">begin</span>
+    <span class="kw">if</span> (!<span class="sig">rst_n</span>) <span class="kw">begin</span>
+        <span class="sig">result</span> <= <span class="num">8'h00</span>;   <span class="cmt">// async reset — clear to 0</span>
+    <span class="kw">end</span> <span class="kw">else begin</span>
+        <span class="kw">case</span> (<span class="sig">op_sel</span>)
+            <span class="num">2'b00</span>: <span class="sig">result</span> <= <span class="sig">data_in</span>;            <span class="cmt">// PASS THROUGH</span>
+            <span class="num">2'b01</span>: <span class="sig">result</span> <= <span class="sig">data_in</span> + <span class="num">8'd1</span>;    <span class="cmt">// INCREMENT</span>
+            <span class="num">2'b10</span>: <span class="sig">result</span> <= <span class="sig">data_in</span> << <span class="num">1</span>;     <span class="cmt">// LEFT SHIFT</span>
+            <span class="kw">default</span>: <span class="sig">result</span> <= <span class="sig">result</span>;        <span class="cmt">// HOLD (no change)</span>
+        <span class="kw">endcase</span>
+    <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="cmt">// PD BREAKDOWN:
+// "always @(posedge clk)"  → synthesizes to D Flip-Flops clocked by clk
+// "result <= ..."          → non-blocking assignment = registered output
+// "if (!rst_n)"            → async reset: synthesis creates DFFRX cells
+// The case statement       → combinational mux in front of the FF's D input
+// In STA: result_reg[7:0] are 8 DFFs, each with a timing path from
+//         op_sel, data_in through the mux logic to result_reg[N]/D</span></div>
+  </div>
+
+  <h3>Module Instantiation — Building Hierarchy</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Verilog</div>
+    <div class="code-block"><span class="kw">module</span> <span class="mod">top_chip</span> (
+    <span class="kw">input</span>  <span class="ty">wire</span> <span class="sig">clk</span>, <span class="sig">rst_n</span>,
+    <span class="kw">input</span>  <span class="ty">wire</span> [<span class="num">7</span>:<span class="num">0</span>] <span class="sig">top_in</span>,
+    <span class="kw">output</span> <span class="ty">wire</span> [<span class="num">7</span>:<span class="num">0</span>] <span class="sig">top_out</span>
+);
+
+<span class="ty">wire</span> [<span class="num">7</span>:<span class="num">0</span>] <span class="sig">alu_result</span>;
+<span class="ty">wire</span>        <span class="sig">alu_valid</span>;
+
+<span class="cmt">// Instantiate the ALU block — named instantiation (preferred)</span>
+<span class="mod">alu_block</span> <span class="mod">u_alu</span> (               <span class="cmt">// u_alu = instance name</span>
+    .<span class="sig">clk</span>     (<span class="sig">clk</span>),
+    .<span class="sig">rst_n</span>   (<span class="sig">rst_n</span>),
+    .<span class="sig">data_in</span> (<span class="sig">top_in</span>),
+    .<span class="sig">op_sel</span>  (<span class="num">2'b01</span>),          <span class="cmt">// hardwired to INCREMENT mode</span>
+    .<span class="sig">result</span>  (<span class="sig">alu_result</span>),
+    .<span class="sig">valid</span>   (<span class="sig">alu_valid</span>)
+);
+
+<span class="kw">assign</span> <span class="sig">top_out</span> = <span class="sig">alu_valid</span> ? <span class="sig">alu_result</span> : <span class="num">8'h00</span>;
+
+<span class="kw">endmodule</span>
+
+<span class="cmt">// PD HIERARCHY NOTE:
+// In a timing report, paths reference the FULL hierarchical path:
+//   top_chip/u_alu/result_reg[3]/CK → top_chip/u_alu/result_reg[3]/Q
+// In ICC2/Innovus, you reference cells by hierarchy:
+//   get_cells top_chip/u_alu/result_reg*  → all 8 bits of result register</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S7: SYNTHESIZABLE vs NON-SYNTH     -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s7">
+  <div class="sec-hdr">
+    <div class="sec-badge green">07 · Verilog</div>
+    <div class="sec-title">Synthesizable vs Non-Synthesizable RTL</div>
+  </div>
+
+  <p>Not all Verilog is equal. Synthesis tools only accept a subset of Verilog — the <strong>synthesizable subset</strong>. RTL that uses non-synthesizable constructs will fail during synthesis and you will never get a netlist to work with. As a PD engineer, recognizing the difference helps you understand why certain design patterns exist and why synthesis engineers write code the way they do.</p>
+
+  <table class="data-table">
+    <thead><tr><th>Construct</th><th>Synthesizable?</th><th>Synthesizes To</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="gr"><td><code>assign a = b &amp; c;</code></td><td>✓ YES</td><td>AND2 gate</td><td>Combinational logic</td></tr>
+      <tr class="gr"><td><code>always @(posedge clk)</code></td><td>✓ YES</td><td>D Flip-Flops</td><td>Standard register pattern</td></tr>
+      <tr class="gr"><td><code>if / else / case</code></td><td>✓ YES</td><td>MUX trees</td><td>Combinational or sequential</td></tr>
+      <tr class="gr"><td><code>+, -, &lt;&lt;, &gt;&gt;</code></td><td>✓ YES</td><td>Adder, shifter logic</td><td>Synthesizable arithmetic</td></tr>
+      <tr><td><code>initial begin ... end</code></td><td>✗ NO</td><td>Simulation only</td><td>Used in testbenches, ignored by synthesis</td></tr>
+      <tr><td><code>#10 a = b;</code></td><td>✗ NO</td><td>Simulation delay</td><td>Synthesis ignores all # delays</td></tr>
+      <tr><td><code>$display, $monitor</code></td><td>✗ NO</td><td>Simulation output</td><td>System tasks — not in hardware</td></tr>
+      <tr><td><code>always @(*) with loops</code></td><td>⚠ PARTIAL</td><td>Complex combinational</td><td>Depends on loop bounds — must be constant</td></tr>
+      <tr class="hi"><td><code>real, time data types</code></td><td>✗ NO</td><td>N/A</td><td>Floating-point unsupported in synthesis</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box box-note">
+    <div class="box-label">📌 Common RTL Coding Style Issues PD Engineers Encounter</div>
+    <p><strong>Inferred latches</strong> — when a signal is not assigned in all branches of a combinational always block, synthesis infers a latch. Latches cause headaches in STA (level-sensitive timing). PD engineers see this as unexplained latch cells in the netlist. <strong>Multiple drivers</strong> — a net driven by two sources creates shorts in layout; synthesis throws an error. <strong>Incomplete sensitivity list</strong> — in older Verilog (pre-2001), missing signals in @() cause simulation-synthesis mismatch — a nightmare to debug in silicon.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S8: READING A GATE-LEVEL NETLIST   -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="s8">
+  <div class="sec-hdr">
+    <div class="sec-badge green">08 · Verilog</div>
+    <div class="sec-title">Reading a Gate-Level Netlist</div>
+  </div>
+
+  <p>After synthesis, your design exists as a <strong>gate-level netlist</strong> — a Verilog file where every logic operation is expressed as an instantiation of a real standard cell. This is the file you will read, debug, and modify (via ECO) throughout your PD career. You must be able to decode it fluently.</p>
+
+  <h3>Annotated Gate-Level Netlist Example</h3>
+
+  <div class="code-wrap">
+    <div class="code-lang">Gate-Level Netlist</div>
+    <div class="code-block"><span class="cmt">// ─── Synthesized by Synopsys DC from counter.v ───</span>
+<span class="kw">module</span> <span class="mod">counter</span> ( <span class="sig">clk</span>, <span class="sig">rst_n</span>, <span class="sig">count</span> );
+
+  <span class="kw">input</span>  <span class="sig">clk</span>, <span class="sig">rst_n</span>;
+  <span class="kw">output</span> [<span class="num">3</span>:<span class="num">0</span>] <span class="sig">count</span>;
+
+  <span class="cmt">// ── Internal wires (synthesized node names) ──</span>
+  <span class="ty">wire</span> <span class="sig">n1</span>, <span class="sig">n2</span>, <span class="sig">n3</span>, <span class="sig">n4</span>, <span class="sig">n5</span>;
+  <span class="ty">wire</span> [<span class="num">3</span>:<span class="num">0</span>] <span class="sig">count_next</span>;
+
+  <span class="cmt">// ── Combinational Logic (the +1 increment) ──</span>
+  <span class="mod">INVX1</span>   <span class="mod">U1</span>  (.<span class="sig">A</span>(<span class="sig">count</span>[<span class="num">0</span>]),          .<span class="sig">Y</span>(<span class="sig">count_next</span>[<span class="num">0</span>]));  <span class="cmt">// bit0 inverts</span>
+  <span class="mod">XOR2X1</span>  <span class="mod">U2</span>  (.<span class="sig">A</span>(<span class="sig">count</span>[<span class="num">1</span>]), .<span class="sig">B</span>(<span class="sig">count</span>[<span class="num">0</span>]),  .<span class="sig">Y</span>(<span class="sig">count_next</span>[<span class="num">1</span>]));  <span class="cmt">// bit1</span>
+  <span class="mod">AND2X1</span>  <span class="mod">U3</span>  (.<span class="sig">A</span>(<span class="sig">count</span>[<span class="num">1</span>]), .<span class="sig">B</span>(<span class="sig">count</span>[<span class="num">0</span>]),  .<span class="sig">Y</span>(<span class="sig">n1</span>));           <span class="cmt">// carry</span>
+  <span class="mod">XOR2X1</span>  <span class="mod">U4</span>  (.<span class="sig">A</span>(<span class="sig">count</span>[<span class="num">2</span>]), .<span class="sig">B</span>(<span class="sig">n1</span>),        .<span class="sig">Y</span>(<span class="sig">count_next</span>[<span class="num">2</span>]));  <span class="cmt">// bit2</span>
+  <span class="mod">AND2X1</span>  <span class="mod">U5</span>  (.<span class="sig">A</span>(<span class="sig">count</span>[<span class="num">2</span>]), .<span class="sig">B</span>(<span class="sig">n1</span>),        .<span class="sig">Y</span>(<span class="sig">n2</span>));           <span class="cmt">// carry</span>
+  <span class="mod">XOR2X1</span>  <span class="mod">U6</span>  (.<span class="sig">A</span>(<span class="sig">count</span>[<span class="num">3</span>]), .<span class="sig">B</span>(<span class="sig">n2</span>),        .<span class="sig">Y</span>(<span class="sig">count_next</span>[<span class="num">3</span>]));  <span class="cmt">// bit3</span>
+
+  <span class="cmt">// ── Sequential Elements (the 4 flip-flops) ──</span>
+  <span class="cmt">// DFFRHQX1 = D Flip-Flop with async Reset, H drive, Q output, X1 strength</span>
+  <span class="mod">DFFRHQX1</span> <span class="mod">count_reg_0</span> (.<span class="sig">D</span>(<span class="sig">count_next</span>[<span class="num">0</span>]), .<span class="sig">CK</span>(<span class="sig">clk</span>), .<span class="sig">RN</span>(<span class="sig">rst_n</span>), .<span class="sig">Q</span>(<span class="sig">count</span>[<span class="num">0</span>]));
+  <span class="mod">DFFRHQX1</span> <span class="mod">count_reg_1</span> (.<span class="sig">D</span>(<span class="sig">count_next</span>[<span class="num">1</span>]), .<span class="sig">CK</span>(<span class="sig">clk</span>), .<span class="sig">RN</span>(<span class="sig">rst_n</span>), .<span class="sig">Q</span>(<span class="sig">count</span>[<span class="num">1</span>]));
+  <span class="mod">DFFRHQX1</span> <span class="mod">count_reg_2</span> (.<span class="sig">D</span>(<span class="sig">count_next</span>[<span class="num">2</span>]), .<span class="sig">CK</span>(<span class="sig">clk</span>), .<span class="sig">RN</span>(<span class="sig">rst_n</span>), .<span class="sig">Q</span>(<span class="sig">count</span>[<span class="num">2</span>]));
+  <span class="mod">DFFRHQX1</span> <span class="mod">count_reg_3</span> (.<span class="sig">D</span>(<span class="sig">count_next</span>[<span class="num">3</span>]), .<span class="sig">CK</span>(<span class="sig">clk</span>), .<span class="sig">RN</span>(<span class="sig">rst_n</span>), .<span class="sig">Q</span>(<span class="sig">count</span>[<span class="num">3</span>]));
+
+<span class="kw">endmodule</span>
+
+<span class="cmt">// ── HOW TO READ THIS AS A PD ENGINEER ──────────────────────
+// Cell name:  DFFRHQX1  → from the standard cell library
+//   DFF  = D Flip-Flop
+//   R    = has Reset pin
+//   H    = high drive (some libs use drive strength here)
+//   Q    = Q output available
+//   X1   = drive strength 1 (smallest, lowest power)
+//
+// Timing path for count[3]:
+//   count_reg_2/Q → U5/A (AND2) → U5/Y → U6/B (XOR) → U6/Y → count_reg_3/D
+//   This is the CRITICAL PATH — longest carry chain in the ripple adder
+//
+// ECO insight: if count_reg_3 has setup violation, you upsize U5 or U6
+//   from X1 to X2 to reduce their propagation delay</span></div>
+  </div>
+
+  <div class="box box-success">
+    <div class="box-label">✅ What You Just Learned to Read</div>
+    <p>Every day as a PD engineer you will look at netlists like this to understand which cells are on the critical path, why a timing violation exists, which cell to upsize in an ECO, and how to interpret what a synthesis tool produced. This skill takes practice — but now you have the vocabulary to start.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- QUIZ                               -->
+<!-- ═══════════════════════════════════ -->
+<div class="ls" id="quiz">
+<div class="quiz-wrap">
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 01 / 10</div>
+    <div class="q-text">A chip's dynamic power is 800mW at VDD=1.0V. The design team proposes reducing VDD to 0.8V. What is the new dynamic power, assuming the same frequency and activity factor?</div>
+    <button class="opt" onclick="qa(this,false,'P ∝ V². New P = 800 × (0.8/1.0)² = 800 × 0.64 = 512mW, not 640mW. The V² relationship is key.')">A. 640mW — linear with voltage</button>
+    <button class="opt" onclick="qa(this,true,'Correct! P_dynamic = α·C·V²·f. Reducing VDD from 1.0 to 0.8V: (0.8)²/(1.0)² = 0.64. New power = 800 × 0.64 = 512mW. A 20% voltage reduction gives 36% power reduction — this is the V² leverage that makes voltage scaling so powerful in SoC design.')">B. 512mW — V² relationship</button>
+    <button class="opt" onclick="qa(this,false,'Power does not increase when voltage is reduced. P ∝ V², so lower voltage always means lower dynamic power.')">C. 1250mW — inverse relationship</button>
+    <button class="opt" onclick="qa(this,false,'P ∝ V², not V³. The answer is 800 × 0.64 = 512mW.')">D. 410mW — V³ relationship</button>
+    <div class="q-fb" id="qf1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 02 / 10</div>
+    <div class="q-text">Why does the clock tree have an activity factor (α) of 1.0, and why does this make clock gating so impactful?</div>
+    <button class="opt" onclick="qa(this,false,'The clock tree does not have a lower activity factor — it is exactly 1.0 because it toggles every single clock cycle by definition.')">A. Because the clock only switches 50% of cycles — α=0.5</button>
+    <button class="opt" onclick="qa(this,false,'Clock jitter reduces timing margins but does not change the clock activity factor.')">B. Because clock jitter makes it switch extra times</button>
+    <button class="opt" onclick="qa(this,true,'Correct! The clock definition requires a full toggle (LOW→HIGH→LOW) every cycle — making α exactly 1.0. Since the clock drives every flip-flop (thousands to millions of FFs), its contribution is: P_clock = 1.0 × C_clock_tree × V² × f. Clock gating sets the effective α of idle FFs to 0 by stopping the clock to those blocks — since clock power is 20–40% of total chip power, even gating 50% of FFs saves 10–20% total power.')">C. Because the clock toggles every cycle by definition (α=1.0) — it drives all FFs, making it the largest single power contributor, so gating even portions of it saves significant power</button>
+    <button class="opt" onclick="qa(this,false,'α=1.0 does not represent worst-case leakage — it represents the activity factor for dynamic power.')">D. Because α=1.0 means maximum leakage current</button>
+    <div class="q-fb" id="qf2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 03 / 10</div>
+    <div class="q-text">A PD engineer runs post-route STA and finds 500 paths with setup slack > 400ps. What is the smartest power optimization to perform, and why?</div>
+    <button class="opt" onclick="qa(this,false,'Upsizing cells increases drive strength and speeds up paths — it increases power, not reduces it. The opposite of what is needed here.')">A. Upsize all cells on those 500 paths to reduce timing risk</button>
+    <button class="opt" onclick="qa(this,true,'Correct! Paths with large positive setup slack (>400ps) are non-critical — the design has more than enough timing margin there. Swapping SVT cells to HVT cells on these paths exploits the fact that HVT cells have much lower leakage (10-100× less) while being slower. Since those paths have 400ps of spare time, the HVT slowdown does not violate timing. This Vt migration is a standard signoff-step ECO that can save 20–40% of total leakage power.')">B. Swap SVT cells to HVT cells on those non-critical paths to reduce leakage power without any timing impact</button>
+    <button class="opt" onclick="qa(this,false,'LVT cells are faster and have MORE leakage — exactly the opposite of what is needed to save power.')">C. Swap to LVT cells to improve timing margins further</button>
+    <button class="opt" onclick="qa(this,false,'Paths with positive slack are already meeting timing. No routing change is needed for timing, and routing does not reduce leakage.')">D. Re-route those paths on thinner metal layers to reduce capacitance</button>
+    <div class="q-fb" id="qf3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 04 / 10</div>
+    <div class="q-text">In the VLSI flow, a PD engineer receives a .v netlist and .sdc file from synthesis. What do these files contain, and what additional files are needed to start physical design?</div>
+    <button class="opt" onclick="qa(this,false,'A .v netlist contains the gate-level connection, not transistor layout. SDC is constraints, not simulation data.')">A. .v = transistor-level SPICE netlist; .sdc = simulation waveforms</button>
+    <button class="opt" onclick="qa(this,true,'Correct! .v (Verilog netlist) contains standard cell instantiations and their connections — the logical representation of the design post-synthesis. .sdc contains timing constraints: clock definitions, input/output delays, false paths. Additional needed files: .lef (abstract physical cell views for placement/routing geometry), .lib (timing/power models for STA during PD), and technology LEF (process design rules, layer stackup). Without all four, the PnR tool cannot start.')">B. .v = gate-level netlist of cell instantiations; .sdc = timing constraints. Also need .lef (cell abstracts) and .lib (timing models) to run PD.</button>
+    <button class="opt" onclick="qa(this,false,'.v is not a power report and .sdc is not a schematic. These are netlist and constraint files.')">C. .v = power consumption report; .sdc = schematic diagram</button>
+    <button class="opt" onclick="qa(this,false,'.v is the netlist (connectivity), not layout. Layout is in .def or .gds format.')">D. .v = physical layout data; .sdc = clock tree specification</button>
+    <div class="q-fb" id="qf4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 05 / 10</div>
+    <div class="q-text">What does a SPEF file contain, and at which stage of the PD flow is it generated and used?</div>
+    <button class="opt" onclick="qa(this,false,'SPEF is not a cell library — that is the .lib or .lef file. SPEF is about parasitics.')">A. SPEF contains the standard cell library timing models — used during synthesis</button>
+    <button class="opt" onclick="qa(this,false,'SPEF is not a physical layout file — that is DEF or GDS. SPEF contains extracted parasitics.')">B. SPEF contains the physical layout — generated at floorplan stage</button>
+    <button class="opt" onclick="qa(this,true,'Correct! SPEF (Standard Parasitic Exchange Format) contains the actual resistances (R) and capacitances (C) extracted from the final routed metal layout. It is generated by a parasitic extraction tool after routing is complete. It is then fed into STA (PrimeTime or OpenSTA) to perform post-route timing analysis — the most accurate timing signoff because it uses real wire delays rather than estimated values used pre-route. Without SPEF, STA uses wire models that can be 30–50% off from silicon reality.')">C. SPEF contains extracted RC parasitics from routed layout — generated post-routing, used for post-route STA signoff</button>
+    <button class="opt" onclick="qa(this,false,'SPEF is used for timing (STA), not for DRC/LVS physical verification.')">D. SPEF contains design rule check results — used for DRC signoff</button>
+    <div class="q-fb" id="qf5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 06 / 10</div>
+    <div class="q-text">In a Verilog gate-level netlist you see: <code>DFFRHQX2 counter_reg_3 (.D(n_next[3]), .CK(clk), .RN(rst_n), .Q(count[3]));</code>. What does "X2" indicate and why might a PD engineer change it to "X4"?</div>
+    <button class="opt" onclick="qa(this,false,'X2 refers to drive strength, not the number of flip-flops. There is still one flip-flop here.')">A. X2 means the cell contains two flip-flops — change to X4 to add more storage</button>
+    <button class="opt" onclick="qa(this,true,'Correct! X2 = drive strength 2 (twice the baseline transistor width/current of X1). Higher drive strength → can drive larger load capacitance → faster output transitions → shorter propagation delay. A PD engineer would upsize from X2 to X4 during timing ECO if count_reg_3/Q is on the critical path and has a setup violation — the X4 cell drives its output faster, reducing Tcq, giving more time budget for the combinational logic on the next path segment. Trade-off: X4 is physically larger and consumes more dynamic and leakage power.')">B. X2 = drive strength — the cell can drive higher load capacitances and switch faster. Change to X4 to fix a setup violation on this FF's output path by reducing Tcq.</button>
+    <button class="opt" onclick="qa(this,false,'X-factor refers to drive strength (transistor sizing), not voltage supply level.')">C. X2 = the cell uses 2× supply voltage — change to X4 for higher voltage</button>
+    <button class="opt" onclick="qa(this,false,'X2 is a drive strength indicator in standard cell naming conventions, not a technology node.')">D. X2 = fabricated at 2nm technology — change to X4 for better process</button>
+    <div class="q-fb" id="qf6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 07 / 10</div>
+    <div class="q-text">What is an "inferred latch" in RTL and why is it a problem for PD engineers?</div>
+    <button class="opt" onclick="qa(this,false,'An inferred latch is not a timing constraint — it is a circuit element accidentally created by incomplete RTL coding.')">A. A latch that the synthesis tool adds to improve timing on critical paths</button>
+    <button class="opt" onclick="qa(this,true,'Correct! An inferred latch occurs when a signal in a combinational always block is not assigned in all branches — synthesis must remember the previous value (creating a latch) to satisfy the incomplete assignment. Latches are level-sensitive storage elements, not edge-triggered. Problems for PD: (1) STA must use time-borrowing analysis for latch timing, which is more complex and tool-dependent. (2) Latches can cause hold violations that are hard to fix. (3) Latch cells in the netlist often indicate an RTL bug (the RTL designer usually did not intend a latch). PD engineers report inferred latches to the design team for RTL correction.')">B. A latch accidentally created by synthesis when a signal is not assigned in all branches of a combinational always block — causes complex STA analysis and likely indicates an RTL bug</button>
+    <button class="opt" onclick="qa(this,false,'Latches are slower than flip-flops and more difficult to analyze, not faster and simpler.')">C. A latch that synthesis inserts because it is faster than a flip-flop for that path</button>
+    <button class="opt" onclick="qa(this,false,'Inferred latches are a synthesis concept, not a routing concept.')">D. A connection that the router infers is unnecessary and removes</button>
+    <div class="q-fb" id="qf7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 08 / 10</div>
+    <div class="q-text">Why does subthreshold leakage worsen dramatically at advanced technology nodes (7nm, 5nm, 3nm)?</div>
+    <button class="opt" onclick="qa(this,false,'Smaller transistors have shorter channels, but the key leakage driver is Vt scaling, not just channel length alone.')">A. Smaller transistors have more surface area, increasing current leakage</button>
+    <button class="opt" onclick="qa(this,true,'Correct! At advanced nodes, engineers are forced to scale down Vt along with VDD to maintain sufficient gate overdrive (VDD−Vt) for adequate drive current and speed. Lower Vt means the transistor is not as firmly off in subthreshold — subthreshold leakage is exponential in (VGS−Vt). With VGS=0 (transistor nominally off) and lower Vt, the exponent becomes less negative → exponential increase in leakage. FinFET transistors (7nm and below) use 3D gate geometry and high-k gate dielectric to provide better gate control (steeper subthreshold slope), partially mitigating this — but leakage remains a dominant power concern.')">B. Vt must scale down with VDD at advanced nodes, making transistors less firmly off in subthreshold — leakage is exponential in (VGS−Vt), so lower Vt dramatically increases leakage current</button>
+    <button class="opt" onclick="qa(this,false,'Temperature does affect leakage, but it is not the primary reason leakage worsens with technology scaling.')">C. Advanced nodes always run at higher temperatures, increasing thermal leakage</button>
+    <button class="opt" onclick="qa(this,false,'More transistors increase total chip leakage, but the dominant cause is Vt scaling making each transistor individually leak more.')">D. Advanced nodes have more transistors per unit area, so more total current paths</button>
+    <div class="q-fb" id="qf8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 09 / 10</div>
+    <div class="q-text">In a gate-level netlist timing path: <code>count_reg_2/Q → U5/A → U5/Y → U6/B → U6/Y → count_reg_3/D</code>. What does this path represent, and what is the name for the delay through U5 and U6?</div>
+    <button class="opt" onclick="qa(this,false,'This path is a data path (reg-to-reg), not a clock path. Clock paths go through clock tree buffers to FF/CK pins.')">A. This is a clock path — delay through U5 and U6 is clock insertion delay</button>
+    <button class="opt" onclick="qa(this,true,'Correct! This is a register-to-register (reg-to-reg) data path — the most common timing path type. count_reg_2/Q is the launch point (output of flip-flop 2). count_reg_3/D is the capture point (input of flip-flop 3). U5 and U6 are combinational logic cells (AND2 and XOR2) between the two FFs. The delay through U5+U6 is called T_logic (combinational propagation delay). Together with Tcq (launch FF) and T_net (wire delay), it determines data arrival time for the setup check at count_reg_3/D. This is exactly the path structure you analyzed in Day 2.')">B. This is a reg-to-reg data path — U5 and U6 delay is T_logic (combinational propagation delay) between launch FF (count_reg_2) and capture FF (count_reg_3)</button>
+    <button class="opt" onclick="qa(this,false,'Power paths relate to IR drop analysis, not signal propagation timing paths in STA.')">C. This is a power delivery path — delay is IR drop through the power grid</button>
+    <button class="opt" onclick="qa(this,false,'Hold paths and setup paths both use this same path structure — the difference is in how the timing check is calculated, not the path itself.')">D. This is a hold-only path — setup analysis does not apply here</button>
+    <div class="q-fb" id="qf9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-block">
+    <div class="q-num">QUESTION 10 / 10</div>
+    <div class="q-text">A design has two voltage domains: Domain A at 1.0V and Domain B at 0.7V. A signal drives from Domain A into Domain B logic. What PD cell type is required at the boundary, and why?</div>
+    <button class="opt" onclick="qa(this,false,'Standard buffers operate at a single VDD. A buffer in Domain A operates at 1.0V and cannot safely interface with 0.7V logic.')">A. A standard buffer (BUFX4) — to drive the signal across the boundary</button>
+    <button class="opt" onclick="qa(this,true,'Correct! A Level Shifter cell is required. When logic from a 1.0V domain drives into a 0.7V domain: the 1.0V HIGH signal (VOH≈1.0V) exceeds the 0.7V domain\'s maximum input voltage specification — it can damage 0.7V transistors or cause unintended behavior. The level shifter converts the 1.0V logic levels to 0.7V levels safely. Level shifters have dual power supplies: they accept the source domain VDD (1.0V) and output at the destination domain VDD (0.7V). In UPF-based designs, the synthesis and PnR tools automatically insert level shifters at every domain boundary based on the power intent specification.')">B. A Level Shifter cell — to safely convert signal voltage levels from 1.0V domain to 0.7V domain, preventing over-voltage damage and ensuring correct logic levels in Domain B</button>
+    <button class="opt" onclick="qa(this,false,'Decap cells are used for power supply decoupling (reducing IR drop/noise), not for signal level conversion.')">C. A Decap cell — to absorb the voltage difference at the boundary</button>
+    <button class="opt" onclick="qa(this,false,'No cell is incorrect — crossing between different voltage domains without a level shifter causes functional failures or silicon damage.')">D. No special cell needed — signals naturally adapt to the receiving domain voltage</button>
+    <div class="q-fb" id="qf10"></div>
+  </div>
+
+</div><!-- /quiz-wrap -->
+</div>
+
+<!-- CHECKLIST -->
+<div class="ls">
+<div class="checklist-wrap">
+  <div class="cl-title">Day 3 Completion Checklist</div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 1: Dynamic power — P=αCV²f formula and every variable explained</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Used the dynamic power calculator — felt the V² effect by varying voltage</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 2: Leakage power — subthreshold, gate oxide, junction types</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Understood multi-Vt: LVT=fast+leaky, SVT=balanced, HVT=slow+low-leakage</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 3: All power reduction techniques — clock gating, power gating, voltage scaling</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 4: VLSI flow — traced all 10 stages and identified your PD ownership (4–8)</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 5: All 9 key file formats — know what .v, .sdc, .lef, .lib, .def, .spef, .gds contain</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 6: Verilog — module/port, assign, always @(posedge clk), module instantiation</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 7: Synthesizable vs non-synthesizable — know which constructs create what hardware</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Read Section 8: Decoded the gate-level netlist — understood DFFRHQX2 naming convention</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Completed all 10 quiz questions — reviewed explanations for any wrong answers</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Wrote the power formula P=αCV²f from memory and explained each variable</div></div>
+  <div class="cl-item" onclick="ck(this)"><div class="cl-box"></div><div class="cl-text">Drew the 10-stage VLSI flow from memory, marking which stages you own</div></div>
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="ls" id="summary">
+  <div class="sec-hdr">
+    <div class="sec-badge">∑ · Summary</div>
+    <div class="sec-title">Day 3 — What to Remember Forever</div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card">
+      <div class="sum-t">Dynamic Power</div>
+      <div class="sum-b">P = α·C·V²·f. V² is the key lever. 20% VDD reduction → 36% power drop. Activity factor α: clock=1.0, data~0.2, idle~0.01.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">Short-Circuit Power</div>
+      <div class="sum-b">Brief PMOS+NMOS overlap during switching. Fast slews minimize it. max_transition SDC constraint prevents slow slews.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">Leakage Power</div>
+      <div class="sum-b">Subthreshold leakage dominates. Exponential in (VGS−Vt). 100mV more Vt = 10× less leakage. Worsens at advanced nodes.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">Multi-Vt</div>
+      <div class="sum-b">LVT: fast, high leakage. SVT: balanced. HVT: slow, low leakage. Swap non-critical SVT→HVT to save 20–40% leakage.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">Clock Gating</div>
+      <div class="sum-b">ICG cell blocks clock to idle FFs. α drops from 1.0 to ~0. Saves 20–40% dynamic power. PD places ICG cells near FF clusters.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">VLSI Flow</div>
+      <div class="sum-b">RTL→Synthesis→Floorplan→Place→CTS→Route→Signoff→GDSII. You own stages 4–8. Synthesis hands you .v + .sdc.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">Key Files</div>
+      <div class="sum-b">.v=netlist, .sdc=constraints, .lef=cell abstracts, .lib=timing, .def=layout DB, .spef=parasitics, .gds=fab data.</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-t">Verilog for PD</div>
+      <div class="sum-b">assign→combinational gates. always @(posedge clk)→DFFs. Module hierarchy→timing path names. Cell X-factor=drive strength.</div>
+    </div>
+  </div>
+
+  <div class="formula-box" style="margin-top:24px">
+    <div class="formula-title">Day 3 Master Formula Sheet</div>
+    <div class="formula"><span class="fv">P_total</span>   = <span class="fv">P_dynamic</span> + <span class="fv">P_short_circuit</span> + <span class="fv">P_leakage</span>
+<span class="fv">P_dynamic</span> = <span class="fop">α</span> × <span class="fop">C_L</span> × <span class="fop">V²_DD</span> × <span class="fop">f</span>       <span class="fc">← V² is the dominant lever</span>
+<span class="fv">I_sub</span>     = I₀ × exp(<span class="fop">(VGS − Vt)</span> / <span class="fop">n·Vth</span>) <span class="fc">← 100mV↑Vt = 10× leakage reduction</span>
+
+<span class="fc">Power fix priority:</span>
+  <span class="fop">1.</span> Clock gating (kills α=1.0 clock power in idle blocks)
+  <span class="fop">2.</span> Multi-Vt swap HVT on non-critical paths (kills leakage)
+  <span class="fop">3.</span> Power gating (kills ALL power in idle domain)
+  <span class="fop">4.</span> Voltage scaling (V² lever — most powerful, requires multi-VDD architecture)</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- NEXT DAY -->
+<div class="next-banner">
+  <div class="nb-left">
+    <div class="nb-eyebrow">Phase 2 Begins Tomorrow</div>
+    <div class="nb-title">Day 4 — Logic Synthesis Deep Dive</div>
+    <div class="nb-desc">Phase 1 is complete. Day 4 opens Phase 2: Synthesis &amp; STA. You will learn how Synopsys Design Compiler converts RTL to a gate netlist, what the tool optimizes for, how Liberty timing models work, and run your first synthesis on a real design using open-source tools.</div>
+    <div class="nb-chips">
+      <span class="nb-chip">Synopsys DC Flow</span>
+      <span class="nb-chip">Technology Mapping</span>
+      <span class="nb-chip">Liberty Files (.lib)</span>
+      <span class="nb-chip">Timing Arcs</span>
+      <span class="nb-chip">NLDM vs CCS</span>
+      <span class="nb-chip">Area/Power/Timing</span>
+      <span class="nb-chip">compile_ultra</span>
+      <span class="nb-chip">Lab: Yosys Synthesis</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+// ── QUIZ ──────────────────────────────
+function qa(btn, correct, msg) {
+  const block = btn.closest('.q-block');
+  block.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const fbs = block.querySelectorAll('.q-fb');
+  if (fbs.length) {
+    fbs[0].textContent = (correct ? '✓ ' : '✗ ') + msg;
+    fbs[0].className = 'q-fb show ' + (correct ? 'pass' : 'fail');
+  }
+}
+
+// ── CHECKLIST ─────────────────────────
+function ck(el) {
+  el.classList.toggle('done');
+  el.querySelector('.cl-box').textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── POWER CALCULATOR ──────────────────
+function calcPow() {
+  const alpha = parseFloat(document.getElementById('alpha').value);
+  const cap   = parseFloat(document.getElementById('cap').value);   // fF
+  const vdd   = parseFloat(document.getElementById('vdd').value);
+  const freq  = parseFloat(document.getElementById('freq').value);  // MHz
+
+  document.getElementById('alpha-v').textContent = 'α = ' + alpha.toFixed(2);
+  document.getElementById('cap-v').textContent   = 'C_L = ' + cap + ' fF';
+  document.getElementById('vdd-v').textContent   = 'VDD = ' + vdd.toFixed(2) + ' V';
+  document.getElementById('freq-v').textContent  = 'f = ' + freq + ' MHz';
+
+  // P = α × C × V² × f (cap in F, freq in Hz)
+  const capF  = cap * 1e-15;
+  const freqHz = freq * 1e6;
+  const power = alpha * capF * vdd * vdd * freqHz; // Watts
+  const powerUW = power * 1e6; // µW
+  const powerNW = power * 1e9; // nW
+
+  let powerStr, unit;
+  if (powerUW >= 1000) {
+    powerStr = (powerUW / 1000).toFixed(3);
+    unit = 'mW';
+  } else if (powerUW >= 1) {
+    powerStr = powerUW.toFixed(3);
+    unit = 'µW';
+  } else {
+    powerStr = powerNW.toFixed(2);
+    unit = 'nW';
+  }
+
+  // Compare to baseline (α=0.2, C=100fF, V=1.0, f=1000MHz)
+  const baseline = 0.2 * 100e-15 * 1.0 * 1.0 * 1000e6 * 1e6; // µW
+  const ratio = (powerUW / baseline);
+
+  const el = document.getElementById('pow-result');
+  el.innerHTML = `<span style="color:var(--amber);font-size:0.7rem;letter-spacing:2px;">P_dynamic = α × C × V² × f</span>
+<span style="color:var(--white);font-size:1.1rem;font-weight:700;margin-top:6px;display:block;">${powerStr} ${unit}</span>
+<span style="color:var(--muted);font-size:0.68rem;display:block;margin-top:8px;">
+= ${alpha.toFixed(2)} × ${cap}fF × ${vdd.toFixed(2)}² × ${freq}MHz
+= ${alpha.toFixed(2)} × ${cap}×10⁻¹⁵ × ${(vdd*vdd).toFixed(4)} × ${freq}×10⁶</span>
+<span style="color:${ratio > 1.5 ? 'var(--red)' : ratio < 0.5 ? 'var(--green)' : 'var(--amber)'};font-size:0.7rem;display:block;margin-top:6px;font-family:var(--mono);">${ratio > 1.5 ? '⚠ HIGH POWER — ' + ratio.toFixed(1) + '× baseline' : ratio < 0.5 ? '✓ LOW POWER — ' + ratio.toFixed(2) + '× baseline' : '○ MODERATE — ' + ratio.toFixed(2) + '× baseline'}</span>`;
+}
+
+calcPow();
+
+// ── SIDEBAR ACTIVE STATE ──────────────
+const sections = document.querySelectorAll('.ls');
+const sbLinks  = document.querySelectorAll('.sb-link');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      sbLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-10% 0px -60% 0px' });
+
+sections.forEach(s => { if (s.id) obs.observe(s); });
+</script>
+</body>
+</html>
