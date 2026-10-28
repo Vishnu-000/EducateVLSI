@@ -5,6 +5,7 @@
 [![Design](https://img.shields.io/badge/Design-Semiconductor%20Obsidian%20UI-10b981?style=for-the-badge)](#aesthetics--design-system)
 [![Status](https://img.shields.io/badge/Status-Signoff%20Ready-cyan?style=for-the-badge)](PROGRESS.md)
 [![Live Site](https://img.shields.io/badge/GitHub%20Pages-Live%20Deploy-00f2fe?style=for-the-badge&logo=github)](https://vishnu-000.github.io/EducateVLSI/)
+[![Firebase Hosting](https://img.shields.io/badge/Firebase-educate--vlsi.web.app-orange?style=for-the-badge&logo=firebase)](https://educate-vlsi.web.app)
 
 Official open-source engineering workstation and learning platform for **[EducateVLSI (@EducateVLSI)](https://www.youtube.com/@EducateVLSI)**. Designed specifically for VLSI, ASIC, and Semiconductor Physical Design engineers, students, and EDA developers transitioning from foundational Electronics and Communication Engineering (ECE) to sub-3nm Gate-All-Around (GAA) tapeouts.
 
