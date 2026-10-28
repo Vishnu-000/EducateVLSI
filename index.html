@@ -227,6 +227,7 @@
       </div>
     </div>
   </header>
+  <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
 
   <!-- Hero Section -->
   <section class="hero-section" id="hero">
@@ -287,23 +288,28 @@
       <!-- Hero Media Showcase Card -->
       <div class="hero-media-wrap">
         <div class="hero-card-glow">
-          <div class="floating-tech-chip chip-1">
-            <span class="chip-pulse-dot cyan"></span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-            </svg>
-            <span>TCL Automation</span>
+          <div class="hero-banner-container">
+            <img src="assets/EducateVLSI_BannerImage.jpg" alt="EducateVLSI Channel Banner" class="hero-banner-img">
           </div>
 
-          <div class="floating-tech-chip chip-2">
-            <span class="chip-pulse-dot amber"></span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-            <span>STA Timing Engine</span>
-          </div>
+          <!-- Organised Workstation Tech Chips Bar (Non-overlapping) -->
+          <div class="hero-tech-chips-bar">
+            <div class="floating-tech-chip chip-1">
+              <span class="chip-pulse-dot cyan"></span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+              <span>TCL Automation Flow</span>
+            </div>
 
-          <img src="assets/EducateVLSI_BannerImage.jpg" alt="EducateVLSI Channel Banner" class="hero-banner-img">
+            <div class="floating-tech-chip chip-2">
+              <span class="chip-pulse-dot amber"></span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <span>STA Timing Signoff</span>
+            </div>
+          </div>
           <div class="hero-card-content">
             <div class="hero-channel-badge">
               <div class="channel-info">
@@ -342,6 +348,368 @@
       <!-- Track Navigation Tabs -->
       <div class="learn-tracks-nav" id="learnTrackTabs">
         <!-- Rendered dynamically by renderLearnTracks() -->
+      </div>
+
+      <!-- Silicon Interactive Studio & GUI Lab -->
+      <div class="silicon-studio-wrap" id="siliconStudioWrap">
+        <div class="studio-header">
+          <div class="studio-header-text">
+            <div class="studio-pretitle">
+              <span class="status-dot-active"></span>
+              <span>INTERACTIVE SILICON STUDIO • REAL-TIME EDA &amp; DEVICE SIMULATOR GUI</span>
+            </div>
+            <h3 class="studio-title">Interactive VLSI <span class="gradient-text">GUI Laboratory</span></h3>
+            <p class="studio-desc">
+              Experiment with real-time dynamic device physics, static timing analysis (STA) setup/hold violation windows, CMOS inverter transfer curves, and the complete ASIC physical design flow.
+            </p>
+          </div>
+          <div class="studio-quick-stats">
+            <span class="studio-stat-pill"><strong style="color:var(--accent-cyan);">5</strong> Interactive GUIs</span>
+            <span class="studio-stat-pill"><strong style="color:var(--accent-emerald);">Real-Time</strong> SVG Engines</span>
+          </div>
+        </div>
+
+        <!-- Studio Tab Switchers -->
+        <div class="studio-tabs-bar" id="studioTabsBar" role="tablist">
+          <button class="studio-tab-btn active" data-tab="inverter" id="studioTabInverter">
+            <span>⚡ 1. CMOS Inverter VTC</span>
+          </button>
+          <button class="studio-tab-btn" data-tab="sta" id="studioTabSta">
+            <span>⏱️ 2. STA Timing Slack Lab</span>
+          </button>
+          <button class="studio-tab-btn" data-tab="mosfet" id="studioTabMosfet">
+            <span>🔬 3. MOSFET IV Physics</span>
+          </button>
+          <button class="studio-tab-btn" data-tab="pipeline" id="studioTabPipeline">
+            <span>🗺️ 4. ASIC PD Pipeline</span>
+          </button>
+          <button class="studio-tab-btn" data-tab="logic" id="studioTabLogic">
+            <span>🔌 5. Logic &amp; Stick Layout</span>
+          </button>
+        </div>
+
+        <!-- Studio Workspace Viewports -->
+        <div class="studio-viewport-panel" id="studioViewportPanel">
+          <!-- Pane 1: CMOS Inverter VTC Simulator -->
+          <div class="studio-pane active" id="paneInverter">
+            <div class="studio-grid-layout">
+              <div class="studio-controls-box">
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Input Voltage (Vin)</span>
+                    <span class="studio-control-val" id="lblInvVin">0.60 V</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderInvVin" min="0" max="1.2" step="0.02" value="0.6">
+                  <div class="studio-presets-row">
+                    <button class="studio-preset-chip" onclick="setInvPreset(0.0)">0V (GND)</button>
+                    <button class="studio-preset-chip" onclick="setInvPreset(0.35)">0.35V (VIL)</button>
+                    <button class="studio-preset-chip active" onclick="setInvPreset(0.60)">0.60V (VM Switch)</button>
+                    <button class="studio-preset-chip" onclick="setInvPreset(0.85)">0.85V (VIH)</button>
+                    <button class="studio-preset-chip" onclick="setInvPreset(1.2)">1.2V (VDD)</button>
+                  </div>
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Supply Voltage (VDD)</span>
+                    <span class="studio-control-val" id="lblInvVdd">1.20 V</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderInvVdd" min="0.7" max="1.8" step="0.05" value="1.2">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">PMOS/NMOS Sizing Ratio (βp / βn)</span>
+                    <span class="studio-control-val" id="lblInvBeta">2.50x</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderInvBeta" min="1.0" max="4.0" step="0.1" value="2.5">
+                  <small style="color:var(--text-muted); font-size:0.75rem;">Sized ~2.5x to balance electron (μn) vs hole (μp) mobility.</small>
+                </div>
+
+                <div class="studio-info-callout">
+                  <strong>Operating Physics:</strong> At the switching threshold <span style="color:var(--accent-cyan); font-family:var(--font-mono); font-weight:700;">VM = Vin = Vout</span>, both PMOS and NMOS operate concurrently in <em>Saturation</em>, producing maximum small-signal voltage gain and peak short-circuit current (<span style="color:var(--accent-amber); font-family:var(--font-mono);">Isc</span>).
+                </div>
+              </div>
+
+              <div class="studio-vis-column">
+                <div class="studio-svg-canvas-card">
+                  <div class="studio-canvas-header">
+                    <span class="studio-canvas-title">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><path d="M3 3v18h18"/><path d="M3 5c6 0 10 14 18 14"/></svg>
+                      Dynamic Voltage Transfer Curve (VTC)
+                    </span>
+                    <span class="badge badge-cyan" id="badgeInvRegion">Region C: Saturation Transition</span>
+                  </div>
+                  <div class="studio-svg-wrap" id="svgInvVtcContainer">
+                    <!-- Dynamic SVG rendered by app.js -->
+                  </div>
+                </div>
+
+                <div class="studio-metrics-row">
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Output Voltage (Vout)</span>
+                    <span class="studio-metric-val cyan" id="statInvVout">0.60 V</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Logic State</span>
+                    <span class="studio-metric-val emerald" id="statInvState">META (Transition)</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Noise Margin High (NMH)</span>
+                    <span class="studio-metric-val" id="statInvNMH">0.35 V</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Noise Margin Low (NML)</span>
+                    <span class="studio-metric-val" id="statInvNML">0.35 V</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 2: STA Timing & Slack Waveform Lab -->
+          <div class="studio-pane" id="paneSta">
+            <div class="studio-grid-layout">
+              <div class="studio-controls-box">
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Clock Period (Tclk)</span>
+                    <span class="studio-control-val" id="lblStaTclk">4.00 ns (250 MHz)</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderStaTclk" min="1.0" max="10.0" step="0.25" value="4.0">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Launch Clock Delay (Tlaunch + Tcq)</span>
+                    <span class="studio-control-val" id="lblStaTlaunch">0.80 ns</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderStaTlaunch" min="0.2" max="3.0" step="0.1" value="0.8">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Combinational Datapath Delay (Tdata)</span>
+                    <span class="studio-control-val" id="lblStaTdata">2.40 ns</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderStaTdata" min="0.5" max="6.0" step="0.1" value="2.4">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Capture Clock Path Delay (Tcapture)</span>
+                    <span class="studio-control-val" id="lblStaTcapture">1.00 ns (Skew: +0.20ns)</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderStaTcapture" min="0.2" max="3.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Setup Time (Tsetup) &amp; Uncertainty (Tunc)</span>
+                    <span class="studio-control-val" id="lblStaTmargin">0.30 ns + 0.15 ns</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderStaTmargin" min="0.1" max="1.0" step="0.05" value="0.45">
+                </div>
+
+                <div class="studio-presets-row">
+                  <button class="studio-preset-chip active" onclick="setStaPreset('met')">✅ Normal Met Path</button>
+                  <button class="studio-preset-chip" onclick="setStaPreset('setup_viol')">❌ Setup Violation</button>
+                  <button class="studio-preset-chip" onclick="setStaPreset('hold_viol')">⚠️ Hold Violation</button>
+                  <button class="studio-preset-chip" onclick="setStaPreset('skew_opt')">⚡ Useful Skew Borrowing</button>
+                </div>
+              </div>
+
+              <div class="studio-vis-column">
+                <div class="studio-svg-canvas-card">
+                  <div class="studio-canvas-header">
+                    <span class="studio-canvas-title">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      Static Timing Analysis (STA) Waveform Diagram
+                    </span>
+                    <span class="badge badge-emerald" id="badgeStaStatus">SETUP MET</span>
+                  </div>
+                  <div class="studio-svg-wrap" id="svgStaWaveformContainer">
+                    <!-- Dynamic SVG rendered by app.js -->
+                  </div>
+                </div>
+
+                <div class="studio-metrics-row">
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Data Arrival Time</span>
+                    <span class="studio-metric-val cyan" id="statStaArrival">3.20 ns</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Data Required Time</span>
+                    <span class="studio-metric-val" id="statStaRequired">4.55 ns</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Setup Slack Margin</span>
+                    <span class="studio-metric-val emerald" id="statStaSetupSlack">+1.35 ns (MET)</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Clock Skew (Capture - Launch)</span>
+                    <span class="studio-metric-val" id="statStaSkew">+0.20 ns</span>
+                  </div>
+                </div>
+
+                <div class="studio-info-callout" id="staAdvisoryBox">
+                  <strong>EDA Signoff Advisory:</strong> Timing constraints fully satisfied. Setup margin is positive. Datapath comfortably completes before the setup uncertainty hazard window.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 3: MOSFET IV Physics & Channel Regime Simulator -->
+          <div class="studio-pane" id="paneMosfet">
+            <div class="studio-grid-layout">
+              <div class="studio-controls-box">
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Gate Voltage (VGS)</span>
+                    <span class="studio-control-val" id="lblMosVgs">1.20 V</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderMosVgs" min="0" max="1.8" step="0.05" value="1.2">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Drain Voltage (VDS)</span>
+                    <span class="studio-control-val" id="lblMosVds">1.00 V</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderMosVds" min="0" max="1.8" step="0.05" value="1.0">
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Threshold Voltage (Vth0)</span>
+                    <span class="studio-control-val" id="lblMosVth">0.45 V (SVT)</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderMosVth" min="0.25" max="0.65" step="0.05" value="0.45">
+                  <div class="studio-presets-row">
+                    <button class="studio-preset-chip" onclick="setMosVth(0.30)">LVT (0.30V)</button>
+                    <button class="studio-preset-chip active" onclick="setMosVth(0.45)">SVT (0.45V)</button>
+                    <button class="studio-preset-chip" onclick="setMosVth(0.60)">HVT (0.60V)</button>
+                  </div>
+                </div>
+
+                <div class="studio-control-group">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Body Reverse Bias (VSB)</span>
+                    <span class="studio-control-val" id="lblMosVsb">0.00 V</span>
+                  </div>
+                  <input type="range" class="studio-slider" id="sliderMosVsb" min="0" max="1.0" step="0.05" value="0.0">
+                  <small style="color:var(--text-muted); font-size:0.75rem;">Increases depletion charge, shifting Vth upward via Body Effect.</small>
+                </div>
+
+                <div class="studio-presets-row">
+                  <button class="studio-preset-chip" onclick="setMosPreset('cutoff')">Cutoff (VGS &lt; Vth)</button>
+                  <button class="studio-preset-chip" onclick="setMosPreset('linear')">Linear (Low VDS)</button>
+                  <button class="studio-preset-chip active" onclick="setMosPreset('saturation')">Saturation (VDS &ge; Vov)</button>
+                </div>
+              </div>
+
+              <div class="studio-vis-column">
+                <div class="studio-svg-canvas-card">
+                  <div class="studio-canvas-header">
+                    <span class="studio-canvas-title">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      MOSFET ID vs VDS Family of Characteristic Curves
+                    </span>
+                    <span class="badge badge-cyan" id="badgeMosRegime">SATURATION REGION</span>
+                  </div>
+                  <div class="studio-svg-wrap" id="svgMosfetContainer">
+                    <!-- Dynamic SVG rendered by app.js -->
+                  </div>
+                </div>
+
+                <div class="studio-metrics-row">
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Drain Current (ID)</span>
+                    <span class="studio-metric-val cyan" id="statMosId">0.56 mA</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Effective Vth (Body Shifted)</span>
+                    <span class="studio-metric-val" id="statMosVthEff">0.45 V</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Overdrive (VGS - Vth)</span>
+                    <span class="studio-metric-val emerald" id="statMosVov">0.75 V</span>
+                  </div>
+                  <div class="studio-metric-card">
+                    <span class="studio-metric-lbl">Channel Pinch-Off Point</span>
+                    <span class="studio-metric-val amber" id="statMosPinch">Pinched Off at Drain</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 4: ASIC PD Pipeline Flow Explorer -->
+          <div class="studio-pane" id="panePipeline">
+            <div class="pipeline-stepper-wrap">
+              <div class="pipeline-stage-pills" id="pipelineStagePills">
+                <!-- Injected dynamically by app.js -->
+              </div>
+              <div class="pipeline-stage-details-card" id="pipelineStageDetailCard">
+                <!-- Injected dynamically by app.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 5: Standard Cell Logic & Stick Layout Switcher -->
+          <div class="studio-pane" id="paneLogic">
+            <div class="studio-grid-layout">
+              <div class="studio-controls-box">
+                <div class="studio-control-group">
+                  <label class="studio-control-label" style="margin-bottom:0.4rem;">Select Standard Cell Gate</label>
+                  <div class="studio-presets-row" id="logicGateSelectors">
+                    <button class="studio-preset-chip active" onclick="selectLogicGate('inv')">INV (Inverter)</button>
+                    <button class="studio-preset-chip" onclick="selectLogicGate('nand2')">NAND2 (2-Input)</button>
+                    <button class="studio-preset-chip" onclick="selectLogicGate('nor2')">NOR2 (2-Input)</button>
+                    <button class="studio-preset-chip" onclick="selectLogicGate('tg')">Transmission Gate</button>
+                    <button class="studio-preset-chip" onclick="selectLogicGate('dff')">D-Flip-Flop (DFF)</button>
+                  </div>
+                </div>
+
+                <div class="studio-control-group" id="logicInputControls">
+                  <div class="studio-label-row">
+                    <span class="studio-control-label">Digital Input Toggles</span>
+                  </div>
+                  <div style="display:flex; gap:1rem; margin-top:0.5rem;">
+                    <button class="btn-secondary" id="btnToggleInA" onclick="toggleLogicInput('A')" style="flex:1;">Input A: <strong>0</strong></button>
+                    <button class="btn-secondary" id="btnToggleInB" onclick="toggleLogicInput('B')" style="flex:1;">Input B: <strong>0</strong></button>
+                  </div>
+                </div>
+
+                <div class="studio-control-group">
+                  <span class="studio-control-label">Gate Truth Table</span>
+                  <table class="logic-truth-table" id="logicTruthTable">
+                    <!-- Populated dynamically -->
+                  </table>
+                </div>
+              </div>
+
+              <div class="studio-vis-column">
+                <div class="studio-svg-canvas-card">
+                  <div class="studio-canvas-header">
+                    <span class="studio-canvas-title">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                      Transistor Conduction Path &amp; Physical Stick Layout
+                    </span>
+                    <span class="badge badge-emerald" id="badgeLogicOutput">OUT = 1 (HIGH)</span>
+                  </div>
+                  <div class="studio-svg-wrap" id="svgLogicContainer">
+                    <!-- Rendered dynamically by app.js -->
+                  </div>
+                </div>
+
+                <div class="studio-info-callout" id="logicExplanationBox">
+                  <strong>Layout Rule:</strong> N-well holds PMOS pull-up network connected to VDD rail. P-substrate holds NMOS pull-down network connected to VSS rail. Polysilicon gate stripes traverse both active areas vertically for optimal Euler-path density.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Search & Progress Bar -->
@@ -2157,6 +2525,25 @@
           </svg>
         </button>
       </div>
+
+      <!-- Modal Inner Navigation Tabs -->
+      <nav class="modal-tabs-nav" id="modalLessonTabsNav">
+        <button class="modal-tab-pill active" data-modaltab="theory" onclick="switchModalTab('theory')">
+          <span>📖 Core Theory</span>
+        </button>
+        <button class="modal-tab-pill" data-modaltab="formula" onclick="switchModalTab('formula')">
+          <span>📐 Formulas &amp; Math</span>
+        </button>
+        <button class="modal-tab-pill" data-modaltab="interactive" onclick="switchModalTab('interactive')">
+          <span>⚡ Interactive GUI Lab</span>
+        </button>
+        <button class="modal-tab-pill" data-modaltab="tips" onclick="switchModalTab('tips')">
+          <span>💡 PD Practitioner Tips</span>
+        </button>
+        <button class="modal-tab-pill" data-modaltab="interview" onclick="switchModalTab('interview')">
+          <span>🎯 Interview Q&amp;A</span>
+        </button>
+      </nav>
 
       <div class="lesson-modal-scroll-body" id="modalLessonContent">
         <!-- Injected dynamically by openLessonModal() -->

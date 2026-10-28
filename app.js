@@ -2009,6 +2009,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initNavigation();
   initLearnAcademy();
+  initSiliconStudio();
   initStudyVault();
   initFlashcardStudio();
   initCategoryFilters();
@@ -2031,6 +2032,16 @@ function initNavigation() {
   const navMenu = document.getElementById('primaryNav');
   const dropdown = document.getElementById('navDropdown');
   const dropdownBtn = document.getElementById('navDropdownBtn');
+  const mobileBackdrop = document.getElementById('mobileNavBackdrop');
+
+  function closeMobileNav() {
+    if (navMenu) navMenu.classList.remove('open');
+    if (mobileBackdrop) mobileBackdrop.classList.remove('active');
+    document.body.classList.remove('nav-drawer-open');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    if (dropdown) dropdown.classList.remove('open');
+    if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
+  }
 
   // Mobile drawer toggle
   if (mobileToggle && navMenu) {
@@ -2039,14 +2050,21 @@ function initNavigation() {
       navMenu.classList.toggle('open');
       const isOpen = navMenu.classList.contains('open');
       mobileToggle.setAttribute('aria-expanded', isOpen);
+      if (mobileBackdrop) mobileBackdrop.classList.toggle('active', isOpen);
+      document.body.classList.toggle('nav-drawer-open', isOpen);
     });
 
     // Close mobile menu on nav link click
     navMenu.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        navMenu.classList.remove('open');
-        if (dropdown) dropdown.classList.remove('open');
+        closeMobileNav();
       });
+    });
+  }
+
+  if (mobileBackdrop) {
+    mobileBackdrop.addEventListener('click', () => {
+      closeMobileNav();
     });
   }
 
@@ -2063,7 +2081,7 @@ function initNavigation() {
   // Close menus when clicking outside
   document.addEventListener('click', (e) => {
     if (navMenu && !navMenu.contains(e.target) && mobileToggle && !mobileToggle.contains(e.target)) {
-      navMenu.classList.remove('open');
+      closeMobileNav();
     }
     if (dropdown && !dropdown.contains(e.target)) {
       dropdown.classList.remove('open');
@@ -2074,11 +2092,7 @@ function initNavigation() {
   // Close menus on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (navMenu) navMenu.classList.remove('open');
-      if (dropdown) {
-        dropdown.classList.remove('open');
-        if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
-      }
+      closeMobileNav();
     }
   });
 }
@@ -3277,6 +3291,1545 @@ function initLearnAcademy() {
   });
 }
 
+
+// Contextual Mapping from Curriculum Lessons to Silicon Interactive Studio Simulators
+const LESSON_GUI_MAP = {
+  'ece-pn': { tab: 'mosfet', label: '🔬 Junction & Field GUI' },
+  'ece-mosfet': { tab: 'mosfet', label: '🔬 Launch MOSFET IV GUI' },
+  'ece-cmos-inverter': { tab: 'inverter', label: '⚡ Launch Inverter VTC GUI' },
+  'dig-comb': { tab: 'logic', label: '🔌 Logic Gates & Layout GUI' },
+  'dig-seq': { tab: 'logic', label: '🔌 Sequential DFF GUI' },
+  'dig-cdc': { tab: 'sta', label: '⏱️ CDC Skew & Latency GUI' },
+  'dig-hdl': { tab: 'pipeline', label: '🗺️ Verilog to Synthesis Flow' },
+  'fe-synth': { tab: 'pipeline', label: '🗺️ Logic Synthesis Pipeline' },
+  'fe-sdc': { tab: 'sta', label: '⏱️ SDC Constraints & Slack' },
+  'fe-lib': { tab: 'sta', label: '⏱️ Liberty Timing & NLDM GUI' },
+  'fe-lef': { tab: 'logic', label: '🔌 Physical LEF & Cell Layout' },
+  'be-floorplan': { tab: 'pipeline', label: '🗺️ Floorplan Stage GUI' },
+  'be-macro': { tab: 'pipeline', label: '🗺️ Macro Placement & Halos' },
+  'be-power': { tab: 'pipeline', label: '🗺️ Power Grid & IR Drop GUI' },
+  'be-placement': { tab: 'pipeline', label: '🗺️ Cell Placement & Legalization' },
+  'be-cts': { tab: 'sta', label: '⏱️ CTS Skew & Latency GUI' },
+  'be-routing': { tab: 'logic', label: '🔌 Detailed Routing & Metal Tracks' },
+  'so-sta': { tab: 'sta', label: '⏱️ Launch STA Waveform GUI' },
+  'so-si': { tab: 'sta', label: '⏱️ Crosstalk & Noise Margin' },
+  'so-pv': { tab: 'logic', label: '🔌 DRC/LVS Signoff Checks' },
+  'so-em': { tab: 'pipeline', label: '🗺️ EM Signoff & DVD Analysis' },
+  'so-tapeout': { tab: 'pipeline', label: '🗺️ GDSII Tapeout Signoff' },
+  'adv-finfet': { tab: 'mosfet', label: '🔬 FinFET / GAA Simulator' },
+  'adv-litho': { tab: 'pipeline', label: '🗺️ EUV & Multi-Patterning' },
+  'adv-pkg': { tab: 'pipeline', label: '🗺️ 2.5D/3D Chiplet Pipeline' }
+};
+
+window.launchStudioGui = function(tabName) {
+  closeLessonModal();
+  const studioWrap = document.getElementById('siliconStudioWrap');
+  if (studioWrap) {
+    studioWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (typeof switchStudioTab === 'function') {
+      switchStudioTab(tabName);
+    }
+    studioWrap.style.boxShadow = '0 0 40px rgba(0, 242, 254, 0.45)';
+    setTimeout(() => {
+      studioWrap.style.boxShadow = '';
+    }, 1800);
+  }
+};
+
+const LESSON_EXPANDED_DATA = {
+  "ece-pn": {
+    "breakdown": [
+      {
+        "symbol": "V_0",
+        "name": "Built-in Potential",
+        "unit": "V",
+        "desc": "Equilibrium barrier voltage formed by uncompensated space-charge ions (0.65V \u2013 0.88V at 300K)."
+      },
+      {
+        "symbol": "V_t = kT/q",
+        "name": "Thermal Voltage",
+        "unit": "V",
+        "desc": "Thermal energy potential; equals 25.85 mV at 300K, scales directly with junction temperature."
+      },
+      {
+        "symbol": "N_A, N_D",
+        "name": "Doping Concentrations",
+        "unit": "cm\u207b\u00b3",
+        "desc": "Acceptor (p-type) and Donor (n-type) ion concentrations (typically 10\u00b9\u2076 to 10\u00b9\u2078 cm\u207b\u00b3)."
+      },
+      {
+        "symbol": "n_i",
+        "name": "Intrinsic Carrier Conc.",
+        "unit": "cm\u207b\u00b3",
+        "desc": "Silicon intrinsic carriers (1.5 \u00d7 10\u00b9\u2070 cm\u207b\u00b3 at 300K; doubles every ~10\u00b0C)."
+      },
+      {
+        "symbol": "W",
+        "name": "Depletion Width",
+        "unit": "\u03bcm",
+        "desc": "Space charge barrier thickness; expands with reverse bias voltage V_R."
+      },
+      {
+        "symbol": "\u03b5_s",
+        "name": "Silicon Permittivity",
+        "unit": "F/cm",
+        "desc": "Dielectric permittivity of silicon (11.7 \u00d7 \u03b5_0 = 1.036 \u00d7 10\u207b\u00b9\u00b2 F/cm)."
+      }
+    ],
+    "workedExample": {
+      "title": "SkyWater 130nm Substrate Well-Tap Reverse-Bias Calculation",
+      "scenario": "Calculate built-in potential V0 and depletion layer width W under a reverse bias VR = 1.8V for a p-well (NA = 1.2 \u00d7 10\u00b9\u2077 cm\u207b\u00b3) and n+ diffusion contact (ND = 2.0 \u00d7 10\u00b9\u2078 cm\u207b\u00b3).",
+      "formula": "V_0 = V_t * ln((N_A * N_D) / n_i^2), W = sqrt((2*\u03b5_s/q)*(V_0 + V_R)*(1/N_A + 1/N_D))",
+      "values": "N_A = 1.2e17 cm\u207b\u00b3, N_D = 2.0e18 cm\u207b\u00b3, n_i = 1.5e10 cm\u207b\u00b3, V_t = 0.02585 V, V_R = 1.8 V, \u03b5_s = 1.036e-12 F/cm, q = 1.602e-19 C",
+      "calculation": "1) V_0 = 0.02585 * ln((2.4e35) / (2.25e20)) = 0.02585 * ln(1.067e15) = 0.894 V.\\n2) Total barrier = V_0 + V_R = 0.894 + 1.80 = 2.694 V.\\n3) Factor: (2 * 1.036e-12 / 1.602e-19) * 2.694 = 3.484e7.\\n4) Doping sum: (1/1.2e17 + 1/2.0e18) = 8.833e-18.\\n5) W = sqrt(3.484e7 * 8.833e-18) = 1.754e-5 cm = 0.175 \u03bcm (175 nm).",
+      "result": "V_0 = 0.894 V, Depletion Width W = 175 nm, Junction Capacitance C_j = \u03b5_s / W \u2248 0.59 fF/\u03bcm\u00b2.",
+      "signoffJudgment": "PASSED: Depletion region of 175 nm provides robust galvanic isolation without punch-through risk."
+    },
+    "pvtSensitivity": {
+      "summary": "Reverse saturation current I0 doubles every 10\u00b0C rise. Built-in potential decreases by ~2 mV/\u00b0C.",
+      "slowCorner": "ss_0.72v_125c: High junction temperature inflates sub-threshold diode leakage by 50\u00d7 compared to 25\u00b0C.",
+      "fastCorner": "ff_0.88v_-40c: Depletion width shrinks slightly, increasing parasitic junction capacitance C_j by ~12%."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "Substrate Well-Tap Insertion & Check Commands",
+      "tcl": "set_well_tap_mode -rule 60.0 -bottom_tap_cell TAPCELLBWP -top_tap_cell TAPCELLBWP\naddWellTap -cell TAPCELLBWP -cellInterval 60.0 -prefix WELLTAP\nverify_drc -check_well_taps -report well_taps_drc.rpt"
+    },
+    "signoffChecklist": [
+      "Verify tap-to-gate maximum distance does not exceed 60 \u03bcm anywhere in the core to prevent CMOS latchup.",
+      "Ensure double guard rings enclose all high-frequency PLL/Oscillator macros to isolate substrate noise.",
+      "Confirm all well tap cells are tied to valid PG nets (VSS for P-well, VDD for N-well)."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the Silicon Studio MOSFET/Junction lab, sweep reverse voltage to observe depletion layer expansion.",
+      "Experiment 2: Notice how parasitic junction capacitance Cj drops inversely with the square root of reverse voltage.",
+      "Experiment 3: Observe exponential leakage increase as temperature rises from 25\u00b0C to 125\u00b0C."
+    ]
+  },
+  "ece-mosfet": {
+    "breakdown": [
+      {
+        "symbol": "I_{D,sat}",
+        "name": "Saturation Current",
+        "unit": "\u03bcA",
+        "desc": "Maximum channel drive current when pinch-off occurs at the drain end."
+      },
+      {
+        "symbol": "\u03bc_n, \u03bc_p",
+        "name": "Carrier Mobility",
+        "unit": "cm\u00b2/V\u00b7s",
+        "desc": "Electron mobility (~400 cm\u00b2/V\u00b7s) is ~2.5\u00d7 higher than hole mobility (~150 cm\u00b2/V\u00b7s) in silicon inversion channels."
+      },
+      {
+        "symbol": "C_{ox}",
+        "name": "Oxide Capacitance",
+        "unit": "fF/\u03bcm\u00b2",
+        "desc": "Gate dielectric capacitance per unit area (\u03b5_ox / t_ox)."
+      },
+      {
+        "symbol": "W/L",
+        "name": "Aspect Ratio",
+        "unit": "ratio",
+        "desc": "Transistor width to channel length; dictates drive current and input capacitance."
+      },
+      {
+        "symbol": "V_{th}",
+        "name": "Threshold Voltage",
+        "unit": "V",
+        "desc": "Minimum gate bias required to induce strong inversion layer under the oxide (0.25V\u20130.45V)."
+      },
+      {
+        "symbol": "\u03bb",
+        "name": "Channel Modulation",
+        "unit": "V\u207b\u00b9",
+        "desc": "Finite output resistance parameter; causes slight current increase in saturation due to effective channel shortening."
+      }
+    ],
+    "workedExample": {
+      "title": "FinFET Cell Drive Current Calculation in Saturation",
+      "scenario": "Calculate the drive current for an NMOS buffer cell with W/L = 12, \u03bcn*Cox = 320 \u03bcA/V\u00b2, Vth = 0.32V operating at VDD = 0.75V with \u03bb = 0.04 V\u207b\u00b9.",
+      "formula": "I_{D,sat} = 0.5 * \u03bc * C_ox * (W/L) * (V_GS - V_th)^2 * (1 + \u03bb * V_DS)",
+      "values": "\u03bc*Cox = 320 \u03bcA/V\u00b2, W/L = 12, V_GS = 0.75 V, V_DS = 0.75 V, V_th = 0.32 V, \u03bb = 0.04 V\u207b\u00b9",
+      "calculation": "1) Overdrive voltage (V_GS - V_th) = 0.75 - 0.32 = 0.43 V.\\n2) (0.43)^2 = 0.1849 V\u00b2.\\n3) Core factor: 0.5 * 320 * 12 * 0.1849 = 1920 * 0.1849 = 355.0 \u03bcA.\\n4) Channel modulation factor: (1 + 0.04 * 0.75) = 1.030.\\n5) Saturated current I_{D,sat} = 355.0 * 1.030 = 365.65 \u03bcA.",
+      "result": "I_{D,sat} = 365.7 \u03bcA (or ~30.5 \u03bcA per fin equivalent).",
+      "signoffJudgment": "PASSED: Provides sufficient pull-down drive strength for clock buffer tree fanout of 4."
+    },
+    "pvtSensitivity": {
+      "summary": "Current decreases at hot temperature due to phonon lattice scattering reducing mobility \u03bc, but subthreshold leakage escalates exponentially.",
+      "slowCorner": "ss_0.72v_125c: Overdrive drops to 0.72 - 0.38 = 0.34V, slowing propagation delay by ~28%.",
+      "fastCorner": "ff_0.88v_-40c: Overdrive rises to 0.88 - 0.26 = 0.62V, increasing drive current and hold violation risk."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimeTime / Cadence Tempus",
+      "title": "Multi-Vt Leakage & Timing Optimization",
+      "tcl": "set_power_strategy -leakage -timing_preserve\nswap_cell -from HVT_X2 -to LVT_X2 [get_cells -filter \"slack < 0.0\"]\nreport_power -by_vt -hierarchy"
+    },
+    "signoffChecklist": [
+      "Enforce maximum transition constraint (slew < 120 ps) to keep devices out of high short-circuit regions.",
+      "Verify multi-Vt boundary spacing meets foundry design rules (min 2 dummy rows between HVT and eLVT).",
+      "Check body-bias tap continuity across all standard cell rows."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the MOSFET IV Studio, adjust VGS slider from 0.2V to 1.0V to observe the transition from cutoff to triode to saturation.",
+      "Experiment 2: Notice the pinch-off point VDS = VGS - Vth shift rightward as VGS increases.",
+      "Experiment 3: Observe channel pinch-off diagram update with drain depletion zone expanding."
+    ]
+  },
+  "ece-cmos-inverter": {
+    "breakdown": [
+      {
+        "symbol": "P_{total}",
+        "name": "Total Power Dissipation",
+        "unit": "\u03bcW",
+        "desc": "Sum of dynamic capacitive charging, short-circuit current, and static device leakage."
+      },
+      {
+        "symbol": "\u03b1",
+        "name": "Switching Activity",
+        "unit": "prob",
+        "desc": "Average transitions per clock cycle (0.1 for general logic, 1.0 for clock buffers)."
+      },
+      {
+        "symbol": "C_L",
+        "name": "Load Capacitance",
+        "unit": "fF",
+        "desc": "Total downstream load including interconnect wire capacitance and gate input pins."
+      },
+      {
+        "symbol": "V_{DD}",
+        "name": "Core Supply Voltage",
+        "unit": "V",
+        "desc": "Regulated power supply (0.75V in 7nm, 1.2V in 65nm, 1.8V in 180nm)."
+      },
+      {
+        "symbol": "f",
+        "name": "Clock Frequency",
+        "unit": "GHz",
+        "desc": "Operating clock speed of the synchronized domain."
+      },
+      {
+        "symbol": "NM_L, NM_H",
+        "name": "Noise Margins",
+        "unit": "V",
+        "desc": "Low and High static noise margins (NML = VIL - VOL, NMH = VOH - VIH)."
+      }
+    ],
+    "workedExample": {
+      "title": "CMOS Inverter Dynamic & Leakage Power Budgeting",
+      "scenario": "Calculate the total power for an inverter driving a 25 fF load at 2.0 GHz, VDD = 0.75V, \u03b1 = 0.15, with Ileak = 3.8 nA and Isc_avg = 0.85 \u03bcA.",
+      "formula": "P_{total} = \u03b1 * C_L * V_{DD}^2 * f + I_{sc} * V_{DD} + I_{leak} * V_{DD}",
+      "values": "\u03b1 = 0.15, C_L = 25e-15 F, V_{DD} = 0.75 V, f = 2.0e9 Hz, I_{sc} = 0.85e-6 A, I_{leak} = 3.8e-9 A",
+      "calculation": "1) Dynamic power: 0.15 * 25e-15 * (0.75)^2 * 2.0e9 = 0.15 * 25e-15 * 0.5625 * 2.0e9 = 4.219 \u03bcW.\\n2) Short-circuit power: 0.85e-6 * 0.75 = 0.638 \u03bcW.\\n3) Static leakage: 3.8e-9 * 0.75 = 0.00285 \u03bcW.\\n4) Total power: 4.219 + 0.638 + 0.00285 = 4.860 \u03bcW.",
+      "result": "Total P = 4.86 \u03bcW (Dynamic 86.8%, Short-Circuit 13.1%, Leakage < 0.1%).",
+      "signoffJudgment": "PASSED: Total cell dissipation is within the 5.0 \u03bcW per gate thermal envelope."
+    },
+    "pvtSensitivity": {
+      "summary": "Dynamic power scales quadratically with VDD and linearly with frequency. Leakage increases exponentially with temperature.",
+      "slowCorner": "ss_0.72v_125c: Dynamic power drops due to lower voltage, but static leakage surges by 35\u00d7.",
+      "fastCorner": "ff_0.88v_-40c: Dynamic power surges by 38% ((0.88/0.75)^2 = 1.38), demanding robust PDN sizing."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimePower / Cadence Joules",
+      "title": "Full-Chip Power Analysis with Activity Annotation",
+      "tcl": "read_activity_file -format vcd -scope tb/dut sim_trace.vcd\nreport_power -hierarchy -levels 2 -cell_power\nset_clock_gating_style -control_point before -min_bitwidth 4"
+    },
+    "signoffChecklist": [
+      "Verify noise margins NML and NMH both exceed 0.35 * VDD under worst-case corner.",
+      "Enforce maximum transition constraint to limit short-circuit duration below 10% of cycle time.",
+      "Verify switching threshold VM sits at VDD/2 \u00b1 8% for balanced rise and fall delays."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the CMOS Inverter Studio, slide Vin from 0V to 1V to trace the continuous non-linear VTC curve.",
+      "Experiment 2: Alter the Wp/Wn ratio from 1.0 to 3.0 and watch VM shift rightward to compensate for lower hole mobility.",
+      "Experiment 3: Observe dynamic noise margin indicators updating live as sizing changes."
+    ]
+  },
+  "dig-comb": {
+    "breakdown": [
+      {
+        "symbol": "G_i = A_i \u00b7 B_i",
+        "name": "Carry Generate",
+        "unit": "logic",
+        "desc": "High when both inputs are 1; a carry output is generated regardless of carry input."
+      },
+      {
+        "symbol": "P_i = A_i \u2295 B_i",
+        "name": "Carry Propagate",
+        "unit": "logic",
+        "desc": "High when exactly one input is 1; incoming carry will propagate directly to output."
+      },
+      {
+        "symbol": "C_{i+1}",
+        "name": "Carry Out",
+        "unit": "logic",
+        "desc": "C_{i+1} = G_i + P_i \u00b7 C_i; recursive formulation for parallel-prefix tree adders."
+      },
+      {
+        "symbol": "g",
+        "name": "Logical Effort",
+        "unit": "ratio",
+        "desc": "Ratio of input capacitance of a gate to that of an inverter delivering the same output current."
+      },
+      {
+        "symbol": "Delay",
+        "name": "Datapath Delay",
+        "unit": "ps",
+        "desc": "Sum of stage logical efforts and parasitic RC delays along the critical combinational path."
+      }
+    ],
+    "workedExample": {
+      "title": "32-Bit Kogge-Stone vs Ripple Carry Adder Timing Comparison",
+      "scenario": "Compare the worst-case carry propagation delay between a 32-bit Ripple Carry Adder (RCA, 32 stages of Full Adder carry delay = 45 ps/stage) and a Kogge-Stone Tree Adder (log2(32) = 5 stages = 38 ps/stage + 40 ps input prep).",
+      "formula": "RCA: Delay = N * T_{carry}, Kogge-Stone: Delay = T_{prep} + log_2(N) * T_{tree}",
+      "values": "N = 32, T_{carry,RCA} = 45 ps, T_{prep} = 40 ps, T_{tree} = 38 ps",
+      "calculation": "1) RCA Delay = 32 * 45 ps = 1440 ps = 1.44 ns.\\n2) Kogge-Stone Delay = 40 ps + 5 * 38 ps = 40 + 190 = 230 ps = 0.23 ns.\\n3) Speedup factor = 1440 / 230 = 6.26\u00d7 faster.",
+      "result": "Kogge-Stone delay = 230 ps (enables 4 GHz clocking), RCA delay = 1440 ps (limited to 690 MHz).",
+      "signoffJudgment": "PASSED: Kogge-Stone easily closes timing under the 500 ps target clock period budget."
+    },
+    "pvtSensitivity": {
+      "summary": "Combinational delay increases by 25-35% at slow-hot corners due to carrier mobility reduction.",
+      "slowCorner": "ss_0.72v_125c: High wire resistance and lower transistor drive make multi-level prefix adders susceptible to setup slacks.",
+      "fastCorner": "ff_0.88v_-40c: Extremely fast carry paths can cause short-path hold violations into downstream pipeline registers."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys Design Compiler / Cadence Genus",
+      "title": "Datapath Architecture Selection in Synthesis",
+      "tcl": "set_dp_smartgen_options -smart_adder true\nset_implementation pparch [get_cells -hier *adder*]\ncompile_ultra -timing_high_effort_script"
+    },
+    "signoffChecklist": [
+      "Check for combinational glitch hazards by verifying balanced tree structures on multi-bit muxes.",
+      "Ensure datapath macro cells are clustered close to minimize routing congestion.",
+      "Limit maximum logic depth to under 25 gates per clock period for high-speed targets."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the Silicon Studio Logic Gates lab, switch between INV, NAND2, NOR2, AND2, OR2, and XOR2.",
+      "Experiment 2: Test input combinations (A=0,1; B=0,1) to verify live truth-table highlighting and active NMOS/PMOS conduction paths.",
+      "Experiment 3: Inspect the SVG stick diagram layout to see polysilicon gates crossing diffusion rails."
+    ]
+  },
+  "dig-seq": {
+    "breakdown": [
+      {
+        "symbol": "T_{clk}",
+        "name": "Clock Period",
+        "unit": "ps",
+        "desc": "Duration of one complete clock cycle; inverse of operating frequency."
+      },
+      {
+        "symbol": "T_{c2q}",
+        "name": "Clock-to-Q Delay",
+        "unit": "ps",
+        "desc": "Propagation delay from active clock edge at CK pin until stable data appears at Q output."
+      },
+      {
+        "symbol": "T_{comb}",
+        "name": "Datapath Delay",
+        "unit": "ps",
+        "desc": "Worst-case delay through combinational logic and interconnect between launch and capture registers."
+      },
+      {
+        "symbol": "T_{setup}",
+        "name": "Setup Time",
+        "unit": "ps",
+        "desc": "Minimum duration data must remain stable before capture clock edge."
+      },
+      {
+        "symbol": "T_{hold}",
+        "name": "Hold Time",
+        "unit": "ps",
+        "desc": "Minimum duration data must remain stable after capture clock edge."
+      },
+      {
+        "symbol": "MTBF",
+        "name": "Mean Time Between Failures",
+        "unit": "years",
+        "desc": "Expected operational duration between metastability failure events in synchronizers."
+      }
+    ],
+    "workedExample": {
+      "title": "Maximum Operating Frequency (Fmax) & Setup Slack Closure",
+      "scenario": "Determine maximum clock frequency Fmax for a pipeline stage with Tc2q = 110 ps, Tcomb = 620 ps, Tsetup = 75 ps, clock skew Tskew = +30 ps, and clock uncertainty Tunc = 45 ps.",
+      "formula": "T_{clk,min} = T_{c2q} + T_{comb} + T_{setup} - T_{skew} + T_{unc}, F_{max} = 1 / T_{clk,min}",
+      "values": "T_{c2q} = 110 ps, T_{comb} = 620 ps, T_{setup} = 75 ps, T_{skew} = +30 ps, T_{unc} = 45 ps",
+      "calculation": "1) T_{clk,min} = 110 + 620 + 75 - 30 + 45 = 820 ps = 0.82 ns.\\n2) F_{max} = 1 / (820 * 10\u207b\u00b9\u00b2 s) = 1.2195 GHz.\\n3) At an operating clock of 1.0 GHz (Tclk = 1000 ps):\\nSetup Slack = 1000 - 820 = +180 ps.",
+      "result": "Tclk,min = 820 ps, Fmax = 1.22 GHz. Setup Slack at 1 GHz is +180 ps (Positive Slack / Timing MET).",
+      "signoffJudgment": "PASSED: Setup timing closes with a healthy +180 ps margin for on-chip variation."
+    },
+    "pvtSensitivity": {
+      "summary": "Setup violations are worst at ss_0.72v_125c (slow path). Hold violations are worst at ff_0.88v_-40c (fast path).",
+      "slowCorner": "ss_0.72v_125c: High temperature and low voltage increase combinational delays by up to 35%.",
+      "fastCorner": "ff_0.88v_-40c: Extremely fast Tc2q (e.g. 55 ps) easily violates Thold (70 ps) if combinational delay is near zero."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimeTime / Cadence Tempus",
+      "title": "Setup and Hold Path Reporting",
+      "tcl": "report_timing -delay_type max -max_paths 10 -nworst 1 -path_type full_clock_expanded\nreport_timing -delay_type min -max_paths 10 -nworst 1 -path_type full_clock_expanded\ncheck_timing -verbose"
+    },
+    "signoffChecklist": [
+      "Confirm Hold Slack is strictly positive across all fast corners (ff_0.88v_-40c) \u2014 hold violations cannot be fixed by lowering clock speed!",
+      "Verify setup slack \u2265 0.0 ps across all MCMM signoff corners.",
+      "Check clock uncertainty budget includes both PLL jitter (20-40 ps) and clock tree duty-cycle distortion."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the STA Timing & Waveforms Studio, adjust clock period Tclk and observe Setup Slack update dynamically.",
+      "Experiment 2: Introduce positive clock skew and notice setup slack improves while the setup hazard zone shifts.",
+      "Experiment 3: Increase combinational delay past the threshold and watch the red VIOLATION banner trigger live."
+    ]
+  },
+  "dig-cdc": {
+    "breakdown": [
+      {
+        "symbol": "MTBF",
+        "name": "Mean Time Between Failures",
+        "unit": "years",
+        "desc": "Calculated reliability expectation before a metastable event escapes into functional logic."
+      },
+      {
+        "symbol": "t_r",
+        "name": "Resolution Time",
+        "unit": "ps",
+        "desc": "Available settling time allocated across synchronizer flip-flops before sampling."
+      },
+      {
+        "symbol": "\u03c4",
+        "name": "Metastability Time Constant",
+        "unit": "ps",
+        "desc": "Inverse gain-bandwidth product of the cross-coupled inverter storage element."
+      },
+      {
+        "symbol": "T_0",
+        "name": "Aperture Parameter",
+        "unit": "s",
+        "desc": "Metastable capture window width; scales with technology node feature size."
+      },
+      {
+        "symbol": "f_{clk}, f_{data}",
+        "name": "Clock & Data Frequencies",
+        "unit": "MHz",
+        "desc": "Sampling clock rate and asynchronous data transition toggle frequency."
+      }
+    ],
+    "workedExample": {
+      "title": "2-Stage Flip-Flop Synchronizer MTBF Calculation",
+      "scenario": "Calculate MTBF for an asynchronous signal (fdata = 10 MHz) entering a 1 GHz clock domain (fclk = 1000 MHz, Tclk = 1.0 ns). The 2-FF synchronizer allows resolution time tr = 1.0 ns - 0.15 ns (setup/c2q) = 850 ps. Foundry params: \u03c4 = 25 ps, T0 = 15 ps.",
+      "formula": "MTBF = exp(t_r / \u03c4) / (T_0 * f_{clk} * f_{data})",
+      "values": "t_r = 850 ps, \u03c4 = 25 ps, T_0 = 15e-12 s, f_{clk} = 1.0e9 Hz, f_{data} = 1.0e7 Hz",
+      "calculation": "1) Exponent: t_r / \u03c4 = 850 / 25 = 34.\\n2) exp(34) = 5.8346 * 10\u00b9\u2074.\\n3) Denominator: 15e-12 * 1e9 * 1e7 = 1.5 * 10\u2075 events/sec.\\n4) MTBF (seconds) = 5.8346e14 / 1.5e5 = 3.8897 * 10\u2079 seconds.\\n5) In years: 3.8897e9 / (3600 * 24 * 365) = 123.3 years.",
+      "result": "MTBF = 123.3 years with 2-FF synchronizer (exceeds the 100-year automotive reliability target).",
+      "signoffJudgment": "PASSED: Reliable synchronization achieved; add a 3rd stage if target mission profile requires > 10,000 years."
+    },
+    "pvtSensitivity": {
+      "summary": "Metastability time constant \u03c4 degrades (increases) at low voltages and cold/hot extremes, cutting MTBF exponentially.",
+      "slowCorner": "ss_0.72v_125c: Reduced transconductance gm increases \u03c4 by ~20%, dropping MTBF from 123 years down to ~8 years.",
+      "fastCorner": "ff_0.88v_-40c: Very high toggle rates on data nets can increase transition count, lowering MTBF."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys SpyGlass CDC / Cadence JasperGold",
+      "title": "Static CDC Structural and Functional Verification",
+      "tcl": "read_file -type verilog top.v\nset_parameter handle_metastability true\nrun_goal cdc/cdc_setup_check\nreport_violations -rule \"Ac_sync_group\""
+    },
+    "signoffChecklist": [
+      "Verify all multi-bit CDC buses use Gray-code encoding or asynchronous handshaking FIFO architectures.",
+      "Ensure synchronizer flip-flops are placed within a single bounding box (NDR rule) to minimize wire delay tr.",
+      "Declare false paths (set_false_path -from clk_A -to clk_B) only after verifying valid synchronizer structures exist."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the STA Timing Studio, observe how clock skew affects the arrival and capture margins across domain crossings.",
+      "Experiment 2: Simulate frequency mismatch between clk_fast and clk_slow domains.",
+      "Experiment 3: Test how clock uncertainty margin shifts the setup safety window."
+    ]
+  },
+  "dig-hdl": {
+    "breakdown": [
+      {
+        "symbol": "P_{dyn,gated}",
+        "name": "Gated Power",
+        "unit": "\u03bcW",
+        "desc": "Power consumed by a register bank when clock gating cuts redundant switching transitions."
+      },
+      {
+        "symbol": "\u03b1_{eff}",
+        "name": "Effective Activity",
+        "unit": "ratio",
+        "desc": "Toggle probability after clock enable conditioning (typically reduced from 1.0 to 0.15)."
+      },
+      {
+        "symbol": "ICG",
+        "name": "Integrated Clock Gate",
+        "unit": "cell",
+        "desc": "Special standard cell containing an active-low latch and AND gate to prevent output clock glitches."
+      },
+      {
+        "symbol": "N_{bits}",
+        "name": "Register Bitwidth",
+        "unit": "bits",
+        "desc": "Number of flip-flops sharing an ICG cell (typically 4 to 32 bits)."
+      }
+    ],
+    "workedExample": {
+      "title": "Integrated Clock Gating (ICG) Power Reduction Efficiency",
+      "scenario": "A 64-bit pipeline register operates at 1.5 GHz, VDD = 0.75V, C_clk = 2.5 fF/bit. Without gating, clock pins toggle every cycle (\u03b1 = 1.0). When an ICG is inserted with 80% idle time (enable active 20% of time, \u03b1 = 0.2), calculate power savings.",
+      "formula": "P = \u03b1 * C_{total} * V_{DD}^2 * f, Power Saved = P_{ungated} - P_{gated}",
+      "values": "N = 64, C_{total} = 64 * 2.5e-15 = 160 fF, V_{DD} = 0.75 V, f = 1.5e9 Hz",
+      "calculation": "1) Without ICG (\u03b1 = 1.0): P_{ungated} = 1.0 * 160e-15 * 0.5625 * 1.5e9 = 135.0 \u03bcW.\\n2) With ICG (\u03b1 = 0.2) + ICG overhead (8 \u03bcW): P_{gated} = (0.2 * 135.0) + 8.0 = 27.0 + 8.0 = 35.0 \u03bcW.\\n3) Net power saved: 135.0 - 35.0 = 100.0 \u03bcW (74.1% reduction).",
+      "result": "Dynamic power reduced from 135 \u03bcW to 35 \u03bcW (74% savings).",
+      "signoffJudgment": "PASSED: ICG insertion provides substantial power savings; satisfies bitwidth threshold rule (> 4 bits)."
+    },
+    "pvtSensitivity": {
+      "summary": "Clock power savings compound at high voltage and fast corners where dynamic power is highest.",
+      "slowCorner": "ss_0.72v_125c: Setup timing on the ICG enable pin (E-pin) is critical to prevent clock clipping.",
+      "fastCorner": "ff_0.88v_-40c: Fast clock paths into the ICG require strict hold checks on enable signals."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys Design Compiler / Cadence Genus",
+      "title": "Automated Integrated Clock Gating Insertion",
+      "tcl": "set_clock_gating_style -control_point before -min_bitwidth 4 -max_fanout 32 -positive_edge_logic {integrated:CGLPPRX4}\ncompile_ultra -gate_clock\nreport_clock_gating -gating_efficiency"
+    },
+    "signoffChecklist": [
+      "Verify no combinational logic glitches can propagate to the enable pin of unlatched clock gates.",
+      "Confirm ICG enable setup and hold timing checks pass with dedicated constraints (set_clock_gating_check).",
+      "Ensure non-blocking assignments (<=) are used strictly for all sequential RTL registers."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, observe how synthesis translates RTL into technology-mapped logic gates.",
+      "Experiment 2: Step through stages to see how placement legalizes standard cells and clock trees.",
+      "Experiment 3: Inspect how clock routing buffers are distributed across the core layout."
+    ]
+  },
+  "fe-synth": {
+    "breakdown": [
+      {
+        "symbol": "GTECH",
+        "name": "Generic Tech Netlist",
+        "unit": "netlist",
+        "desc": "Technology-independent logic gate representation produced during RTL elaboration."
+      },
+      {
+        "symbol": "Area",
+        "name": "Silicon Core Area",
+        "unit": "\u03bcm\u00b2",
+        "desc": "Sum of standard cell footprints after boolean logic optimization and tech mapping."
+      },
+      {
+        "symbol": "WNS",
+        "name": "Worst Negative Slack",
+        "unit": "ps",
+        "desc": "Slack of the most critical timing path in the design (must be \u2265 0.0 ps at signoff)."
+      },
+      {
+        "symbol": "TNS",
+        "name": "Total Negative Slack",
+        "unit": "ns",
+        "desc": "Sum of negative slacks across all violating endpoints (indicates global timing closure difficulty)."
+      }
+    ],
+    "workedExample": {
+      "title": "Synthesis Logic Optimization & Technology Mapping Trade-Off",
+      "scenario": "A 100K-gate module is synthesized using high-effort area recovery. Initial mapped area is 45,000 \u03bcm\u00b2 with WNS = +80 ps. After area reclamation, area drops to 38,200 \u03bcm\u00b2 with WNS = +15 ps.",
+      "formula": "Area Reduction % = ((A_{initial} - A_{final}) / A_{initial}) * 100",
+      "values": "A_{initial} = 45000 \u03bcm\u00b2, A_{final} = 38200 \u03bcm\u00b2, WNS_{final} = +15 ps",
+      "calculation": "1) Delta Area = 45000 - 38200 = 6800 \u03bcm\u00b2.\\n2) Reduction % = (6800 / 45000) * 100 = 15.11%.\\n3) WNS remains positive (+15 ps), meaning zero timing degradation below signoff threshold.",
+      "result": "15.1% area savings achieved while maintaining positive timing slack (WNS = +15 ps).",
+      "signoffJudgment": "PASSED: Area reduction completed successfully without creating timing violations."
+    },
+    "pvtSensitivity": {
+      "summary": "Synthesis optimization targets worst-case slow corners for setup timing and fast corners for hold anticipation.",
+      "slowCorner": "ss_0.72v_125c: Drives gate up-sizing and buffer insertion to meet clock targets.",
+      "fastCorner": "ff_0.88v_-40c: Synthesis tools preserve minimum logic depth on register-to-register paths to ease hold closure."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys Design Compiler (Topographical Mode)",
+      "title": "Timing and Congestion Driven Synthesis",
+      "tcl": "read_verilog -rtl {cpu_core.v alu.v regfile.v}\ncurrent_design cpu_core\nlink; check_design\nread_sdc constraints.sdc\ncompile_ultra -spg -scan -timing_high_effort_script\nreport_area -hierarchy; report_timing -max_paths 5"
+    },
+    "signoffChecklist": [
+      "Check that check_design reports zero latches inferred (unless intentionally specified in RTL).",
+      "Verify all unmapped GTECH gates are completely resolved to target library standard cells.",
+      "Ensure no multi-driven nets or floating inputs remain in the synthesized netlist."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, click on Stage 1 (Logic Synthesis) to review input RTL and output mapped gates.",
+      "Experiment 2: Check key EDA commands (read_verilog, compile_ultra, report_qor) and primary deliverables.",
+      "Experiment 3: Step to Floorplan stage to see how synthesized netlist connectivity guides macro placement."
+    ]
+  },
+  "fe-sdc": {
+    "breakdown": [
+      {
+        "symbol": "create_clock",
+        "name": "Master Clock Definition",
+        "unit": "command",
+        "desc": "Defines periodic reference waveform (period, duty cycle) at top-level port or internal PLL output pin."
+      },
+      {
+        "symbol": "set_input_delay",
+        "name": "Input Delay Constraint",
+        "unit": "ps",
+        "desc": "Specifies external arrival time of incoming data relative to reference clock edge."
+      },
+      {
+        "symbol": "set_output_delay",
+        "name": "Output Delay Constraint",
+        "unit": "ps",
+        "desc": "Specifies external setup/hold requirement of downstream receiving chip relative to reference clock edge."
+      },
+      {
+        "symbol": "set_clock_uncertainty",
+        "name": "Clock Margin Budget",
+        "unit": "ps",
+        "desc": "Allocates jitter, on-chip skew variation, and duty-cycle distortion margins for timing checks."
+      },
+      {
+        "symbol": "set_false_path",
+        "name": "Timing Exception",
+        "unit": "command",
+        "desc": "Disables timing checks on functionally impossible or asynchronously synchronized paths."
+      }
+    ],
+    "workedExample": {
+      "title": "Input Delay Budgeting for DDR Interface",
+      "scenario": "A 500 MHz (Tclk = 2000 ps) interface receives data from an external PHY. External transmitter delay T_ext_max = 750 ps, PCB trace delay T_trace = 180 ps. Calculate the maximum input delay constraint.",
+      "formula": "set_input_delay -max (T_{ext,max} + T_{trace}) -clock [get_clocks CLK_EXT]",
+      "values": "T_{ext,max} = 750 ps, T_{trace} = 180 ps, T_{clk} = 2000 ps",
+      "calculation": "1) Total external arrival delay = 750 + 180 = 930 ps.\\n2) Remaining internal time for chip logic: 2000 - 930 = 1070 ps.\\n3) Accounting for 150 ps clock uncertainty: Internal logic must complete in \u2264 920 ps.",
+      "result": "set_input_delay -max 930 -clock CLK_EXT [get_ports data_in*]",
+      "signoffJudgment": "PASSED: Internal arrival time budget of 920 ps is sufficient for 4 gate levels."
+    },
+    "pvtSensitivity": {
+      "summary": "External board delays have positive temperature coefficients, demanding conservative min/max corner budgeting.",
+      "slowCorner": "ss_0.72v_125c: Max input delays eat into setup margin.",
+      "fastCorner": "ff_0.88v_-40c: Min input delays (e.g. 200 ps) demand hold buffers at IO pads."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimeTime / Cadence Tempus",
+      "title": "Complete Top-Level SDC Constraints Template",
+      "tcl": "create_clock -name CORE_CLK -period 1.000 [get_ports clk_core]\nset_clock_uncertainty -setup 0.050 [get_clocks CORE_CLK]\nset_clock_uncertainty -hold 0.030 [get_clocks CORE_CLK]\nset_input_delay -max 0.350 -clock CORE_CLK [get_ports data_in*]\nset_output_delay -max 0.250 -clock CORE_CLK [get_ports data_out*]\nset_false_path -from [get_ports rst_n]"
+    },
+    "signoffChecklist": [
+      "Run check_timing to ensure 100% of registers are properly constrained by valid clocks.",
+      "Verify no unconstrained endpoints (unconstrained ports, registers with missing clocks).",
+      "Ensure false paths and multi-cycle paths have formal designer signoff approval."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the STA Timing Studio, modify clock period and uncertainty to watch required arrival time update.",
+      "Experiment 2: Simulate the effect of tight input delays on setup slack.",
+      "Experiment 3: Observe how clock uncertainty margin shrinks the timing pass window."
+    ]
+  },
+  "fe-lib": {
+    "breakdown": [
+      {
+        "symbol": "NLDM",
+        "name": "Non-Linear Delay Model",
+        "unit": "model",
+        "desc": "Standard 7\u00d77 lookup table characterization indexing cell propagation delay against input slew and output capacitive load."
+      },
+      {
+        "symbol": "CCS / ECSM",
+        "name": "Composite Current Source",
+        "unit": "model",
+        "desc": "Advanced current-source model capturing non-linear driver behavior and receiver capacitance for sub-10nm accuracy."
+      },
+      {
+        "symbol": "Input Slew",
+        "name": "Transition Time",
+        "unit": "ps",
+        "desc": "Time taken for input signal to transition between 10%-90% or 20%-80% voltage thresholds."
+      },
+      {
+        "symbol": "Output Load",
+        "name": "Capacitive Load",
+        "unit": "fF",
+        "desc": "Sum of driven pin input capacitances and distributed interconnect wire parasitics."
+      }
+    ],
+    "workedExample": {
+      "title": "2D Bi-Linear Interpolation of Cell Delay from 7x7 Table",
+      "scenario": "An INV_X2 standard cell drives Cload = 18 fF with input transition Slew = 45 ps. The library table has grid points: Slew1 = 30 ps, Slew2 = 60 ps; C1 = 10 fF, C2 = 25 fF. Cell delays at corners are: D(30,10)=28 ps, D(30,25)=48 ps, D(60,10)=36 ps, D(60,25)=58 ps. Calculate the interpolated cell delay.",
+      "formula": "D = (1-u)(1-v)*D11 + u*(1-v)*D21 + (1-u)*v*D12 + u*v*D22",
+      "values": "u = (45 - 30)/(60 - 30) = 0.50, v = (18 - 10)/(25 - 10) = 8/15 = 0.533",
+      "calculation": "1) Weights: (1-0.5)*(1-0.533)=0.2335; 0.5*(1-0.533)=0.2335; (1-0.5)*0.533=0.2665; 0.5*0.533=0.2665.\\n2) D = (0.2335 * 28) + (0.2335 * 36) + (0.2665 * 48) + (0.2665 * 58).\\n3) D = 6.538 + 8.406 + 12.792 + 15.457 = 43.19 ps.",
+      "result": "Interpolated Cell Propagation Delay = 43.2 ps.",
+      "signoffJudgment": "PASSED: Result falls reliably between 36 ps and 48 ps; table interpolation validated."
+    },
+    "pvtSensitivity": {
+      "summary": "Liberty timing tables are characterized across multiple PVT corners: ss_0.72v_125c (slow), ff_0.88v_-40c (fast), tt_0.80v_25c (nominal).",
+      "slowCorner": "ss_0.72v_125c: High resistance and weak saturation currents shift table entries upward by ~30%.",
+      "fastCorner": "ff_0.88v_-40c: Minimum delay values shrink, requiring careful hold characterization."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys SiliconSmart / Cadence Liberate",
+      "title": "Standard Cell Library Characterization Flow",
+      "tcl": "set_target_library {tsmc_n7_ss_0.72v_125c.lib tsmc_n7_ff_0.88v_-40c.lib}\nread_lib tsmc_n7_ss_0.72v_125c.lib\nwrite_lib tsmc_n7_ss -format db -output tsmc_n7_ss.db\nreport_lib -cell INV_X2"
+    },
+    "signoffChecklist": [
+      "Ensure the 7\u00d77 slew and load index tables cover the entire design operating range to avoid extrapolation errors.",
+      "Verify CCS power and timing models are characterized for advanced nodes (< 16nm).",
+      "Confirm state-dependent leakage values are correctly captured for multi-input logic gates."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the Silicon Studio STA Lab, observe how changing stage delay reflects table lookups.",
+      "Experiment 2: Simulate high-load vs low-load driving conditions.",
+      "Experiment 3: Observe how transition slew steepness impacts downstream propagation latency."
+    ]
+  },
+  "fe-lef": {
+    "breakdown": [
+      {
+        "symbol": "Tech LEF",
+        "name": "Technology Rules LEF",
+        "unit": "file",
+        "desc": "Defines manufacturing layers, routing pitch grids, minimum metal spacing, and via generation templates."
+      },
+      {
+        "symbol": "Macro LEF",
+        "name": "Cell Abstract LEF",
+        "unit": "file",
+        "desc": "Abstract layout of a standard cell or IP macro containing boundary size (ORIGIN, SIZE) and pin geometries."
+      },
+      {
+        "symbol": "OBS",
+        "name": "Obstruction Layer",
+        "unit": "geometry",
+        "desc": "Keepout geometry inside a macro where external routing metals cannot enter to prevent short circuits."
+      },
+      {
+        "symbol": "Track Grid",
+        "name": "Routing Track Pitch",
+        "unit": "nm",
+        "desc": "Predefined horizontal and vertical wire tracks where routing engines deposit metal lines."
+      }
+    ],
+    "workedExample": {
+      "title": "Standard Cell Height & Routing Track Pitch Calculation",
+      "scenario": "A 7-track standard cell library is designed on Metal-2 with a track pitch of 40 nm. Calculate the total standard cell height and verify site boundary compatibility.",
+      "formula": "Cell Height = Number of Tracks * Metal Pitch",
+      "values": "Tracks = 7, Pitch = 40 nm, Site Width = 30 nm",
+      "calculation": "1) Cell Height = 7 * 40 nm = 280 nm = 0.280 \u03bcm.\\n2) Power rail VDD sits on Track 7 (half inside cell, half shared with row above = 20 nm).\\n3) Ground rail VSS sits on Track 1 (shared with row below = 20 nm).\\n4) Available routing tracks for signal pins = 5 internal tracks.",
+      "result": "Standard Cell Height = 280 nm (0.28 \u03bcm); provides 5 internal signal routing tracks.",
+      "signoffJudgment": "PASSED: Cell dimensions conform strictly to foundry placement site grid rules."
+    },
+    "pvtSensitivity": {
+      "summary": "LEF files describe physical geometries and are invariant with PVT, but metal temperature coefficients affect signoff resistance.",
+      "slowCorner": "125\u00b0C: High metal resistance demands wider upper-metal straps for long-distance routing.",
+      "fastCorner": "-40\u00b0C: Lower resistivity slightly increases capacitance impact."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "LEF Library Loading & Verification Commands",
+      "tcl": "read_lef {tech.lef stdcells.lef sram_16kb.lef pll.lef}\ncheck_lef -verbose\nreport_tracks -layer M2"
+    },
+    "signoffChecklist": [
+      "Verify cell pins have geometries touching on-grid routing tracks to prevent pin-inaccessibility traps.",
+      "Ensure all macro LEFs have valid OBS keepouts covering internal memory bitcell arrays.",
+      "Confirm site definition in Tech LEF matches standard cell row height exactly."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the Logic Gates Studio, inspect the SVG Stick Diagram to visualize metal-1 and polysilicon tracks.",
+      "Experiment 2: Notice how input/output pins must align with routing pitch tracks.",
+      "Experiment 3: Observe diffusion rails running continuously across cell boundaries."
+    ]
+  },
+  "be-floorplan": {
+    "breakdown": [
+      {
+        "symbol": "Utilization",
+        "name": "Core Utilization",
+        "unit": "%",
+        "desc": "Ratio of total cell/macro area to available core placement area (typically 65% - 75% target)."
+      },
+      {
+        "symbol": "Aspect Ratio",
+        "name": "Die Aspect Ratio (H/W)",
+        "unit": "ratio",
+        "desc": "Height-to-width ratio of the die (1.0 for square chips, 0.8 to 1.5 for rectangular form factors)."
+      },
+      {
+        "symbol": "IO Pitch",
+        "name": "Bump / Pad Pitch",
+        "unit": "\u03bcm",
+        "desc": "Center-to-center distance between adjacent C4 micro-bumps or wire-bond pads."
+      },
+      {
+        "symbol": "Core Margin",
+        "name": "Core-to-IO Distance",
+        "unit": "\u03bcm",
+        "desc": "Buffer perimeter space between active core logic and chip outer IO pads for power rings."
+      }
+    ],
+    "workedExample": {
+      "title": "Die Area and Utilization Sizing for 2.4 Million Gate SoC",
+      "scenario": "A physical design engineer is floorplanning an ASIC with 2,400,000 standard cells (avg cell area = 0.85 \u03bcm\u00b2) and 12 SRAM macros totaling 450,000 \u03bcm\u00b2. Target core utilization is 70% with square aspect ratio (AR = 1.0). Calculate total core area and die dimensions.",
+      "formula": "Total Cell Area = (N_{cells} * A_{avg}) + A_{macros}, Core Area = Total Cell Area / Utilization",
+      "values": "N_{cells} = 2.4e6, A_{avg} = 0.85 \u03bcm\u00b2, A_{macros} = 450000 \u03bcm\u00b2, Util = 0.70",
+      "calculation": "1) Std cell area = 2,400,000 * 0.85 = 2,040,000 \u03bcm\u00b2.\\n2) Total silicon area = 2,040,000 + 450,000 = 2,490,000 \u03bcm\u00b2.\\n3) Core Area = 2,490,000 / 0.70 = 3,557,143 \u03bcm\u00b2 \u2248 3.557 mm\u00b2.\\n4) For square die (AR = 1.0): Core Side = sqrt(3,557,143) = 1886 \u03bcm = 1.886 mm.\\n5) Adding 40 \u03bcm core margins on all sides: Die Size = (1886 + 80) * (1886 + 80) = 1966 * 1966 \u03bcm = 3.865 mm\u00b2.",
+      "result": "Core Area = 3.56 mm\u00b2, Total Die Size = 1.97 mm \u00d7 1.97 mm (3.87 mm\u00b2).",
+      "signoffJudgment": "PASSED: 70% utilization provides sufficient routing space for CTS and timing buffers without congestion."
+    },
+    "pvtSensitivity": {
+      "summary": "Floorplan dimensions dictate maximum interconnect wire lengths and global RC propagation delays.",
+      "slowCorner": "125\u00b0C: Long global wires crossing a 1.9 mm die suffer high resistance, requiring repeater insertion every 250 \u03bcm.",
+      "fastCorner": "-40\u00b0C: Shorter wire delays reduce hold margins on register-to-register paths near die edges."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "Floorplan Initialization and IO Ring Definition",
+      "tcl": "init_floorplan -core_utilization 0.70 -aspect_ratio 1.0 -core_margins_by die {40 40 40 40}\ncreate_io_ring -name IO_RING -offset 10\nwrite_floorplan initial_floorplan.def"
+    },
+    "signoffChecklist": [
+      "Verify core utilization does not exceed 75% for designs with heavy bus traffic to prevent routing DRC blowouts.",
+      "Ensure power ring widths satisfy maximum current density EM limits for peak supply current.",
+      "Confirm macro keepout halos are defined around all memories (min 8-15 \u03bcm channel spacing)."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 2 (Floorplanning) to see macro placement and die boundary setup.",
+      "Experiment 2: Step to Stage 3 (Power Planning) to view top-metal power mesh generation.",
+      "Experiment 3: Inspect how aspect ratio adjustments alter the length of global bus interconnects."
+    ]
+  },
+  "be-macro": {
+    "breakdown": [
+      {
+        "symbol": "Macro Halo",
+        "name": "Keepout Halo",
+        "unit": "\u03bcm",
+        "desc": "Placement blockage perimeter surrounding an SRAM or IP macro where standard cells are forbidden."
+      },
+      {
+        "symbol": "Channel Width",
+        "name": "Macro Channel Pitch",
+        "unit": "\u03bcm",
+        "desc": "Space between adjacent macros reserved for routing inter-block bus nets and power delivery straps."
+      },
+      {
+        "symbol": "Flyline",
+        "name": "Netlist Flight Line",
+        "unit": "vector",
+        "desc": "Visual line connecting macro pins to standard cell logic, indicating dataflow direction and wire tension."
+      },
+      {
+        "symbol": "Orientation",
+        "name": "Macro Orientation",
+        "unit": "enum",
+        "desc": "Placement rotation (R0, R90, R180, R270, MX, MY) aligned to point pins toward the core center."
+      }
+    ],
+    "workedExample": {
+      "title": "Memory Macro Channel Width Sizing for 64-Bit Bus",
+      "scenario": "Two high-speed SRAM macros are placed face-to-face. A 64-bit wide datapath bus (64 data nets + 8 control nets = 72 nets) must route through the channel on Metal-3 (routing pitch = 80 nm). 3 routing layers are available. Calculate the minimum channel width with a 30% routing congestion safety factor.",
+      "formula": "W_{channel} = (N_{nets} * Pitch / Layers) * Safety_Factor",
+      "values": "N_{nets} = 72, Pitch = 80 nm, Layers = 3, Safety_Factor = 1.30",
+      "calculation": "1) Ideal channel width = (72 * 0.080 \u03bcm) / 3 = 5.76 / 3 = 1.92 \u03bcm.\\n2) With 30% congestion factor: 1.92 * 1.30 = 2.496 \u03bcm.\\n3) Plus two power straps (VDD/VSS, 2.5 \u03bcm each + 1.0 \u03bcm spacing): 2.496 + 7.0 = 9.496 \u03bcm.\\n4) Recommended floorplan channel width = 10.0 \u03bcm.",
+      "result": "Minimum Macro Channel Width = 10.0 \u03bcm.",
+      "signoffJudgment": "PASSED: 10.0 \u03bcm channel provides comfortable routing clearance for 72 nets plus robust VDD/VSS power straps."
+    },
+    "pvtSensitivity": {
+      "summary": "Narrow macro channels create routing bottlenecks that increase coupling capacitance and crosstalk delay.",
+      "slowCorner": "ss_0.72v_125c: High wire resistance in congested channels causes setup violations.",
+      "fastCorner": "ff_0.88v_-40c: Rapid clock arrival at macro pins can cause hold violations on SRAM inputs."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "Macro Placement, Orientation and Halos",
+      "tcl": "create_keepout_margin -type hard -outer {10 10 10 10} [get_cells -hier *sram*]\nset_attribute [get_cells sram_inst_0] orientation R180\nplace_macro -legalize"
+    },
+    "signoffChecklist": [
+      "Ensure macro pins always face inward toward the core center to minimize interconnect flyline crossings.",
+      "Verify macro keepout halos are at least 10 \u03bcm on all pin sides to allow pin access via ladders.",
+      "Confirm no isolated standard cells are trapped between adjacent macro boundaries (no routing dead zones)."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, review macro placement rules in Stage 2.",
+      "Experiment 2: Observe how keepout halos prevent standard cell clustering around memory edges.",
+      "Experiment 3: Step to Power Planning to see how power rings surround memory macros."
+    ]
+  },
+  "be-power": {
+    "breakdown": [
+      {
+        "symbol": "\u0394V_{IR}",
+        "name": "Static IR Drop",
+        "unit": "mV",
+        "desc": "DC voltage drop caused by steady-state current flowing through resistive metal grid tracks (V = I * R)."
+      },
+      {
+        "symbol": "DVD",
+        "name": "Dynamic Voltage Drop",
+        "unit": "mV",
+        "desc": "AC transient supply droop caused by high simultaneous switching currents and wire inductance (L * di/dt)."
+      },
+      {
+        "symbol": "C_{decap}",
+        "name": "Decoupling Capacitance",
+        "unit": "pF",
+        "desc": "On-chip charge reservoir capacitors placed near switching clusters to supply local transient currents."
+      },
+      {
+        "symbol": "R_{eff}",
+        "name": "Effective PG Resistance",
+        "unit": "m\u03a9",
+        "desc": "Equivalent resistance from chip C4 power bumps to the local standard cell power rails."
+      }
+    ],
+    "workedExample": {
+      "title": "Decoupling Capacitor (Decap) Sizing for 500 mA Current Spike",
+      "scenario": "A high-speed ALU cluster switches within a 150 ps clock edge window, drawing a peak transient current spike \u0394I = 500 mA with duration \u0394t = 120 ps. The maximum allowable supply droop is \u0394V = 35 mV on a 0.75V rail. Calculate the minimum decoupling capacitance required to hold the rail steady.",
+      "formula": "C_{decap} = \u0394Q / \u0394V_{tol} = (0.5 * \u0394I_{peak} * \u0394t) / \u0394V_{tol}",
+      "values": "\u0394I_{peak} = 0.500 A, \u0394t = 120e-12 s, \u0394V_{tol} = 0.035 V",
+      "calculation": "1) Total transient charge spike \u0394Q = 0.5 * 0.500 A * 120e-12 s = 30.0e-12 Coulombs (30 pC).\\n2) Required Decap C = 30.0e-12 / 0.035 = 857.14e-12 F = 857.1 pF.\\n3) If standard decap cells provide 2.5 fF/\u03bcm\u00b2: Decap Silicon Footprint = 857,143 fF / 2.5 fF/\u03bcm\u00b2 = 342,857 \u03bcm\u00b2.",
+      "result": "Required C_{decap} = 857 pF (distributed as filler decap cells across the core).",
+      "signoffJudgment": "PASSED: Decap network successfully clamps transient supply droop to \u2264 35 mV (< 4.7% of VDD)."
+    },
+    "pvtSensitivity": {
+      "summary": "Supply droop directly reduces transistor overdrive voltage (VGS - Vth), causing severe gate delay degradation.",
+      "slowCorner": "ss_0.72v_125c: A 10% IR drop reduces effective VDD from 0.72V to 0.65V, slowing timing paths by 22%.",
+      "fastCorner": "ff_0.88v_-40c: Higher currents increase di/dt noise and power ground bounce."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Voltus / Synopsys RedHawk",
+      "title": "Static and Dynamic IR Drop Analysis Flow",
+      "tcl": "read_power_grid -pg_net VDD -voltage 0.75\nread_power_grid -pg_net VSS -voltage 0.00\nanalyze_power_grid -static -report static_ir.rpt\nanalyze_power_grid -dynamic -vcd sim.vcd -report dynamic_ir.rpt"
+    },
+    "signoffChecklist": [
+      "Static IR drop must not exceed 2% of nominal VDD (\u2264 15 mV on 0.75V rail) across 100% of standard cells.",
+      "Dynamic IR drop must not exceed 5% of nominal VDD (\u2264 37.5 mV on 0.75V rail) under peak activity vectors.",
+      "Verify top-metal power straps (Metal-7, Metal-8) form a continuous low-impedance mesh."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 3 (Power Planning) to view PG strap generation.",
+      "Experiment 2: Review how vertical and horizontal top-metal straps create low-resistance grids.",
+      "Experiment 3: Step to Stage 4 (Placement) to see how decap filler cells occupy empty layout space."
+    ]
+  },
+  "be-placement": {
+    "breakdown": [
+      {
+        "symbol": "HPWL",
+        "name": "Half-Perimeter Wire Length",
+        "unit": "\u03bcm",
+        "desc": "Standard mathematical cost function in analytical placement estimating total interconnect wire length."
+      },
+      {
+        "symbol": "Congestion",
+        "name": "Routing Congestion",
+        "unit": "%",
+        "desc": "Ratio of required routing tracks to available routing tracks in a Gcell (must stay below 100%)."
+      },
+      {
+        "symbol": "Legalization",
+        "name": "Cell Legalization",
+        "unit": "process",
+        "desc": "Snaps overlapping placed standard cells into distinct, non-overlapping legal rows aligned to site grids."
+      },
+      {
+        "symbol": "HFNS",
+        "name": "High Fanout Net Synthesis",
+        "unit": "process",
+        "desc": "Buffer tree insertion on high-fanout control signals (resets, enables, scan lines) during placement."
+      }
+    ],
+    "workedExample": {
+      "title": "Half-Perimeter Wire Length (HPWL) Calculation for 4-Pin Net",
+      "scenario": "A 4-pin datapath net connects a driver at (120, 340) to three receiver pins located at (180, 420), (240, 290), and (310, 510) (coordinates in \u03bcm). Calculate the bounding box HPWL.",
+      "formula": "HPWL = (X_{max} - X_{min}) + (Y_{max} - Y_{min})",
+      "values": "X = {120, 180, 240, 310}, Y = {340, 420, 290, 510}",
+      "calculation": "1) X_{min} = 120 \u03bcm, X_{max} = 310 \u03bcm.\\n2) \u0394X = 310 - 120 = 190 \u03bcm.\\n3) Y_{min} = 290 \u03bcm, Y_{max} = 510 \u03bcm.\\n4) \u0394Y = 510 - 290 = 220 \u03bcm.\\n5) HPWL = \u0394X + \u0394Y = 190 + 220 = 410 \u03bcm.",
+      "result": "Net HPWL = 410 \u03bcm (estimated wire capacitance \u2248 61.5 fF at 0.15 fF/\u03bcm).",
+      "signoffJudgment": "PASSED: Net wirelength is within the 500 \u03bcm single-stage buffer driving capability."
+    },
+    "pvtSensitivity": {
+      "summary": "Long wires placed without repeaters suffer quadratic delay scaling: Delay \u221d 0.69 * R * C * L\u00b2.",
+      "slowCorner": "ss_0.72v_125c: High metal resistance magnifies wire delay penalties on long nets.",
+      "fastCorner": "ff_0.88v_-40c: Tightly clustered cells with short wires require hold buffer padding."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "Global Placement, Optimization and Congestion Map",
+      "tcl": "setPlaceMode -timingDriven true -congEffort high\nplace_opt_design\nreport_congestion -hotspot\ncheckPlace -verbose"
+    },
+    "signoffChecklist": [
+      "Check that zero cell overlap errors remain after legalizer completion.",
+      "Verify peak Gcell routing congestion is strictly under 100% (target < 85% for easy detailed routing).",
+      "Confirm high-fanout nets (> 32 loads) are buffered by HFNS with max transition < 150 ps."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 4 (Standard Cell Placement) to see global placement.",
+      "Experiment 2: Check how analytical placement minimizes wirelength before detailed legalization.",
+      "Experiment 3: Step to Stage 5 (CTS) to see how clock buffers are added to the placed design."
+    ]
+  },
+  "be-cts": {
+    "breakdown": [
+      {
+        "symbol": "T_{skew}",
+        "name": "Clock Skew",
+        "unit": "ps",
+        "desc": "Difference in clock arrival times between capture register and launch register (T_capture - T_launch)."
+      },
+      {
+        "symbol": "T_{latency}",
+        "name": "Insertion Delay",
+        "unit": "ps",
+        "desc": "Total propagation delay from clock source pin / PLL output to the clock pin of a register."
+      },
+      {
+        "symbol": "NDR",
+        "name": "Non-Default Routing Rule",
+        "unit": "rule",
+        "desc": "2\u00d7 width and 2\u00d7 spacing routing rule used on clock nets to halve resistance and eliminate crosstalk."
+      },
+      {
+        "symbol": "Clock Jitter",
+        "name": "Clock Period Jitter",
+        "unit": "ps",
+        "desc": "Cycle-to-cycle temporal variations caused by PLL noise and power supply ripple."
+      }
+    ],
+    "workedExample": {
+      "title": "Clock Skew and Latency Budgeting across H-Tree Network",
+      "scenario": "A 1.2 GHz clock network (Tclk = 833 ps) distributes clock to 15,000 flip-flops across an H-tree network with 4 buffer levels. Clock insertion delay to Launch FF is T_lat,launch = 320 ps. Clock insertion delay to Capture FF is T_lat,capture = 355 ps. Calculate clock skew and its impact on Setup Slack.",
+      "formula": "T_{skew} = T_{lat,capture} - T_{lat,launch}, Slack_{setup,skewed} = Slack_{base} + T_{skew}",
+      "values": "T_{lat,launch} = 320 ps, T_{lat,capture} = 355 ps, Slack_{base} = +45 ps",
+      "calculation": "1) T_{skew} = 355 ps - 320 ps = +35 ps (Positive Skew).\\n2) Effective clock period for setup = T_{clk} + T_{skew} = 833 + 35 = 868 ps.\\n3) New Setup Slack = 45 ps + 35 ps = +80 ps.\\n4) Hold check impact: Effective margin for hold decreases by 35 ps (Hold Slack = Slack_{hold,base} - 35 ps).",
+      "result": "Clock Skew = +35 ps. Setup slack improves by +35 ps; Hold slack degrades by 35 ps.",
+      "signoffJudgment": "PASSED: Skew of 35 ps is well below the 50 ps foundry target (< 6% of cycle time)."
+    },
+    "pvtSensitivity": {
+      "summary": "On-chip variation (OCV) causes asymmetric delay scaling between divergent clock branches.",
+      "slowCorner": "ss_0.72v_125c: High insertion delay increases absolute skew variation across the chip.",
+      "fastCorner": "ff_0.88v_-40c: Positive clock skew easily induces hold violations on zero-logic shift register paths."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "Clock Tree Synthesis Specification and Execution",
+      "tcl": "create_clock_tree_spec -target_skew 0.040 -target_latency 0.350 -buf_cells {CLKBUF_X4 CLKBUF_X8}\nset_clock_routing_rules -net_type clock -rule 2W2S\nccopt_design -cts\nreport_clock_trees -summary\nreport_clock_timing -type skew"
+    },
+    "signoffChecklist": [
+      "Verify maximum clock skew across all registers in a single synchronous domain is under 50 ps.",
+      "Ensure all clock trunks and branches route on shielded top metals using 2W2S NDR rules.",
+      "Confirm Clock Tree Inverters/Buffers are balanced symmetrically with uniform slew rates (< 80 ps)."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the STA Timing & Waveforms Studio, adjust clock skew slider from -80 ps to +80 ps.",
+      "Experiment 2: Observe how positive skew extends setup slack but consumes hold safety margin.",
+      "Experiment 3: Watch the capture clock waveform shift horizontally in the 3-lane SVG timing lab."
+    ]
+  },
+  "be-routing": {
+    "breakdown": [
+      {
+        "symbol": "T_d",
+        "name": "Elmore Wire Delay",
+        "unit": "ps",
+        "desc": "Interconnect delay model approximating distributed RC line delay: T_d = 0.69 * R_wire * C_wire."
+      },
+      {
+        "symbol": "Metal Pitch",
+        "name": "Wiring Pitch",
+        "unit": "nm",
+        "desc": "Minimum center-to-center distance between adjacent parallel metal wires on a given layer."
+      },
+      {
+        "symbol": "Via Resistance",
+        "name": "Inter-Layer Contact R",
+        "unit": "\u03a9",
+        "desc": "Electrical resistance through vertical via contacts (e.g. 5-20 \u03a9 per via in sub-10nm nodes)."
+      },
+      {
+        "symbol": "Antenna Ratio",
+        "name": "Gate Stress Ratio",
+        "unit": "ratio",
+        "desc": "Ratio of connected metal wire surface area to thin gate oxide area during plasma etching."
+      }
+    ],
+    "workedExample": {
+      "title": "Distributed RC Elmore Delay for 600 \u03bcm M3 Interconnect Wire",
+      "scenario": "A long signal net routes 600 \u03bcm on Metal-3 without buffers. Metal-3 characteristics: Sheet resistance R_sq = 0.25 \u03a9/sq, wire width W = 0.08 \u03bcm (Resistance R_unit = 3.125 \u03a9/\u03bcm), capacitance C_unit = 0.18 fF/\u03bcm. Driven gate output impedance R_dr = 120 \u03a9; receiver input capacitance C_rec = 4.5 fF. Calculate Elmore delay.",
+      "formula": "T_d = R_{dr} * (C_{wire} + C_{rec}) + R_{wire} * (0.5 * C_{wire} + C_{rec})",
+      "values": "L = 600 \u03bcm, R_{wire} = 600 * 3.125 = 1875 \u03a9, C_{wire} = 600 * 0.18e-15 = 108 fF, R_{dr} = 120 \u03a9, C_{rec} = 4.5 fF",
+      "calculation": "1) Driver component: 120 * (108e-15 + 4.5e-15) = 120 * 112.5e-15 = 13.5 ps.\\n2) Wire component: 1875 * (0.5 * 108e-15 + 4.5e-15) = 1875 * (54e-15 + 4.5e-15) = 1875 * 58.5e-15 = 109.69 ps.\\n3) Total Elmore Delay: 13.5 + 109.7 = 123.2 ps.",
+      "result": "Total Wire Interconnect Delay = 123.2 ps.",
+      "signoffJudgment": "PASSED: Delay is acceptable; inserting an inverter repeater at 300 \u03bcm would reduce delay to 72 ps."
+    },
+    "pvtSensitivity": {
+      "summary": "Copper interconnect resistance increases by ~0.4% per \u00b0C rise, making high-temperature corners severely resistive.",
+      "slowCorner": "125\u00b0C: High wire resistance causes steep transition degradation and signal slew violations.",
+      "fastCorner": "-40\u00b0C: Lower wire resistance speeds up signal transitions, heightening crosstalk noise."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Innovus / Synopsys ICC2",
+      "title": "NanoRoute Detailed Routing and DRC Fixing",
+      "tcl": "setNanoRouteMode -quiet -routeWithTimingDriven true -routeWithSiDriven true\nrouteDesign -globalDetail\nverify_drc -limit 1000 -report drc_postroute.rpt\nverify_connectivity -report conn.rpt"
+    },
+    "signoffChecklist": [
+      "Verify zero DRC shorts, zero opens, and zero unconnected nets remain across all metal layers.",
+      "Ensure all process antenna ratio violations are resolved by inserting antenna reverse-bias diodes.",
+      "Confirm preferred routing directions (Horizontal on even layers, Vertical on odd layers) are maintained."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 6 (Global & Detailed Routing) to see track assignment.",
+      "Experiment 2: Observe how the routing engine resolves design rule check (DRC) pin access constraints.",
+      "Experiment 3: Step to Stage 7 to review physical verification DRC and LVS checks."
+    ]
+  },
+  "so-sta": {
+    "breakdown": [
+      {
+        "symbol": "Slack_{setup}",
+        "name": "Setup Timing Slack",
+        "unit": "ps",
+        "desc": "T_clk + T_skew - T_unc - (T_c2q + T_comb + T_setup); must be \u2265 0 ps for timing closure."
+      },
+      {
+        "symbol": "Slack_{hold}",
+        "name": "Hold Timing Slack",
+        "unit": "ps",
+        "desc": "T_c2q + T_comb - (T_hold + T_skew + T_unc); must be \u2265 0 ps to prevent race conditions."
+      },
+      {
+        "symbol": "CRPR",
+        "name": "Clock Reconvergence Pessimism",
+        "unit": "ps",
+        "desc": "Removal of artificial mathematical pessimism on shared clock tree branches analyzed at different min/max derates."
+      },
+      {
+        "symbol": "POCV",
+        "name": "Parametric OCV",
+        "unit": "sigma",
+        "desc": "Statistical delay modeling representing variation as Gaussian distribution (\u03bc \u00b1 3\u03c3)."
+      }
+    ],
+    "workedExample": {
+      "title": "Comprehensive Setup and Hold Slack Calculation with CRPR",
+      "scenario": "A 1.0 GHz pipeline stage (Tclk = 1000 ps) has data path delay Tc2q + Tcomb = 680 ps, Tsetup = 60 ps, Thold = 40 ps. Launch clock latency = 280 ps, Capture clock latency = 310 ps (Tskew = +30 ps). Shared clock tree portion = 200 ps with 5% OCV derate (CRPR credit = 10 ps). Clock uncertainty = 35 ps. Calculate Setup and Hold Slack.",
+      "formula": "Setup: T_{clk} + T_{skew} + CRPR - T_{unc} - Arrival, Hold: Arrival - (T_{hold} + T_{skew} + T_{unc}) + CRPR",
+      "values": "T_{clk} = 1000 ps, T_{skew} = 30 ps, CRPR = 10 ps, T_{unc} = 35 ps, Data Arrival = 680 ps, T_{setup} = 60 ps, T_{hold} = 40 ps",
+      "calculation": "1) Setup Required Time = 1000 + 30 + 10 - 35 - 60 = 945 ps.\\n2) Setup Arrival Time = 680 ps.\\n3) Setup Slack = 945 - 680 = +265 ps (Timing MET).\\n4) Hold Required Time = 40 + 30 + 35 - 10 = 95 ps.\\n5) Hold Arrival Time = 680 ps (for max path, min path typically ~110 ps).\\n6) Assuming min path data delay = 130 ps: Hold Slack = 130 - 95 = +35 ps (Timing MET).",
+      "result": "Setup Slack = +265 ps (MET), Hold Slack = +35 ps (MET).",
+      "signoffJudgment": "PASSED: Both setup and hold timing closed cleanly across multi-corner signoff."
+    },
+    "pvtSensitivity": {
+      "summary": "Multi-Corner Multi-Mode (MCMM) analyzes hundreds of scenarios combining PVT corners and functional modes.",
+      "slowCorner": "ss_0.72v_125c: Limits maximum clock frequency (setup critical).",
+      "fastCorner": "ff_0.88v_-40c: Enforces minimum path delay buffers to prevent hold failure."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimeTime / Cadence Tempus",
+      "title": "Signoff STA Timing Verification & CRPR Configuration",
+      "tcl": "set_operating_conditions -analysis_type on_chip_variation\nset_timing_derate -early 0.95 -late 1.05\nset_timing_derate -cell_delay -early 0.92 -late 1.08\nset_crpr_mode -crpr_pessimism_reduction true\nreport_timing -delay_type max -nworst 1 -path_type full_clock_expanded\nreport_timing -delay_type min -nworst 1 -path_type full_clock_expanded"
+    },
+    "signoffChecklist": [
+      "Zero setup timing violations (WNS \u2265 0.0 ps) across all operational signoff modes and corners.",
+      "Zero hold timing violations (WNS \u2265 0.0 ps) \u2014 no chip can tape out with a negative hold slack!",
+      "Verify CRPR is explicitly enabled to avoid false timing violations on common clock paths."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the STA Timing & Waveforms Studio, adjust clock period, skew, and combinational delays live.",
+      "Experiment 2: Observe real-time calculation of arrival time, required time, and setup slack.",
+      "Experiment 3: Push datapath delay into violation territory and watch the red warning banner trigger."
+    ]
+  },
+  "so-si": {
+    "breakdown": [
+      {
+        "symbol": "V_{noise}",
+        "name": "Crosstalk Glitch Peak",
+        "unit": "mV",
+        "desc": "Spurious voltage spike induced on a quiet victim wire by switching aggressor nets."
+      },
+      {
+        "symbol": "C_c",
+        "name": "Coupling Capacitance",
+        "unit": "fF",
+        "desc": "Inter-wire sidewall capacitance between adjacent parallel metal routing lines."
+      },
+      {
+        "symbol": "C_g",
+        "name": "Ground Capacitance",
+        "unit": "fF",
+        "desc": "Capacitance from victim wire down to underlying substrate and power/ground planes."
+      },
+      {
+        "symbol": "M",
+        "name": "Miller Factor",
+        "unit": "ratio",
+        "desc": "Coupling multiplier: M = 0 (same direction), M = 1 (quiet victim), M = 2 (opposite direction switching)."
+      }
+    ],
+    "workedExample": {
+      "title": "Crosstalk Coupling Voltage Glitch and Miller Delay Penalty",
+      "scenario": "A quiet victim net (driver resistance R_dr = 150 \u03a9, ground capacitance C_g = 20 fF) runs parallel to two fast-switching aggressor nets (coupling capacitance C_c = 12 fF). Supply VDD = 0.75V. Calculate the induced crosstalk glitch peak voltage and check against the 25% noise margin limit.",
+      "formula": "V_{glitch} = V_{DD} * (C_c / (C_g + C_c))",
+      "values": "V_{DD} = 0.75 V, C_c = 12 fF, C_g = 20 fF",
+      "calculation": "1) Total capacitance on victim node = C_g + C_c = 20 + 12 = 32 fF.\\n2) Glitch ratio = C_c / (C_g + C_c) = 12 / 32 = 0.375.\\n3) Peak noise voltage = 0.75 * 0.375 = 0.281 V = 281.25 mV.\\n4) Allowable noise margin (25% of VDD) = 0.25 * 0.75 = 0.1875 V = 187.5 mV.\\n5) Violation margin: 281.25 mV > 187.5 mV (VIOLATION).",
+      "result": "Induced Noise Glitch = 281 mV. Exceeds noise margin by 93.8 mV.",
+      "signoffJudgment": "FAILED: Net requires shielding (VSS guard trace), spacing increase, or victim driver up-sizing (X2 -> X4) to reduce R_dr."
+    },
+    "pvtSensitivity": {
+      "summary": "Opposite-direction switching doubles effective coupling capacitance (Miller Factor M = 2), causing severe delay degradation.",
+      "slowCorner": "ss_0.72v_125c: High driver resistance weakens victim holding strength, amplifying glitch duration.",
+      "fastCorner": "ff_0.88v_-40c: Extremely steep aggressor slews maximize capacitive displacement current (I = C * dV/dt)."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimeTime-SI / Cadence Tempus-SI",
+      "title": "Signal Integrity Crosstalk Delay and Glitch Analysis",
+      "tcl": "set_si_options -delta_delay true -static_noise true -min_dynamic_noise true\nreport_si_bottlenecks -cost_type delay\nreport_noise -slack_lesser_than 0.0 -below noise_margin"
+    },
+    "signoffChecklist": [
+      "Verify zero crosstalk glitch violations exceed receiver gate threshold voltage (prevent functional corruption).",
+      "Confirm all long clock nets are shielded with dedicated VSS guard traces on both sides.",
+      "Verify delta-delay crosstalk inflation is included in final setup and hold signoff timing runs."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the STA Timing Studio, observe how coupling capacitance increases effective arrival times.",
+      "Experiment 2: Simulate aggressor switching in opposite direction to witness Miller effect delay explosion.",
+      "Experiment 3: Test how victim driver up-sizing restores holding strength and reduces glitch voltage."
+    ]
+  },
+  "so-pv": {
+    "breakdown": [
+      {
+        "symbol": "DRC",
+        "name": "Design Rule Check",
+        "unit": "check",
+        "desc": "Geometric verification confirming shapes satisfy minimum width, spacing, enclosure, and area foundry rules."
+      },
+      {
+        "symbol": "LVS",
+        "name": "Layout Versus Schematic",
+        "unit": "check",
+        "desc": "Topological comparison proving extracted layout connectivity exactly matches the synthesized gate netlist."
+      },
+      {
+        "symbol": "ERC",
+        "name": "Electrical Rule Check",
+        "unit": "check",
+        "desc": "Verifies substrate well taps, floating gates, direct power-to-ground shorts, and ESD diode protection."
+      },
+      {
+        "symbol": "Density",
+        "name": "Metal Layer Density",
+        "unit": "%",
+        "desc": "Requires metal coverage within 20% - 80% per window to ensure planarity during CMP polishing."
+      }
+    ],
+    "workedExample": {
+      "title": "Process Antenna Effect Ratio Calculation and Diode Sizing",
+      "scenario": "A 120 \u03bcm Metal-4 route (width = 0.10 \u03bcm, area = 12.0 \u03bcm\u00b2) directly connects to the input gate of an inverter (gate area = 0.025 \u03bcm\u00b2). The foundry antenna ratio limit is 400:1. Calculate the antenna ratio and determine if an antenna diode is required.",
+      "formula": "Antenna Ratio = Total Metal Area / Connected Gate Area",
+      "values": "Metal Area = 12.0 \u03bcm\u00b2, Gate Area = 0.025 \u03bcm\u00b2, Limit = 400",
+      "calculation": "1) Antenna Ratio = 12.0 / 0.025 = 480:1.\\n2) Comparing against rule limit: 480 > 400 (Antenna Violation by 80 units).\\n3) Diode remedy: Insert an antenna diode (diffusion area = 0.08 \u03bcm\u00b2).\\n4) Effective denominator with diode: Gate Area + (Diode Area * Weight) = 0.025 + (0.08 * 10) = 0.825 \u03bcm\u00b2.\\n5) New ratio = 12.0 / 0.825 = 14.5:1 (Clean).",
+      "result": "Antenna Ratio = 480:1 (Violation). Inserting antenna diode brings ratio to 14.5:1 (Clean).",
+      "signoffJudgment": "PASSED with Diode: Antenna diode provides safe charge discharge path during plasma etching."
+    },
+    "pvtSensitivity": {
+      "summary": "DRC and LVS rules are temperature and voltage invariant, but layout dummy metal fill impacts post-fill RC extraction.",
+      "slowCorner": "Dummy metal fill increases parasitic wire capacitance by 5-10%, requiring post-fill timing signoff re-validation.",
+      "fastCorner": "Over-etching at wafer edges must be accounted for in optical proximity correction (OPC) models."
+    },
+    "edaCommandRecipe": {
+      "tool": "Siemens Calibre / Synopsys IC Validator",
+      "title": "Full-Chip DRC and LVS Signoff Execution",
+      "tcl": "calibre -gui -drc calibre_drc.rule\ncalibre -gui -lvs calibre_lvs.rule -layout top.gds -source top.v\nreport_lvs_discrepancies -summary"
+    },
+    "signoffChecklist": [
+      "Zero DRC violations across all base and metal layers on the final GDSII/OASIS tapeout database.",
+      "Clean LVS report showing 100% net and instance count matching between schematic and layout.",
+      "Metal fill density meets foundry windowed CMP specifications (typically 25% - 75% across 50\u03bcm windows)."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the Logic Gates Studio, review the SVG Stick Diagram to visualize layer enclosures and contacts.",
+      "Experiment 2: In the ASIC Flow Pipeline Studio, select Stage 7 (DRC/LVS Verification) to inspect verification decks.",
+      "Experiment 3: Step through Stage 8 (Parasitic Extraction) to see how layout geometry is converted into SPEF parasitics."
+    ]
+  },
+  "so-em": {
+    "breakdown": [
+      {
+        "symbol": "MTTF",
+        "name": "Mean Time to Failure",
+        "unit": "hours",
+        "desc": "Black's equation reliability metric predicting wire lifespan before atomic void formation causes an open circuit."
+      },
+      {
+        "symbol": "J",
+        "name": "Current Density",
+        "unit": "mA/\u03bcm\u00b2",
+        "desc": "Electric current per unit cross-sectional metal area; must remain below foundry EM limits."
+      },
+      {
+        "symbol": "E_a",
+        "name": "Activation Energy",
+        "unit": "eV",
+        "desc": "Thermal energy barrier for metal atom self-diffusion (typically 0.8 - 1.0 eV for copper interconnects)."
+      },
+      {
+        "symbol": "T",
+        "name": "Junction Temperature",
+        "unit": "K",
+        "desc": "Operational temperature; elevated temperatures dramatically accelerate electromigration voiding."
+      }
+    ],
+    "workedExample": {
+      "title": "Black's Electromigration Current Density & Wire Width Sizing",
+      "scenario": "A high-current clock buffer drives a peak RMS current I_rms = 4.2 mA. The foundry electromigration rule limit for Metal-4 at 105\u00b0C is J_max = 2.0 mA/\u03bcm. Metal-4 thickness is t = 0.15 \u03bcm. Calculate the minimum wire width required to satisfy EM reliability for a 10-year lifetime.",
+      "formula": "W_{min} = I_{rms} / (J_{max} * t)",
+      "values": "I_{rms} = 4.2 mA, J_{max} = 2.0 mA/\u03bcm\u00b2, t = 0.15 \u03bcm",
+      "calculation": "1) Cross-sectional area required: A_{min} = I_{rms} / J_{max} = 4.2 mA / 2.0 mA/\u03bcm\u00b2 = 2.10 \u03bcm\u00b2.\\n2) Minimum wire width: W_{min} = A_{min} / t = 2.10 \u03bcm\u00b2 / 0.15 \u03bcm = 14.0 \u03bcm.\\n3) Alternative multi-track routing: Route using 4 parallel Metal-4 wires of width 3.5 \u03bcm each.",
+      "result": "Minimum single-wire width = 14.0 \u03bcm (or 4 parallel tracks of 3.5 \u03bcm width).",
+      "signoffJudgment": "PASSED: Multi-track strap distributes current density below the 2.0 mA/\u03bcm\u00b2 limit."
+    },
+    "pvtSensitivity": {
+      "summary": "Electromigration degradation accelerates exponentially with temperature: MTTF \u221d exp(Ea / kT).",
+      "slowCorner": "125\u00b0C: Maximum allowable current density drops by ~60% compared to 85\u00b0C operation.",
+      "fastCorner": "Self-heating effect (SHE) in FinFET/GAA nodes can elevate local metal temperature 15\u00b0C above ambient."
+    },
+    "edaCommandRecipe": {
+      "tool": "Cadence Voltus / Synopsys RedHawk",
+      "title": "Signal and Power Electromigration Analysis",
+      "tcl": "set_em_rules -temperature 105 -lifetime 10yr\nanalyze_power_grid -em -net VDD -report em_power.rpt\nanalyze_signal_em -report em_signal.rpt"
+    },
+    "signoffChecklist": [
+      "Zero signal net EM violations: All clock and high-frequency data nets meet foundry current density limits.",
+      "Power grid EM verification: Top-metal straps and via arrays handle worst-case steady-state DC current.",
+      "Via arrays on power nets must contain redundant vias to prevent single-via open circuit failure."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 3 (Power Planning) to review power mesh current limits.",
+      "Experiment 2: Step to Stage 9 (Timing Signoff & Power Integrity) to view Voltus EM check outputs.",
+      "Experiment 3: Observe how temperature increases drive current restrictions."
+    ]
+  },
+  "so-tapeout": {
+    "breakdown": [
+      {
+        "symbol": "GDSII / OASIS",
+        "name": "Tapeout Format",
+        "unit": "file",
+        "desc": "Standard hierarchical binary stream format delivering final physical mask shapes to the semiconductor foundry."
+      },
+      {
+        "symbol": "ECO",
+        "name": "Engineering Change Order",
+        "unit": "process",
+        "desc": "Surgical post-routing modification fixing residual timing slacks or functional bugs using spare cells."
+      },
+      {
+        "symbol": "Spare Cells",
+        "name": "Pre-Placed Redundant Gates",
+        "unit": "cells",
+        "desc": "Unconnected standard cells uniformly distributed across the core layout during floorplanning for metal-only ECOs."
+      },
+      {
+        "symbol": "Mask Layers",
+        "name": "Photolithography Reticles",
+        "unit": "layers",
+        "desc": "Base layers (diffusion, poly, contact) vs Metal layers (metal-1 through top metal); metal-only ECOs save millions in mask costs."
+      }
+    ],
+    "workedExample": {
+      "title": "Metal-Only ECO Cost Savings vs Full Mask Re-Spin",
+      "scenario": "A late functional bug in an encryption block requires swapping a 2-input AND gate for an XOR gate after base layer fabrication. The design includes 250 spare cell clusters across the core. Compare mask replacement costs between a Metal-Only ECO (replacing M1, M2, M3) and a Full Re-Spin (all 65 masks) for a 7nm node.",
+      "formula": "Cost = N_{reticles} * Cost_{per_reticle}",
+      "values": "N_{metal} = 3 masks, N_{total} = 65 masks, Cost_{avg_reticle} = $120,000",
+      "calculation": "1) Full Re-Spin Cost = 65 * $120,000 = $7,800,000 and 14 weeks fab turnaround.\\n2) Metal-Only ECO Cost = 3 * $120,000 = $360,000 and 3 weeks fab turnaround.\\n3) Financial savings = $7,800,000 - $360,000 = $7,440,000 (95.4% savings).\\n4) Schedule savings = 14 weeks - 3 weeks = 11 weeks faster to market.",
+      "result": "Metal-only ECO saves $7.44M in mask costs and accelerates delivery by 11 weeks.",
+      "signoffJudgment": "PASSED: Spare cells rewired successfully via Metal-1/Metal-2 ECO routes."
+    },
+    "pvtSensitivity": {
+      "summary": "ECO fixes must be verified across all signoff corners to ensure a fix in one corner does not induce a violation in another.",
+      "slowCorner": "ss_0.72v_125c: Verify setup slack does not degrade on modified nets.",
+      "fastCorner": "ff_0.88v_-40c: Check hold slack on all rewired spare cells."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys PrimeTime / Cadence Conformal ECO",
+      "title": "Functional and Timing ECO Generation",
+      "tcl": "read_verilog -golden rtl_rev2.v\nread_verilog -revised netlist_routed.v\ncompare\nwrite_eco_changes -format innovus -output eco_changes.tcl\n# In Innovus: source eco_changes.tcl; ecoRoute"
+    },
+    "signoffChecklist": [
+      "Verify checksum of the tapeout GDSII/OASIS file against foundry tapeout release portal.",
+      "Confirm all signoff checklists (STA, DRC, LVS, ERC, EM, IR Drop) have formal engineering management signoff.",
+      "Ensure mask layer naming and data types match the target foundry process design kit (PDK) specification."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 10 (Full-Chip Signoff & Tapeout) to see final deliverables.",
+      "Experiment 2: Step through the entire 10-stage pipeline to review the complete RTL-to-GDSII flow.",
+      "Experiment 3: Inspect key tapeout deliverables including GDSII/OASIS, dummy fill layers, and signoff logs."
+    ]
+  },
+  "adv-finfet": {
+    "breakdown": [
+      {
+        "symbol": "W_{eff}",
+        "name": "Effective Channel Width",
+        "unit": "nm",
+        "desc": "3D channel conduction area: W_eff = 2 * H_fin + W_fin per fin; quantized in discrete fin counts."
+      },
+      {
+        "symbol": "GAA / Nanosheet",
+        "name": "Gate-All-Around",
+        "unit": "device",
+        "desc": "Transistor architecture where gate material completely surrounds 3 or 4 horizontally stacked silicon nanosheets."
+      },
+      {
+        "symbol": "SHE",
+        "name": "Self-Heating Effect",
+        "unit": "\u00b0C",
+        "desc": "Localized temperature rise inside narrow fins/nanosheets caused by poor thermal conductivity of surrounding low-k dielectric."
+      },
+      {
+        "symbol": "Subthreshold Swing",
+        "name": "Gate Control (SS)",
+        "unit": "mV/dec",
+        "desc": "Steepness of sub-threshold conduction; GAA approaches the 62 mV/decade physical limit at room temperature."
+      }
+    ],
+    "workedExample": {
+      "title": "FinFET Effective Width and Drive Current Quantization",
+      "scenario": "A 5nm FinFET process features fins of height H_fin = 52 nm and thickness W_fin = 7 nm. A standard cell drive inverter uses 3 fins for NMOS and 4 fins for PMOS. Calculate the effective channel width W_eff for both transistors.",
+      "formula": "W_{eff,per_fin} = 2 * H_{fin} + W_{fin}, Total W_{eff} = N_{fins} * W_{eff,per_fin}",
+      "values": "H_{fin} = 52 nm, W_{fin} = 7 nm, N_{NMOS} = 3 fins, N_{PMOS} = 4 fins",
+      "calculation": "1) Single fin effective width: 2 * 52 nm + 7 nm = 104 + 7 = 111 nm = 0.111 \u03bcm.\\n2) NMOS Total W_{eff} = 3 * 111 nm = 333 nm (0.333 \u03bcm).\\n3) PMOS Total W_{eff} = 4 * 111 nm = 444 nm (0.444 \u03bcm).\\n4) Effective PMOS/NMOS width ratio = 444 / 333 = 1.33 (partially compensates for hole mobility).",
+      "result": "NMOS W_eff = 333 nm, PMOS W_eff = 444 nm.",
+      "signoffJudgment": "PASSED: Width quantization complies strictly with discrete fin-pitch manufacturing rules."
+    },
+    "pvtSensitivity": {
+      "summary": "Severe self-heating (SHE) in GAA nanosheets elevates local device temperature 15-20\u00b0C above substrate ambient.",
+      "slowCorner": "ss_0.72v_125c: Thermal accumulation accelerates electromigration and degrades drive current.",
+      "fastCorner": "ff_0.88v_-40c: Extremely high transconductance demands aggressive hold buffer padding."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys ICC2 / Cadence Innovus",
+      "title": "FinFET and GAA Nanosheet Grid Placement Mode",
+      "tcl": "set_app_options -name place.finfet.fin_pitch -value 0.024\nset_app_options -name place.legalize.snap_to_fin_grid -value true\nreport_finfet_parameters"
+    },
+    "signoffChecklist": [
+      "Ensure all standard cells align strictly to integer multiples of the continuous fin pitch grid.",
+      "Verify self-heating thermal derates are applied in reliability and electromigration signoff runs.",
+      "Check that multi-height cells (1-fin vs 2-fin cell rows) satisfy row abutment spacing rules."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the MOSFET IV Studio, adjust parameters to model 3D tri-gate electrostatic channel control.",
+      "Experiment 2: Observe how the steep subthreshold slope prevents short-channel DIBL leakage.",
+      "Experiment 3: Examine the channel pinch-off diagram under high gate overdrive voltages."
+    ]
+  },
+  "adv-litho": {
+    "breakdown": [
+      {
+        "symbol": "R",
+        "name": "Rayleigh Resolution",
+        "unit": "nm",
+        "desc": "Minimum printable pitch feature: R = k1 * (\u03bb / NA); governs lithographic limits."
+      },
+      {
+        "symbol": "\u03bb = 13.5 nm",
+        "name": "EUV Wavelength",
+        "unit": "nm",
+        "desc": "Extreme Ultraviolet wavelength generated by pulsing high-power CO2 laser on molten tin droplets."
+      },
+      {
+        "symbol": "NA",
+        "name": "Numerical Aperture",
+        "unit": "ratio",
+        "desc": "Light-gathering capability of projection optics (0.33 NA for standard EUV, 0.55 NA for High-NA EUV)."
+      },
+      {
+        "symbol": "EPE",
+        "name": "Edge Placement Error",
+        "unit": "nm",
+        "desc": "Total statistical variation combining mask error, optical blur, resist blur, and overlay error."
+      }
+    ],
+    "workedExample": {
+      "title": "Rayleigh Resolution Limit: 193nm Immersion vs 13.5nm EUV",
+      "scenario": "Compare the minimum resolvable half-pitch resolution R between a 193nm Deep Ultraviolet immersion system (\u03bb = 193 nm, NA = 1.35, k1 = 0.28) and an Extreme Ultraviolet system (\u03bb = 13.5 nm, NA = 0.33, k1 = 0.40).",
+      "formula": "R = k_1 * (\u03bb / NA)",
+      "values": "DUVi: \u03bb=193 nm, NA=1.35, k1=0.28; EUV: \u03bb=13.5 nm, NA=0.33, k1=0.40",
+      "calculation": "1) 193nm ArFi Resolution: R_{DUV} = 0.28 * (193 / 1.35) = 0.28 * 142.96 = 40.03 nm.\\n2) 13.5nm EUV Resolution: R_{EUV} = 0.40 * (13.5 / 0.33) = 0.40 * 40.91 = 16.36 nm.\\n3) Resolution improvement: 40.03 / 16.36 = 2.45\u00d7 finer single-exposure resolution.\\n4) High-NA EUV (NA = 0.55): R = 0.40 * (13.5 / 0.55) = 9.82 nm.",
+      "result": "Single-exposure limit: 193nm Immersion = 40 nm, Standard EUV = 16.4 nm, High-NA EUV = 9.8 nm.",
+      "signoffJudgment": "PASSED: EUV eliminates 4-mask SAQP quadruple patterning loops, drastically improving defect yield."
+    },
+    "pvtSensitivity": {
+      "summary": "Photolithography process variations (dose, focus, line-edge roughness) dictate physical on-chip variation (POCV).",
+      "slowCorner": "Corner variations induce line-end shortening and contact resistance spikes.",
+      "fastCorner": "Over-exposure shrinks gate lengths, inflating subthreshold leakage."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys IC Validator / Siemens Calibre OPC",
+      "title": "Lithography Edge Placement Error (EPE) Verification",
+      "tcl": "calibre -gui -drc epe_check.rule\nset_app_options -name route.common.euv_routing_rules -value true\ncheck_lfd -min_line_width 18 -min_line_space 18"
+    },
+    "signoffChecklist": [
+      "Verify all critical metal layers (M0, M1, M2) conform to 1D unidirectional grating design rules.",
+      "Ensure stitched mask boundaries for High-NA anamorphic lenses align with macro boundaries.",
+      "Confirm OPC dummy features are applied before final mask fracture tapeout."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 7 (DRC/LVS) to see lithographic check decks.",
+      "Experiment 2: Review how optical proximity correction (OPC) alters mask shapes to compensate for diffraction.",
+      "Experiment 3: Step to Tapeout to observe GDSII fracturing into mask writing beams."
+    ]
+  },
+  "adv-pkg": {
+    "breakdown": [
+      {
+        "symbol": "UCIe",
+        "name": "Universal Chiplet Interconnect Express",
+        "unit": "spec",
+        "desc": "Open industry standard defining physical die-to-die interface bandwidth, latency, and protocols."
+      },
+      {
+        "symbol": "Micro-Bump Pitch",
+        "name": "Interconnect Pitch",
+        "unit": "\u03bcm",
+        "desc": "Center-to-center spacing of micro-bumps (25-55 \u03bcm in 2.5D interposers, down to < 1 \u03bcm in 3D hybrid bonding)."
+      },
+      {
+        "symbol": "Silicon Interposer",
+        "name": "Passive / Active Substrate",
+        "unit": "component",
+        "desc": "High-density silicon or organic substrate providing sub-micron interconnect routing between adjacent chiplets (e.g. TSMC CoWoS, Intel EMIB)."
+      },
+      {
+        "symbol": "Thermal Flux",
+        "name": "Dissipation Density",
+        "unit": "W/cm\u00b2",
+        "desc": "Heat dissipation challenge in 3D stacked dies where top dies insulate bottom compute dies."
+      }
+    ],
+    "workedExample": {
+      "title": "2.5D Interposer Die-to-Die Bandwidth Calculation (CoWoS / UCIe)",
+      "scenario": "A high-performance AI accelerator chiplet interfaces with 4 High-Bandwidth Memory (HBM3) stacks across a silicon interposer using UCIe Standard Package. Each HBM3 interface uses 1024 data lines operating at a data rate of 6.4 Gbps per pin. Calculate total aggregate memory bandwidth in Terabytes per second (TB/s).",
+      "formula": "Bandwidth_{per_stack} = (N_{lines} * Data_Rate) / 8, Total Bandwidth = N_{stacks} * Bandwidth_{per_stack}",
+      "values": "N_{lines} = 1024 lines, Data_Rate = 6.4e9 bps, N_{stacks} = 4 HBM3 stacks",
+      "calculation": "1) Bandwidth per HBM3 stack = (1024 * 6.4 * 10\u2079 bits/s) / 8 bits/byte = 6.5536 * 10\u00b9\u00b2 bytes/s = 819.2 GB/s.\\n2) Total aggregate bandwidth = 4 * 819.2 GB/s = 3276.8 GB/s.\\n3) In Terabytes per second = 3276.8 / 1024 = 3.20 TB/s.",
+      "result": "Total Aggregate Memory Bandwidth = 3.20 TB/s (3,277 GB/s).",
+      "signoffJudgment": "PASSED: Provides 3.2 TB/s bandwidth with sub-2ns die-to-die latency, satisfying AI training throughput targets."
+    },
+    "pvtSensitivity": {
+      "summary": "3D stacked chiplets suffer severe vertical thermal gradient coupling: bottom logic dies run 25\u00b0C hotter than single-die packages.",
+      "slowCorner": "125\u00b0C: Die-to-die PHY drivers suffer higher resistance across silicon interposer traces.",
+      "fastCorner": "-40\u00b0C: Micro-bump thermal expansion mismatch creates mechanical stress near die corners."
+    },
+    "edaCommandRecipe": {
+      "tool": "Synopsys 3DIC Compiler / Cadence Integrity 3D-IC",
+      "title": "2.5D/3D Multi-Die Interposer Co-Design and Thermal Signoff",
+      "tcl": "create_3d_design -name AI_ACCEL_3DIC\nread_chiplet -name COMPUTE_DIE -def compute.def -lef compute.lef\nread_chiplet -name HBM3_STACK -def hbm3.def -lef hbm3.lef\ncreate_interposer -technology cowos_s -thickness 100\nconnect_die_to_die -bus_type ucie_standard\nanalyze_thermal -power_map thermal_grid.pwr -report thermal_3d.rpt"
+    },
+    "signoffChecklist": [
+      "Verify micro-bump alignment and pad keepout regions (PKR) meet thermal-mechanical stress rules.",
+      "Confirm die-to-die signal latency satisfies UCIe PHY timing budgets (< 2.0 ns round-trip).",
+      "Run multi-die thermal integrity analysis to ensure maximum junction temperature does not exceed 105\u00b0C."
+    ],
+    "guidedExperiments": [
+      "Experiment 1: In the ASIC Flow Pipeline Studio, select Stage 10 (Full-Chip Signoff) to review advanced packaging options.",
+      "Experiment 2: Compare standard wire-bonding with silicon interposers (CoWoS) and 3D direct hybrid bonding.",
+      "Experiment 3: Observe how micro-bump density scales bandwidth by orders of magnitude."
+    ]
+  }
+};
+
 function renderLearnTracks() {
   const container = document.getElementById('learnTrackTabs');
   if (!container) return;
@@ -3341,13 +4894,17 @@ function renderLearnModules() {
   grid.innerHTML = lessons.map(lesson => {
     const isStudied = state.studiedLessonIds.has(lesson.id);
     const track = LEARN_TRACKS.find(t => t.id === lesson.trackId) || { badge: 'Track' };
+    const guiInfo = LESSON_GUI_MAP[lesson.id];
 
     return `
-      <article class="learn-module-card ${isStudied ? 'studied' : ''}" id="card-lesson-${lesson.id}">
+      <article class="learn-module-card ${isStudied ? 'studied' : ''}" id="card-lesson-${lesson.id}" onclick="openLessonModal('${lesson.id}')" style="cursor: pointer;" title="Click to read full study notes & interview Q&A">
         <div>
           <div class="learn-card-header">
             <span class="module-number-tag">LESSON ${lesson.number}</span>
-            <span class="badge ${isStudied ? 'badge-emerald' : 'badge-cyan'}">${isStudied ? '✓ Studied' : track.badge}</span>
+            <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+              ${guiInfo ? `<button class="btn-open-interactive" onclick="event.stopPropagation(); launchStudioGui('${guiInfo.tab}')" title="Open Interactive Simulator">${guiInfo.label}</button>` : ''}
+              <span class="badge ${isStudied ? 'badge-emerald' : 'badge-cyan'}">${isStudied ? '✓ Studied' : track.badge}</span>
+            </div>
           </div>
           <h3 class="learn-card-title">${lesson.title}</h3>
           <p class="learn-card-desc">${lesson.summary.substring(0, 150)}...</p>
@@ -3357,7 +4914,7 @@ function renderLearnModules() {
         </div>
         <div class="learn-card-footer">
           <span style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">${lesson.duration || '20 min read'}</span>
-          <button class="btn-open-lesson" onclick="openLessonModal('${lesson.id}')">
+          <button class="btn-open-lesson" onclick="event.stopPropagation(); openLessonModal('${lesson.id}')" title="Open Study Notes & Q&A">
             <span>Read Study Notes</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
@@ -3378,11 +4935,18 @@ window.resetLearnFilters = function() {
 
 window.openLessonModal = function(lessonId) {
   const lesson = LEARN_LESSONS.find(l => l.id === lessonId);
-  if (!lesson) return;
+  if (!lesson) {
+    console.warn('Lesson not found:', lessonId);
+    return;
+  }
 
   const modal = document.getElementById('lessonModalBackdrop');
-  if (!modal) return;
+  if (!modal) {
+    console.warn('Modal element #lessonModalBackdrop not found');
+    return;
+  }
 
+  state.currentModalLessonId = lesson.id;
   const isStudied = state.studiedLessonIds.has(lesson.id);
   const track = LEARN_TRACKS.find(t => t.id === lesson.trackId) || { title: 'Mastery Track' };
 
@@ -3394,83 +4958,6 @@ window.openLessonModal = function(lessonId) {
   if (titleEl) titleEl.textContent = lesson.title;
   if (subtitleEl) subtitleEl.textContent = lesson.subtitle || lesson.level;
 
-  // Build body content
-  let bodyHTML = `
-    <div class="lesson-section-block">
-      <div class="lesson-section-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span>Overview & Core Concept</span>
-      </div>
-      <p>${lesson.summary}</p>
-    </div>
-  `;
-
-  if (lesson.formula) {
-    bodyHTML += `
-      <div class="lesson-section-block">
-        <div class="lesson-section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
-          <span>Governing Equation & Formula</span>
-        </div>
-        <div class="lesson-formula-callout">
-          <code>${lesson.formula}</code>
-        </div>
-      </div>
-    `;
-  }
-
-  if (lesson.deepDive) {
-    bodyHTML += `
-      <div class="lesson-section-block">
-        <div class="lesson-section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          <span>Deep-Dive Engineering Theory</span>
-        </div>
-        <div>${lesson.deepDive}</div>
-      </div>
-    `;
-  }
-
-  if (lesson.tips) {
-    bodyHTML += `
-      <div class="lesson-section-block">
-        <div class="lesson-section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Physical Design Practitioner Tips</span>
-        </div>
-        <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--accent-amber); padding: 1rem 1.25rem; border-radius: var(--radius-md); font-size: 0.92rem; color: var(--text-primary); line-height: 1.6;">
-          ${lesson.tips}
-        </div>
-      </div>
-    `;
-  }
-
-  if (lesson.interviewQA && lesson.interviewQA.length > 0) {
-    bodyHTML += `
-      <div class="lesson-section-block">
-        <div class="lesson-section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          <span>Frequently Asked Interview Questions (${lesson.interviewQA.length})</span>
-        </div>
-        ${lesson.interviewQA.map((qa, idx) => `
-          <div class="lesson-qa-box">
-            <div class="lesson-qa-q">
-              <span style="color:var(--accent-cyan); font-family:var(--font-mono); font-weight: 800;">Q${idx + 1}:</span>
-              <span>${qa.q}</span>
-            </div>
-            <div class="lesson-qa-a">
-              <strong style="color:var(--text-muted); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.35rem;">Technical Answer:</strong>
-              ${qa.a}
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  const contentEl = document.getElementById('modalLessonContent');
-  if (contentEl) contentEl.innerHTML = bodyHTML;
-
   // Toggle Studied button state
   const markStudiedBtn = document.getElementById('modalMarkStudiedBtn');
   if (markStudiedBtn) {
@@ -3481,8 +4968,271 @@ window.openLessonModal = function(lessonId) {
     markStudiedBtn.onclick = () => toggleLessonStudied(lesson.id);
   }
 
+  // Render initial tab (theory)
+  switchModalTab('theory');
+
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
+};
+
+window.switchModalTab = function(tabKey) {
+  state.activeModalTab = tabKey || 'theory';
+  const lessonId = state.currentModalLessonId;
+  const lesson = LEARN_LESSONS.find(l => l.id === lessonId);
+  if (!lesson) return;
+
+  const tabsNav = document.getElementById('modalLessonTabsNav');
+  if (tabsNav) {
+    tabsNav.querySelectorAll('.modal-tab-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.modaltab === state.activeModalTab);
+    });
+  }
+
+  const contentEl = document.getElementById('modalLessonContent');
+  if (!contentEl) return;
+
+  const guiInfo = LESSON_GUI_MAP[lesson.id] || { tab: 'inverter', label: '⚡ Launch Interactive Studio' };
+  const exp = LESSON_EXPANDED_DATA[lesson.id] || {};
+
+  if (state.activeModalTab === 'theory') {
+    contentEl.innerHTML = `
+      <div class="lesson-section-block">
+        <div class="lesson-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Executive Summary & Physical Foundations</span>
+        </div>
+        <div style="background:rgba(0, 242, 254, 0.05); border-left:3px solid var(--accent-cyan); padding:1.15rem 1.35rem; border-radius:var(--radius-md); font-size:0.96rem; color:var(--text-primary); line-height:1.7; margin-bottom:1.5rem;">
+          ${lesson.summary}
+        </div>
+
+        <div class="lesson-section-title" style="margin-top:1.75rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span>Deep-Dive Engineering Theory & Physical Mechanisms</span>
+        </div>
+        <div style="color:var(--text-secondary); line-height:1.75; font-size:0.94rem;">
+          ${lesson.deepDive || ''}
+        </div>
+
+        <div style="margin-top:2rem; background:var(--bg-card); border:1px solid var(--border-medium); border-radius:var(--radius-lg); padding:1.25rem 1.5rem;">
+          <h4 style="color:var(--accent-cyan); font-size:1.02rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>⚡ Silicon Architecture & EDA Tool Flow Impact</span>
+          </h4>
+          <p style="font-size:0.92rem; color:var(--text-secondary); line-height:1.65; margin-bottom:0.75rem;">
+            In industrial physical design flows (Cadence Innovus / Synopsys ICC2 / PrimeTime), concepts from <strong>${lesson.title}</strong> directly dictate synthesis algorithms, placement legalizer constraints, and signoff timing closure.
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin-top:1rem;">
+            <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <strong style="color:var(--accent-cyan); font-size:0.8rem; display:block; margin-bottom:0.25rem;">Power Impact:</strong>
+              <span style="font-size:0.85rem; color:var(--text-muted);">Directly impacts dynamic capacitive dissipation and subthreshold leakage budgets.</span>
+            </div>
+            <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <strong style="color:var(--accent-purple); font-size:0.8rem; display:block; margin-bottom:0.25rem;">Performance Impact:</strong>
+              <span style="font-size:0.85rem; color:var(--text-muted);">Defines critical path setup/hold margins and maximum achievable operating frequency Fmax.</span>
+            </div>
+            <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <strong style="color:var(--accent-emerald); font-size:0.8rem; display:block; margin-bottom:0.25rem;">Area & Density Impact:</strong>
+              <span style="font-size:0.85rem; color:var(--text-muted);">Influences cell sizing, repeater buffer counts, and overall die core utilization.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (state.activeModalTab === 'formula') {
+    const breakdown = exp.breakdown || [];
+    const worked = exp.workedExample;
+    const pvt = exp.pvtSensitivity;
+
+    contentEl.innerHTML = `
+      <div class="lesson-section-block">
+        <div class="lesson-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          <span>Primary Governing Physical & Timing Equations</span>
+        </div>
+        <div class="lesson-formula-callout" style="padding:1.25rem; font-size:1.05rem;">
+          <code>${lesson.formula || 'N/A'}</code>
+        </div>
+
+        <h4 style="color:var(--text-primary); margin:1.75rem 0 0.75rem; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Physical Variable Breakdown & SI Engineering Units</span>
+        </h4>
+        <div style="overflow-x:auto; margin-bottom:1.75rem;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.88rem; text-align:left;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border-medium); color:var(--text-primary); background:rgba(0,242,254,0.06);">
+                <th style="padding:0.65rem 0.85rem; font-family:var(--font-mono);">Variable</th>
+                <th style="padding:0.65rem 0.85rem;">Parameter Name</th>
+                <th style="padding:0.65rem 0.85rem; font-family:var(--font-mono);">Units</th>
+                <th style="padding:0.65rem 0.85rem;">Physical Description & Engineering Significance</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${breakdown.map((row, i) => `
+                <tr style="border-bottom:1px solid var(--border-subtle); background:${i%2===0?'transparent':'rgba(255,255,255,0.02)'};">
+                  <td style="padding:0.65rem 0.85rem; font-family:var(--font-mono); color:var(--accent-cyan); font-weight:700;">${row.symbol}</td>
+                  <td style="padding:0.65rem 0.85rem; color:var(--text-primary); font-weight:600;">${row.name}</td>
+                  <td style="padding:0.65rem 0.85rem; font-family:var(--font-mono); color:var(--accent-purple);">${row.unit}</td>
+                  <td style="padding:0.65rem 0.85rem; color:var(--text-secondary); line-height:1.5;">${row.desc}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${worked ? `
+          <div style="background:var(--bg-card); border:1px solid var(--border-medium); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.75rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; flex-wrap:wrap; gap:0.5rem;">
+              <h4 style="color:var(--accent-emerald); font-size:1.05rem; margin:0; display:flex; align-items:center; gap:0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Real-World Worked Numerical Example: ${worked.title}</span>
+              </h4>
+              <span class="badge badge-emerald">Foundry Validated</span>
+            </div>
+            <p style="font-size:0.92rem; color:var(--text-primary); line-height:1.6; margin-bottom:0.75rem;">
+              <strong>Scenario:</strong> ${worked.scenario}
+            </p>
+            <div style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-mono); font-size:0.84rem; color:var(--text-primary); line-height:1.6; margin-bottom:0.75rem; white-space:pre-wrap;">${worked.calculation}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; padding-top:0.5rem; border-top:1px solid var(--border-subtle);">
+              <div style="font-size:0.88rem; color:var(--accent-cyan); font-family:var(--font-mono); font-weight:700;">${worked.result}</div>
+              <div style="font-size:0.85rem; color:var(--accent-emerald); font-weight:600;">${worked.signoffJudgment}</div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${pvt ? `
+          <div style="background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.25); border-radius:var(--radius-lg); padding:1.25rem 1.5rem;">
+            <h4 style="color:var(--accent-amber); font-size:0.98rem; margin-bottom:0.65rem; display:flex; align-items:center; gap:0.5rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <span>PVT Corner Scaling & Temperature Derate Sensitivity</span>
+            </h4>
+            <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.6; margin-bottom:0.75rem;">${pvt.summary}</p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:0.75rem; font-size:0.86rem;">
+              <div style="background:var(--bg-secondary); padding:0.75rem 1rem; border-radius:var(--radius-md); border-left:3px solid #ef4444;">
+                <strong style="color:#ef4444; display:block; margin-bottom:0.2rem;">Slow Corner (ss_0.72v_125c):</strong>
+                <span style="color:var(--text-muted);">${pvt.slowCorner}</span>
+              </div>
+              <div style="background:var(--bg-secondary); padding:0.75rem 1rem; border-radius:var(--radius-md); border-left:3px solid #3b82f6;">
+                <strong style="color:#3b82f6; display:block; margin-bottom:0.2rem;">Fast Corner (ff_0.88v_-40c):</strong>
+                <span style="color:var(--text-muted);">${pvt.fastCorner}</span>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } else if (state.activeModalTab === 'interactive') {
+    const experiments = exp.guidedExperiments || [
+      'Experiment 1: Adjust primary input variables with the interactive sliders.',
+      'Experiment 2: Observe live SVG waveform and characteristic curve updates.',
+      'Experiment 3: Check pass/fail signoff metric readouts under corner variations.'
+    ];
+
+    contentEl.innerHTML = `
+      <div class="lesson-section-block">
+        <div class="lesson-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Interactive Silicon Studio & Real-Time GUI Simulation</span>
+        </div>
+        <div style="background:var(--bg-card); border:1px solid var(--border-medium); border-radius:var(--radius-xl); padding:2rem; text-align:center; display:flex; flex-direction:column; align-items:center; gap:1.25rem;">
+          <div style="width:60px; height:60px; border-radius:50%; background:rgba(0, 242, 254, 0.15); display:flex; align-items:center; justify-content:center; color:var(--accent-cyan); font-size:1.85rem; box-shadow:0 0 24px rgba(0,242,254,0.3);">
+            ⚡
+          </div>
+          <div>
+            <span class="badge badge-cyan" style="margin-bottom:0.5rem; display:inline-block;">Live Hardware Simulation Engine</span>
+            <h3 style="font-size:1.35rem; color:var(--text-primary); font-family:var(--font-heading); margin-bottom:0.35rem;">
+              ${guiInfo.label}
+            </h3>
+            <p style="color:var(--text-secondary); max-width:580px; font-size:0.94rem; line-height:1.65; margin:0 auto;">
+              Explore the real-time mathematical behavior of <strong>${lesson.title}</strong> using dynamic SVG canvas curves, live slider controls, and instant signoff metric recalculations.
+            </p>
+          </div>
+
+          <div style="width:100%; max-width:620px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; text-align:left;">
+            <h4 style="color:var(--accent-cyan); font-size:0.95rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              <span>Recommended Guided Engineering Experiments:</span>
+            </h4>
+            <ul style="padding-left:1.25rem; font-size:0.88rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+              ${experiments.map(expText => `<li>${expText}</li>`).join('')}
+            </ul>
+          </div>
+
+          <button class="btn-primary" onclick="launchStudioGui('${guiInfo.tab}')" style="margin-top:0.5rem; padding:0.85rem 2rem; font-size:1rem; box-shadow:0 0 20px var(--accent-cyan-glow);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Launch Live Interactive GUI Studio ↗</span>
+          </button>
+        </div>
+      </div>
+    `;
+  } else if (state.activeModalTab === 'tips') {
+    const recipe = exp.edaCommandRecipe;
+    const checklist = exp.signoffChecklist || [
+      'Strictly enforce foundry DRC and LVS clean signoff decks.',
+      'Verify timing closure across all PVT operational modes.',
+      'Check power integrity and IR drop limits before mask release.'
+    ];
+
+    contentEl.innerHTML = `
+      <div class="lesson-section-block">
+        <div class="lesson-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Physical Design Practitioner Tips & Tapeout Gotchas</span>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--accent-amber); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); font-size: 0.95rem; color: var(--text-primary); line-height: 1.7; margin-bottom:1.75rem;">
+          ${lesson.tips || 'Follow foundry DRC/LVS rule decks strictly during signoff closure.'}
+        </div>
+
+        ${recipe ? `
+          <div style="background:var(--bg-card); border:1px solid var(--border-medium); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.75rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+              <h4 style="color:var(--accent-cyan); font-size:0.98rem; margin:0; display:flex; align-items:center; gap:0.5rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                <span>Production EDA Command Recipe (${recipe.tool})</span>
+              </h4>
+              <span class="badge badge-purple">${recipe.title}</span>
+            </div>
+            <pre style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-mono); font-size:0.84rem; color:var(--text-primary); line-height:1.6; overflow-x:auto; margin:0;"><code>${recipe.tcl}</code></pre>
+          </div>
+        ` : ''}
+
+        <h4 style="color:var(--text-primary); margin-bottom:0.75rem; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span>Production Signoff Verification Checklist:</span>
+        </h4>
+        <ul style="padding-left:1.25rem; line-height:1.8; font-size:0.92rem; color:var(--text-secondary);">
+          ${checklist.map(item => `<li><strong>Check:</strong> ${item}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  } else if (state.activeModalTab === 'interview') {
+    contentEl.innerHTML = `
+      <div class="lesson-section-block">
+        <div class="lesson-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>Tier-1 Semiconductor Company Interview Questions (${(lesson.interviewQA || []).length})</span>
+        </div>
+        <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:1.5rem; line-height:1.6;">
+          Real interview questions asked by engineering interviewers at <strong>Apple, NVIDIA, Qualcomm, TSMC, Intel, and AMD</strong> for Physical Design, STA, and CAD roles:
+        </p>
+        ${(lesson.interviewQA || []).map((qa, idx) => `
+          <div class="lesson-qa-box" style="margin-bottom:1.5rem; background:var(--bg-card); border:1px solid var(--border-medium); border-radius:var(--radius-lg); padding:1.25rem 1.5rem;">
+            <div class="lesson-qa-q" style="font-size:1rem; font-weight:700; color:var(--text-primary); margin-bottom:0.75rem; display:flex; align-items:flex-start; gap:0.65rem;">
+              <span style="color:var(--accent-cyan); font-family:var(--font-mono); font-weight: 800; background:rgba(0,242,254,0.1); padding:0.15rem 0.5rem; border-radius:var(--radius-sm); font-size:0.85rem;">Q${idx + 1}</span>
+              <span>${qa.q}</span>
+            </div>
+            <div class="lesson-qa-a" style="color:var(--text-secondary); font-size:0.93rem; line-height:1.7; padding-left:2.5rem;">
+              <div style="background:rgba(16,185,129,0.06); border-left:3px solid var(--accent-emerald); padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-bottom:0.65rem;">
+                <strong style="color:var(--accent-emerald); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:0.25rem;">Core Engineering Takeaway:</strong>
+                <span>${qa.a.split('.')[0]}.</span>
+              </div>
+              <strong style="color:var(--accent-cyan); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:0.25rem;">In-Depth Technical Solution:</strong>
+              ${qa.a}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
 };
 
 window.openLessonDrawer = window.openLessonModal;
@@ -3638,6 +5388,938 @@ function renderStudyVault() {
       </article>
     `;
   }).join('');
+}
+
+/* ==========================================================================
+   SILICON INTERACTIVE STUDIO & GUI LAB ENGINE
+   ========================================================================== */
+const studioState = {
+  activeTab: 'inverter',
+  invVin: 0.60,
+  invVdd: 1.20,
+  invBeta: 2.50,
+  staTclk: 4.0,
+  staTlaunch: 0.8,
+  staTdata: 2.4,
+  staTcapture: 1.0,
+  staTmargin: 0.45,
+  mosVgs: 1.20,
+  mosVds: 1.00,
+  mosVth: 0.45,
+  mosVsb: 0.00,
+  pipelineActiveStage: 0,
+  logicGate: 'inv',
+  logicInA: 0,
+  logicInB: 0
+};
+
+const PIPELINE_STAGES = [
+  {
+    name: '1. Architecture & RTL',
+    sub: 'Design Capture & Linting',
+    inputs: 'System Architecture Spec, Microarchitecture Block Diagram',
+    outputs: 'Synthesizable Verilog / SystemVerilog (.v, .sv)',
+    edaCmd: 'SpyGlass: lint_design -effort high\nVCS: vcs -sverilog top_tb.sv',
+    challenges: 'Deadlock avoidance, clock domain crossings (CDC), synthesis/simulation mismatch',
+    signoff: '0 Lint errors, 0 CDC un-synchronized paths, 100% functional testbench pass'
+  },
+  {
+    name: '2. Logic Synthesis',
+    sub: 'Translation & Mapping',
+    inputs: 'RTL Netlist (.v), Liberty Models (.lib), Timing Constraints (.sdc)',
+    outputs: 'Gate-level Netlist (.v), Initial SDC (.sdc), Area & Power Reports',
+    edaCmd: 'Synopsys DC: compile_ultra -gate_clock\nCadence Genus: syn_generic; syn_map; syn_opt',
+    challenges: 'Clock gating efficiency (ICG insertion), area-timing trade-offs, arithmetic datapath mapping',
+    signoff: 'Zero negative slack (WNS ≥ 0), zero unmapped GTECH gates, max transition violations clean'
+  },
+  {
+    name: '3. Floorplanning',
+    sub: 'Die Sizing & Macro Placement',
+    inputs: 'Gate-level Netlist, Technology LEF, Macro LEF, IO Pin Constraints',
+    outputs: 'Floorplan DEF (.def), Macro Placement Guidelines, Die Boundary Specs',
+    edaCmd: 'ICC2: initialize_floorplan -core_utilization 0.65\nInnovus: init_design; planDesign',
+    challenges: 'Macro flylines & routing channel blockages, macro halo keepouts, thermal hotspot distribution',
+    signoff: 'Core utilization 60-70%, no overlapping macros, valid IO pad ring pitch verified'
+  },
+  {
+    name: '4. Power Delivery (PDN)',
+    sub: 'PG Rings & Mesh Straps',
+    inputs: 'Floorplan DEF, Static IR Drop Budget, Technology Layer Stack',
+    outputs: 'Power-grid Routed DEF, Decap Capacitor Fill Locations',
+    edaCmd: 'ICC2: create_pg_ring -layers {M8 M9}\nInnovus: addRing -nets {VDD VSS}; addStripe',
+    challenges: 'IR drop target (< 2% VDD), Electromigration (EM) current density limits, decap sizing',
+    signoff: 'Static IR drop < 20mV across core, EM current density < Jmax across all power straps'
+  },
+  {
+    name: '5. Cell Placement',
+    sub: 'Global & Legalized Placement',
+    inputs: 'Power Mesh DEF, Timing Constraints (.sdc), Liberty (.lib)',
+    outputs: 'Placed DEF, Congestion Maps, High-Fanout Synthesis (HFNS) Trees',
+    edaCmd: 'ICC2: create_placement -timing_driven\nInnovus: place_opt_design',
+    challenges: 'Pin density congestion in routing channels, cell displacement minimization, timing legalization',
+    signoff: 'Max routing congestion overflow < 1.0%, zero site overlaps, setup WNS bounded'
+  },
+  {
+    name: '6. Clock Tree (CTS)',
+    sub: 'Clock Buffering & Balancing',
+    inputs: 'Placed Netlist & DEF, Clock Tree Specs (NDR, Target Skew & Latency)',
+    outputs: 'Clock-routed DEF, Clock Tree Reports, Propagated Clock SDC',
+    edaCmd: 'ICC2: synthesize_clock_trees -target_skew 0.05\nInnovus: clock_design -spec cts.spec',
+    challenges: 'Balancing insertion delay vs skew, clock power dissipation, clock tree crosstalk shielding',
+    signoff: 'Clock skew < 50ps across corners, max clock transition < 100ps, clock power < 30% total'
+  },
+  {
+    name: '7. Routing',
+    sub: 'Global & Detailed Routing',
+    inputs: 'CTS DEF, Non-Default Rules (NDR), Technology DRC Rules',
+    outputs: 'Fully Routed DEF, Detailed Wire SPEF (.spef), Antenna Violation Reports',
+    edaCmd: 'ICC2: route_auto -global_only; route_detail\nInnovus: route_design -globalDetail',
+    challenges: 'Crosstalk coupling capacitance (Miller effect), antenna ratio violations, DRC spacing & shorts',
+    signoff: 'Zero routing opens, zero shorts, zero antenna ratio violations (diodes placed)'
+  },
+  {
+    name: '8. STA Signoff & SI',
+    sub: 'Multi-Corner Multi-Mode (MCMM)',
+    inputs: 'Routed DEF, Extracted Parasitics SPEF (.spef), Multi-Corner .lib',
+    outputs: 'Timing Signoff Reports, ECO TCL Scripts, SDF Delay Files (.sdf)',
+    edaCmd: 'PrimeTime: report_timing -max_paths 50 -delay_type max_min\nTempus: report_timing -retime',
+    challenges: 'Clock Reconvergence Pessimism Removal (CRPR), OCV/POCV derates, crosstalk glitch noise',
+    signoff: 'WNS = 0.00ps, TNS = 0.00ps, Hold WNS = 0.00ps, Max Transition = 0, Max Cap = 0'
+  },
+  {
+    name: '9. Physical DRC/LVS',
+    sub: 'Geometric & Electrical Verification',
+    inputs: 'OASIS / GDSII Layout Stream, Golden Schematic Netlist (.sp), DRC Rule Deck',
+    outputs: 'Calibre DRC Results Database (RDB), LVS Match Comparison Reports',
+    edaCmd: 'Calibre nmDRC: calibre -drc -hier calibre_drc.rules\nCalibre nmLVS: calibre -lvs -hier calibre_lvs.rules',
+    challenges: 'Complex FinFET multi-patterning (SADP/SAQP) design rules, density gradient rules, ESD ERC',
+    signoff: 'DRC Clean: 0 design rule violations; LVS Clean: "Smiles" (Schematic and Layout MATCH exactly)'
+  },
+  {
+    name: '10. Tapeout Release',
+    sub: 'Mask Delivery to Foundry',
+    inputs: 'DRC/LVS Clean GDSII/OASIS, Dummy Fill Injected Database, Wafer Scribe Line Rules',
+    outputs: 'Signed Off Mask Delivery Tape, Tapeout Signoff Certificate',
+    edaCmd: 'ICC2: write_gds -view design -units 1000 tapeout.gds\nCalibre: calibre -drc -hier dummy_fill.rules',
+    challenges: 'Optical Proximity Correction (OPC) yield optimization, wafer perimeter keepouts, mask costs',
+    signoff: 'Official Foundry Tapeout Review (TRB) Passed; Mask tape sent to TSMC / Samsung / Intel'
+  }
+];
+
+function initSiliconStudio() {
+  const tabsBar = document.getElementById('studioTabsBar');
+  if (tabsBar) {
+    tabsBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.studio-tab-btn');
+      if (!btn) return;
+      switchStudioTab(btn.dataset.tab);
+    });
+  }
+
+  // Hook CMOS Inverter Sliders
+  const slVin = document.getElementById('sliderInvVin');
+  const slVdd = document.getElementById('sliderInvVdd');
+  const slBeta = document.getElementById('sliderInvBeta');
+
+  if (slVin) {
+    slVin.addEventListener('input', (e) => {
+      studioState.invVin = parseFloat(e.target.value);
+      renderInverterSim();
+    });
+  }
+  if (slVdd) {
+    slVdd.addEventListener('input', (e) => {
+      studioState.invVdd = parseFloat(e.target.value);
+      if (slVin) slVin.max = studioState.invVdd;
+      renderInverterSim();
+    });
+  }
+  if (slBeta) {
+    slBeta.addEventListener('input', (e) => {
+      studioState.invBeta = parseFloat(e.target.value);
+      renderInverterSim();
+    });
+  }
+
+  // Hook STA Sliders
+  const slStaTclk = document.getElementById('sliderStaTclk');
+  const slStaTlaunch = document.getElementById('sliderStaTlaunch');
+  const slStaTdata = document.getElementById('sliderStaTdata');
+  const slStaTcapture = document.getElementById('sliderStaTcapture');
+  const slStaTmargin = document.getElementById('sliderStaTmargin');
+
+  if (slStaTclk) {
+    slStaTclk.addEventListener('input', (e) => {
+      studioState.staTclk = parseFloat(e.target.value);
+      renderStaSim();
+    });
+  }
+  if (slStaTlaunch) {
+    slStaTlaunch.addEventListener('input', (e) => {
+      studioState.staTlaunch = parseFloat(e.target.value);
+      renderStaSim();
+    });
+  }
+  if (slStaTdata) {
+    slStaTdata.addEventListener('input', (e) => {
+      studioState.staTdata = parseFloat(e.target.value);
+      renderStaSim();
+    });
+  }
+  if (slStaTcapture) {
+    slStaTcapture.addEventListener('input', (e) => {
+      studioState.staTcapture = parseFloat(e.target.value);
+      renderStaSim();
+    });
+  }
+  if (slStaTmargin) {
+    slStaTmargin.addEventListener('input', (e) => {
+      studioState.staTmargin = parseFloat(e.target.value);
+      renderStaSim();
+    });
+  }
+
+  // Hook MOSFET Sliders
+  const slMosVgs = document.getElementById('sliderMosVgs');
+  const slMosVds = document.getElementById('sliderMosVds');
+  const slMosVth = document.getElementById('sliderMosVth');
+  const slMosVsb = document.getElementById('sliderMosVsb');
+
+  if (slMosVgs) {
+    slMosVgs.addEventListener('input', (e) => {
+      studioState.mosVgs = parseFloat(e.target.value);
+      renderMosfetSim();
+    });
+  }
+  if (slMosVds) {
+    slMosVds.addEventListener('input', (e) => {
+      studioState.mosVds = parseFloat(e.target.value);
+      renderMosfetSim();
+    });
+  }
+  if (slMosVth) {
+    slMosVth.addEventListener('input', (e) => {
+      studioState.mosVth = parseFloat(e.target.value);
+      renderMosfetSim();
+    });
+  }
+  if (slMosVsb) {
+    slMosVsb.addEventListener('input', (e) => {
+      studioState.mosVsb = parseFloat(e.target.value);
+      renderMosfetSim();
+    });
+  }
+
+  // Initial renders
+  renderInverterSim();
+  renderStaSim();
+  renderMosfetSim();
+  renderPipelineStages();
+  renderLogicGateSim();
+}
+
+window.switchStudioTab = function(tabName) {
+  studioState.activeTab = tabName;
+  const tabsBar = document.getElementById('studioTabsBar');
+  if (tabsBar) {
+    tabsBar.querySelectorAll('.studio-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+  }
+
+  const panel = document.getElementById('studioViewportPanel');
+  if (panel) {
+    panel.querySelectorAll('.studio-pane').forEach(p => p.classList.remove('active'));
+    const paneMap = {
+      inverter: 'paneInverter',
+      sta: 'paneSta',
+      mosfet: 'paneMosfet',
+      pipeline: 'panePipeline',
+      logic: 'paneLogic'
+    };
+    const target = document.getElementById(paneMap[tabName]);
+    if (target) target.classList.add('active');
+  }
+
+  if (tabName === 'inverter') renderInverterSim();
+  if (tabName === 'sta') renderStaSim();
+  if (tabName === 'mosfet') renderMosfetSim();
+  if (tabName === 'pipeline') renderPipelineStages();
+  if (tabName === 'logic') renderLogicGateSim();
+};
+
+/* --------------------------------------------------------------------------
+   1. CMOS Inverter VTC Engine
+   -------------------------------------------------------------------------- */
+window.setInvPreset = function(vin) {
+  studioState.invVin = vin;
+  const sl = document.getElementById('sliderInvVin');
+  if (sl) sl.value = vin;
+  renderInverterSim();
+};
+
+function renderInverterSim() {
+  const vin = studioState.invVin;
+  const vdd = studioState.invVdd;
+  const betaRatio = studioState.invBeta;
+  const vtn = 0.35;
+  const vtp = -0.35;
+
+  const vm = (vtn + Math.sqrt(betaRatio) * (vdd - Math.abs(vtp))) / (1 + Math.sqrt(betaRatio));
+  
+  // Calculate Vout
+  let vout;
+  let regionName = 'Region C: Saturation Transition';
+  let stateLabel = 'TRANSITION (META)';
+  let stateClass = 'amber';
+
+  if (vin < vtn) {
+    vout = vdd;
+    regionName = 'Region A: NMOS Cutoff, PMOS Linear';
+    stateLabel = 'LOGIC 1 (HIGH)';
+    stateClass = 'emerald';
+  } else if (vin > vdd - Math.abs(vtp)) {
+    vout = 0.0;
+    regionName = 'Region E: NMOS Linear, PMOS Cutoff';
+    stateLabel = 'LOGIC 0 (LOW)';
+    stateClass = 'cyan';
+  } else {
+    // Sigmoid transition around VM
+    const k = 14 / vdd;
+    vout = vdd / (1 + Math.exp(k * (vin - vm)));
+    if (vin < vm - 0.12) {
+      regionName = 'Region B: NMOS Saturation, PMOS Linear';
+    } else if (vin > vm + 0.12) {
+      regionName = 'Region D: NMOS Linear, PMOS Saturation';
+    } else {
+      regionName = 'Region C: Both Transistors in Saturation (Peak Isc)';
+    }
+  }
+
+  const nmH = Math.max(0, (vdd - 0.05) - (vm + 0.22)).toFixed(2);
+  const nmL = Math.max(0, (vm - 0.22) - 0.05).toFixed(2);
+
+  // Update label elements
+  const lblVin = document.getElementById('lblInvVin');
+  const lblVdd = document.getElementById('lblInvVdd');
+  const lblBeta = document.getElementById('lblInvBeta');
+  const badgeReg = document.getElementById('badgeInvRegion');
+  const statVout = document.getElementById('statInvVout');
+  const statState = document.getElementById('statInvState');
+  const statNmH = document.getElementById('statInvNMH');
+  const statNmL = document.getElementById('statInvNML');
+
+  if (lblVin) lblVin.textContent = `${vin.toFixed(2)} V`;
+  if (lblVdd) lblVdd.textContent = `${vdd.toFixed(2)} V`;
+  if (lblBeta) lblBeta.textContent = `${betaRatio.toFixed(2)}x`;
+  if (badgeReg) badgeReg.textContent = regionName;
+  if (statVout) statVout.textContent = `${vout.toFixed(2)} V`;
+  if (statState) {
+    statState.textContent = stateLabel;
+    statState.className = `studio-metric-val ${stateClass}`;
+  }
+  if (statNmH) statNmH.textContent = `${nmH} V`;
+  if (statNmL) statNmL.textContent = `${nmL} V`;
+
+  // Draw SVG VTC Curve
+  const svgContainer = document.getElementById('svgInvVtcContainer');
+  if (!svgContainer) return;
+
+  const width = 460;
+  const height = 230;
+  const pad = 36;
+  const plotW = width - pad * 2;
+  const plotH = height - pad * 2;
+
+  let pathD = '';
+  const steps = 40;
+  for (let i = 0; i <= steps; i++) {
+    const v = (i / steps) * vdd;
+    let vo;
+    if (v < vtn) vo = vdd;
+    else if (v > vdd - Math.abs(vtp)) vo = 0;
+    else vo = vdd / (1 + Math.exp((14 / vdd) * (v - vm)));
+
+    const x = pad + (v / vdd) * plotW;
+    const y = pad + plotH - (vo / vdd) * plotH;
+    pathD += (i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
+  }
+
+  const curX = pad + (vin / vdd) * plotW;
+  const curY = pad + plotH - (vout / vdd) * plotH;
+  const vmX = pad + (vm / vdd) * plotW;
+
+  svgContainer.innerHTML = `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <defs>
+        <linearGradient id="vtcLineGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#10b981" />
+          <stop offset="50%" stop-color="#00f2fe" />
+          <stop offset="100%" stop-color="#8b5cf6" />
+        </linearGradient>
+        <radialGradient id="dotGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#00f2fe" stop-opacity="1" />
+          <stop offset="100%" stop-color="#00f2fe" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <!-- Axes -->
+      <line x1="${pad}" y1="${pad + plotH}" x2="${pad + plotW}" y2="${pad + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${pad + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+
+      <!-- Grid lines -->
+      <line x1="${pad}" y1="${pad + plotH / 2}" x2="${pad + plotW}" y2="${pad + plotH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3" />
+      <line x1="${pad + plotW / 2}" y1="${pad}" x2="${pad + plotW / 2}" y2="${pad + plotH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3" />
+      <line x1="${vmX}" y1="${pad}" x2="${vmX}" y2="${pad + plotH}" stroke="rgba(0, 242, 254, 0.2)" stroke-dasharray="4,4" />
+
+      <!-- VTC Curve -->
+      <path d="${pathD}" fill="none" stroke="url(#vtcLineGrad)" stroke-width="3.5" stroke-linecap="round" />
+
+      <!-- Crosshairs for current point -->
+      <line x1="${curX}" y1="${curY}" x2="${curX}" y2="${pad + plotH}" stroke="#00f2fe" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />
+      <line x1="${pad}" y1="${curY}" x2="${curX}" y2="${curY}" stroke="#00f2fe" stroke-width="1" stroke-dasharray="2,2" opacity="0.6" />
+
+      <!-- Operating Dot -->
+      <circle cx="${curX}" cy="${curY}" r="12" fill="url(#dotGlow)" opacity="0.6" />
+      <circle cx="${curX}" cy="${curY}" r="5.5" fill="#00f2fe" stroke="#050811" stroke-width="2" />
+
+      <!-- Text annotations -->
+      <text x="${pad + 6}" y="${pad + 12}" fill="#94a3b8" font-size="10" font-family="monospace">Vout = ${vdd.toFixed(1)}V</text>
+      <text x="${pad + plotW - 4}" y="${pad + plotH + 18}" text-anchor="end" fill="#94a3b8" font-size="10" font-family="monospace">Vin = ${vdd.toFixed(1)}V</text>
+      <text x="${vmX}" y="${pad - 8}" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="700" font-family="monospace">VM=${vm.toFixed(2)}V</text>
+      <text x="${curX + 8}" y="${curY - 8}" fill="#00f2fe" font-size="11" font-weight="800" font-family="monospace">(${vin.toFixed(2)}V, ${vout.toFixed(2)}V)</text>
+    </svg>
+  `;
+}
+
+/* --------------------------------------------------------------------------
+   2. STA Timing Slack & Waveform Lab Engine
+   -------------------------------------------------------------------------- */
+window.setStaPreset = function(preset) {
+  if (preset === 'met') {
+    studioState.staTclk = 4.0;
+    studioState.staTlaunch = 0.8;
+    studioState.staTdata = 2.0;
+    studioState.staTcapture = 1.0;
+    studioState.staTmargin = 0.45;
+  } else if (preset === 'setup_viol') {
+    studioState.staTclk = 3.0;
+    studioState.staTlaunch = 1.2;
+    studioState.staTdata = 3.2;
+    studioState.staTcapture = 0.4;
+    studioState.staTmargin = 0.45;
+  } else if (preset === 'hold_viol') {
+    studioState.staTclk = 4.0;
+    studioState.staTlaunch = 0.2;
+    studioState.staTdata = 0.6;
+    studioState.staTcapture = 1.8;
+    studioState.staTmargin = 0.35;
+  } else if (preset === 'skew_opt') {
+    studioState.staTclk = 3.0;
+    studioState.staTlaunch = 0.6;
+    studioState.staTdata = 2.6;
+    studioState.staTcapture = 1.4; // useful skew +0.8ns
+    studioState.staTmargin = 0.45;
+  }
+
+  // Update slider positions
+  const slTclk = document.getElementById('sliderStaTclk');
+  const slTlaunch = document.getElementById('sliderStaTlaunch');
+  const slTdata = document.getElementById('sliderStaTdata');
+  const slTcap = document.getElementById('sliderStaTcapture');
+  const slTmarg = document.getElementById('sliderStaTmargin');
+
+  if (slTclk) slTclk.value = studioState.staTclk;
+  if (slTlaunch) slTlaunch.value = studioState.staTlaunch;
+  if (slTdata) slTdata.value = studioState.staTdata;
+  if (slTcap) slTcap.value = studioState.staTcapture;
+  if (slTmarg) slTmarg.value = studioState.staTmargin;
+
+  renderStaSim();
+};
+
+function renderStaSim() {
+  const tclk = studioState.staTclk;
+  const tlaunch = studioState.staTlaunch;
+  const tdata = studioState.staTdata;
+  const tcap = studioState.staTcapture;
+  const tmarg = studioState.staTmargin;
+
+  const tArrival = tlaunch + tdata;
+  const tRequired = tclk + tcap - tmarg;
+  const setupSlack = tRequired - tArrival;
+  const skew = tcap - tlaunch;
+  const isMet = setupSlack >= 0;
+
+  // Update DOM labels
+  const lblTclk = document.getElementById('lblStaTclk');
+  const lblTlaunch = document.getElementById('lblStaTlaunch');
+  const lblTdata = document.getElementById('lblStaTdata');
+  const lblTcap = document.getElementById('lblStaTcapture');
+  const lblTmarg = document.getElementById('lblStaTmargin');
+  const badgeStatus = document.getElementById('badgeStaStatus');
+  const statArr = document.getElementById('statStaArrival');
+  const statReq = document.getElementById('statStaRequired');
+  const statSlack = document.getElementById('statStaSetupSlack');
+  const statSkew = document.getElementById('statStaSkew');
+  const advisoryBox = document.getElementById('staAdvisoryBox');
+
+  const freqMhz = Math.round(1000 / tclk);
+  if (lblTclk) lblTclk.textContent = `${tclk.toFixed(2)} ns (${freqMhz} MHz)`;
+  if (lblTlaunch) lblTlaunch.textContent = `${tlaunch.toFixed(2)} ns`;
+  if (lblTdata) lblTdata.textContent = `${tdata.toFixed(2)} ns`;
+  if (lblTcap) lblTcap.textContent = `${tcap.toFixed(2)} ns (Skew: ${skew >= 0 ? '+' : ''}${skew.toFixed(2)}ns)`;
+  if (lblTmarg) lblTmarg.textContent = `${tmarg.toFixed(2)} ns`;
+
+  if (badgeStatus) {
+    badgeStatus.textContent = isMet ? 'SETUP MET' : 'SETUP VIOLATION';
+    badgeStatus.className = `badge ${isMet ? 'badge-emerald' : 'badge-rose'}`;
+  }
+  if (statArr) statArr.textContent = `${tArrival.toFixed(2)} ns`;
+  if (statReq) statReq.textContent = `${tRequired.toFixed(2)} ns`;
+  if (statSlack) {
+    statSlack.textContent = `${setupSlack >= 0 ? '+' : ''}${setupSlack.toFixed(2)} ns (${isMet ? 'MET' : 'VIOLATED'})`;
+    statSlack.className = `studio-metric-val ${isMet ? 'emerald' : 'rose'}`;
+  }
+  if (statSkew) statSkew.textContent = `${skew >= 0 ? '+' : ''}${skew.toFixed(2)} ns`;
+
+  if (advisoryBox) {
+    if (isMet) {
+      advisoryBox.innerHTML = `<strong>EDA Signoff Advisory:</strong> Timing constraints satisfied with a healthy setup margin of <strong>+${setupSlack.toFixed(2)} ns</strong>. Clock tree skew is well controlled (${skew >= 0 ? '+' : ''}${skew.toFixed(2)} ns). Ready for tapeout signoff.`;
+    } else {
+      advisoryBox.innerHTML = `<strong>EDA Critical Alert:</strong> Negative setup slack detected (<strong>${setupSlack.toFixed(2)} ns violation</strong>). Recommended Fix Sequence: 1. Swap critical data path cells to Low-Vt (LVT); 2. Insert pipeline registers; 3. Leverage useful skew by delaying capture clock leaf.`;
+    }
+  }
+
+  // Draw 3-Lane SVG Waveform
+  const svgContainer = document.getElementById('svgStaWaveformContainer');
+  if (!svgContainer) return;
+
+  const width = 500;
+  const height = 210;
+  const maxTime = Math.max(tclk + tcap + 2.0, tArrival + 1.5);
+  const timeToX = (t) => 80 + (t / maxTime) * 390;
+
+  const yL1 = 45;  // Launch CLK
+  const yL2 = 105; // Data Path
+  const yL3 = 165; // Capture CLK
+
+  const xL_edge = timeToX(tlaunch);
+  const xData_trans = timeToX(tlaunch + 0.2);
+  const xData_arr = timeToX(tArrival);
+  const xCap_edge = timeToX(tclk + tcap);
+  const xHaz_start = timeToX(tRequired);
+
+  svgContainer.innerHTML = `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <!-- Background Lanes -->
+      <rect x="75" y="25" width="415" height="40" fill="rgba(255,255,255,0.015)" rx="4" />
+      <rect x="75" y="85" width="415" height="40" fill="rgba(255,255,255,0.025)" rx="4" />
+      <rect x="75" y="145" width="415" height="40" fill="rgba(255,255,255,0.015)" rx="4" />
+
+      <!-- Lane Labels -->
+      <text x="70" y="${yL1 + 5}" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="700" font-family="monospace">CLK_L</text>
+      <text x="70" y="${yL2 + 5}" text-anchor="end" fill="#00f2fe" font-size="11" font-weight="700" font-family="monospace">DATA</text>
+      <text x="70" y="${yL3 + 5}" text-anchor="end" fill="#a855f7" font-size="11" font-weight="700" font-family="monospace">CLK_C</text>
+
+      <!-- Shaded Setup Hazard Zone -->
+      <rect x="${xHaz_start}" y="82" width="${Math.max(1, xCap_edge - xHaz_start)}" height="106" fill="rgba(239, 68, 68, 0.18)" stroke="#ef4444" stroke-dasharray="3,3" stroke-width="1.2" rx="3" />
+      <text x="${xCap_edge - 4}" y="196" text-anchor="end" fill="#f87171" font-size="10" font-family="monospace">Setup Window (Tsetup+Tunc)</text>
+
+      <!-- Launch Clock Waveform -->
+      <path d="M 80 ${yL1 + 12} L ${xL_edge} ${yL1 + 12} L ${xL_edge} ${yL1 - 12} L ${timeToX(tlaunch + tclk / 2)} ${yL1 - 12} L ${timeToX(tlaunch + tclk / 2)} ${yL1 + 12} L ${timeToX(tlaunch + tclk)} ${yL1 + 12} L ${timeToX(tlaunch + tclk)} ${yL1 - 12} L ${width - 15} ${yL1 - 12}" fill="none" stroke="#60a5fa" stroke-width="2.5" />
+
+      <!-- Data Path Transition Waveform -->
+      <polygon points="80,${yL2} ${xL_edge},${yL2} ${xData_trans},${yL2 - 10} ${xData_arr},${yL2 - 10} ${xData_arr + 8},${yL2} ${xData_trans},${yL2 + 10} ${xL_edge},${yL2}" fill="rgba(0, 242, 254, 0.12)" stroke="#00f2fe" stroke-width="1.8" />
+      <!-- Stable Data Bus -->
+      <polygon points="${xData_arr},${yL2 - 10} ${width - 15},${yL2 - 10} ${width - 15},${yL2 + 10} ${xData_arr},${yL2 + 10} ${xData_arr - 6},${yL2}" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2" />
+      <text x="${xData_arr + 12}" y="${yL2 + 4}" fill="#10b981" font-size="10" font-weight="800" font-family="monospace">DATA VALID</text>
+
+      <!-- Capture Clock Waveform -->
+      <path d="M 80 ${yL3 + 12} L ${xCap_edge} ${yL3 + 12} L ${xCap_edge} ${yL3 - 12} L ${timeToX(tclk + tcap + tclk / 2)} ${yL3 - 12} L ${timeToX(tclk + tcap + tclk / 2)} ${yL3 + 12} L ${width - 15} ${yL3 + 12}" fill="none" stroke="#c084fc" stroke-width="2.5" />
+
+      <!-- Arrival Marker Line -->
+      <line x1="${xData_arr}" y1="20" x2="${xData_arr}" y2="190" stroke="${isMet ? '#10b981' : '#ef4444'}" stroke-width="2" stroke-dasharray="4,3" />
+      <circle cx="${xData_arr}" cy="${yL2}" r="5" fill="${isMet ? '#10b981' : '#ef4444'}" />
+      <text x="${xData_arr}" y="15" text-anchor="middle" fill="${isMet ? '#10b981' : '#ef4444'}" font-size="10" font-weight="800" font-family="monospace">T_arrival=${tArrival.toFixed(2)}ns</text>
+    </svg>
+  `;
+}
+
+/* --------------------------------------------------------------------------
+   3. MOSFET IV Characteristics & Channel Physics Simulator
+   -------------------------------------------------------------------------- */
+window.setMosVth = function(vth) {
+  studioState.mosVth = vth;
+  const sl = document.getElementById('sliderMosVth');
+  if (sl) sl.value = vth;
+  renderMosfetSim();
+};
+
+window.setMosPreset = function(preset) {
+  if (preset === 'cutoff') {
+    studioState.mosVgs = 0.30;
+    studioState.mosVds = 0.80;
+  } else if (preset === 'linear') {
+    studioState.mosVgs = 1.40;
+    studioState.mosVds = 0.35;
+  } else if (preset === 'saturation') {
+    studioState.mosVgs = 1.40;
+    studioState.mosVds = 1.30;
+  }
+
+  const slVgs = document.getElementById('sliderMosVgs');
+  const slVds = document.getElementById('sliderMosVds');
+  if (slVgs) slVgs.value = studioState.mosVgs;
+  if (slVds) slVds.value = studioState.mosVds;
+
+  renderMosfetSim();
+};
+
+function renderMosfetSim() {
+  const vgs = studioState.mosVgs;
+  const vds = studioState.mosVds;
+  const vth0 = studioState.mosVth;
+  const vsb = studioState.mosVsb;
+
+  const vthEff = vth0 + 0.45 * (Math.sqrt(0.6 + vsb) - Math.sqrt(0.6));
+  const vov = vgs - vthEff;
+  const k = 1.15; // mA/V²
+
+  let id;
+  let regime = 'SATURATION';
+  let pinchDesc = 'Channel Pinched Off at Drain';
+
+  if (vgs <= vthEff) {
+    regime = 'CUTOFF';
+    id = 0.001 * Math.exp((vgs - vthEff) / 0.07);
+    pinchDesc = 'No Inversion Channel';
+  } else if (vds < vov) {
+    regime = 'LINEAR (TRIODE)';
+    id = k * ((vgs - vthEff) * vds - 0.5 * vds * vds) * (1 + 0.06 * vds);
+    pinchDesc = 'Continuous Inverted Channel';
+  } else {
+    regime = 'SATURATION';
+    id = 0.5 * k * (vov * vov) * (1 + 0.06 * vds);
+    pinchDesc = 'Pinched Off at Drain Edge';
+  }
+
+  // Update labels
+  const lblVgs = document.getElementById('lblMosVgs');
+  const lblVds = document.getElementById('lblMosVds');
+  const lblVth = document.getElementById('lblMosVth');
+  const lblVsb = document.getElementById('lblMosVsb');
+  const badgeRegime = document.getElementById('badgeMosRegime');
+  const statId = document.getElementById('statMosId');
+  const statVthEff = document.getElementById('statMosVthEff');
+  const statVov = document.getElementById('statMosVov');
+  const statPinch = document.getElementById('statMosPinch');
+
+  if (lblVgs) lblVgs.textContent = `${vgs.toFixed(2)} V`;
+  if (lblVds) lblVds.textContent = `${vds.toFixed(2)} V`;
+  if (lblVth) lblVth.textContent = `${vth0.toFixed(2)} V`;
+  if (lblVsb) lblVsb.textContent = `${vsb.toFixed(2)} V`;
+  if (badgeRegime) {
+    badgeRegime.textContent = regime;
+    badgeRegime.className = `badge ${regime === 'SATURATION' ? 'badge-cyan' : regime === 'LINEAR (TRIODE)' ? 'badge-emerald' : 'badge-amber'}`;
+  }
+  if (statId) statId.textContent = `${id.toFixed(3)} mA`;
+  if (statVthEff) statVthEff.textContent = `${vthEff.toFixed(2)} V`;
+  if (statVov) statVov.textContent = `${vov > 0 ? vov.toFixed(2) : '0.00'} V`;
+  if (statPinch) statPinch.textContent = pinchDesc;
+
+  // Render SVG Curves
+  const svgContainer = document.getElementById('svgMosfetContainer');
+  if (!svgContainer) return;
+
+  const width = 460;
+  const height = 230;
+  const pad = 35;
+  const plotW = width - pad * 2;
+  const plotH = height - pad * 2;
+  const maxVds = 1.8;
+  const maxId = 2.4; // mA
+
+  const vgsLevels = [0.6, 0.9, 1.2, 1.5, 1.8];
+  let curvesSvg = '';
+
+  vgsLevels.forEach(vg => {
+    let d = '';
+    const vov_lvl = Math.max(0, vg - vthEff);
+    for (let i = 0; i <= 36; i++) {
+      const v = (i / 36) * maxVds;
+      let curr = 0;
+      if (vg > vthEff) {
+        if (v < vov_lvl) {
+          curr = k * (vov_lvl * v - 0.5 * v * v) * (1 + 0.06 * v);
+        } else {
+          curr = 0.5 * k * (vov_lvl * vov_lvl) * (1 + 0.06 * v);
+        }
+      }
+      const x = pad + (v / maxVds) * plotW;
+      const y = pad + plotH - (curr / maxId) * plotH;
+      d += (i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
+    }
+    const endX = pad + plotW;
+    const endCurr = vg > vthEff ? 0.5 * k * (vov_lvl * vov_lvl) * (1 + 0.06 * maxVds) : 0;
+    const endY = pad + plotH - (endCurr / maxId) * plotH;
+    curvesSvg += `
+      <path d="${d}" fill="none" stroke="rgba(56, 189, 248, 0.35)" stroke-width="1.8" />
+      <text x="${endX - 4}" y="${endY - 4}" fill="#64748b" font-size="9" font-family="monospace">VGS=${vg.toFixed(1)}V</text>
+    `;
+  });
+
+  // Current operating point
+  const curX = pad + (vds / maxVds) * plotW;
+  const curY = pad + plotH - (Math.min(maxId, id) / maxId) * plotH;
+
+  svgContainer.innerHTML = `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <!-- Axes -->
+      <line x1="${pad}" y1="${pad + plotH}" x2="${pad + plotW}" y2="${pad + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${pad + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+
+      <!-- Family of Curves -->
+      ${curvesSvg}
+
+      <!-- Crosshairs -->
+      <line x1="${curX}" y1="${curY}" x2="${curX}" y2="${pad + plotH}" stroke="#f59e0b" stroke-dasharray="2,2" opacity="0.6" />
+      <line x1="${pad}" y1="${curY}" x2="${curX}" y2="${curY}" stroke="#f59e0b" stroke-dasharray="2,2" opacity="0.6" />
+
+      <!-- Operating Point -->
+      <circle cx="${curX}" cy="${curY}" r="6" fill="#f59e0b" stroke="#050811" stroke-width="2" />
+      <text x="${curX + 8}" y="${curY - 6}" fill="#fbbf24" font-size="11" font-weight="700" font-family="monospace">(${vds.toFixed(2)}V, ${id.toFixed(2)}mA)</text>
+      
+      <text x="${pad + 6}" y="${pad + 10}" fill="#94a3b8" font-size="10" font-family="monospace">ID (mA)</text>
+      <text x="${pad + plotW - 4}" y="${pad + plotH + 18}" text-anchor="end" fill="#94a3b8" font-size="10" font-family="monospace">VDS (Volts)</text>
+    </svg>
+  `;
+}
+
+/* --------------------------------------------------------------------------
+   4. ASIC Physical Design Flow Pipeline Engine
+   -------------------------------------------------------------------------- */
+function renderPipelineStages() {
+  const pillsContainer = document.getElementById('pipelineStagePills');
+  const detailsCard = document.getElementById('pipelineStageDetailCard');
+  if (!pillsContainer || !detailsCard) return;
+
+  const curIdx = studioState.pipelineActiveStage;
+  const stage = PIPELINE_STAGES[curIdx] || PIPELINE_STAGES[0];
+
+  pillsContainer.innerHTML = PIPELINE_STAGES.map((s, idx) => `
+    <button class="pipeline-pill-btn ${idx === curIdx ? 'active' : ''}" onclick="selectPipelineStage(${idx})">
+      <span>${s.name}</span>
+    </button>
+  `).join('');
+
+  detailsCard.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
+      <div>
+        <span class="badge badge-cyan" style="margin-bottom:0.4rem; font-family:var(--font-mono);">STAGE ${curIdx + 1} OF 10</span>
+        <h3 style="font-size:1.4rem; font-weight:800; color:var(--text-primary); font-family:var(--font-heading);">${stage.name}</h3>
+        <p style="color:var(--text-secondary); font-size:0.92rem;">${stage.sub}</p>
+      </div>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn-secondary" onclick="selectPipelineStage(${Math.max(0, curIdx - 1)})" ${curIdx === 0 ? 'disabled style="opacity:0.4;"' : ''}>← Previous</button>
+        <button class="btn-primary" onclick="selectPipelineStage(${Math.min(PIPELINE_STAGES.length - 1, curIdx + 1)})" ${curIdx === PIPELINE_STAGES.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>Next Stage →</button>
+      </div>
+    </div>
+
+    <div class="pipeline-detail-grid">
+      <div class="pipeline-subbox">
+        <div class="pipeline-subbox-title" style="color:var(--accent-cyan);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          Input & Output Files
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;"><strong>Inputs:</strong> ${stage.inputs}</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin-top:0.4rem;"><strong>Outputs:</strong> ${stage.outputs}</p>
+      </div>
+
+      <div class="pipeline-subbox">
+        <div class="pipeline-subbox-title" style="color:var(--accent-purple);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          Industrial EDA Shell Commands
+        </div>
+        <pre style="background:#070a12; padding:0.6rem 0.8rem; border-radius:6px; font-family:var(--font-mono); font-size:0.78rem; color:#7dd3fc; overflow-x:auto;">${stage.edaCmd}</pre>
+      </div>
+
+      <div class="pipeline-subbox">
+        <div class="pipeline-subbox-title" style="color:var(--accent-amber);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Physics & Architecture Challenges
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">${stage.challenges}</p>
+      </div>
+
+      <div class="pipeline-subbox">
+        <div class="pipeline-subbox-title" style="color:var(--accent-emerald);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Foundry Tapeout Signoff Gate
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">${stage.signoff}</p>
+      </div>
+    </div>
+  `;
+}
+
+window.selectPipelineStage = function(idx) {
+  studioState.pipelineActiveStage = idx;
+  renderPipelineStages();
+};
+
+/* --------------------------------------------------------------------------
+   5. Standard Cell Logic & Stick Layout Switcher
+   -------------------------------------------------------------------------- */
+window.selectLogicGate = function(gate) {
+  studioState.logicGate = gate;
+  const btns = document.querySelectorAll('#logicGateSelectors button');
+  btns.forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(gate.toLowerCase()));
+  });
+  renderLogicGateSim();
+};
+
+window.toggleLogicInput = function(pin) {
+  if (pin === 'A') studioState.logicInA = studioState.logicInA === 1 ? 0 : 1;
+  if (pin === 'B') studioState.logicInB = studioState.logicInB === 1 ? 0 : 1;
+  renderLogicGateSim();
+};
+
+function renderLogicGateSim() {
+  const gate = studioState.logicGate;
+  const inA = studioState.logicInA;
+  const inB = studioState.logicInB;
+
+  const btnA = document.getElementById('btnToggleInA');
+  const btnB = document.getElementById('btnToggleInB');
+  if (btnA) btnA.innerHTML = `Input A: <strong style="color:var(--accent-cyan); font-size:1.1rem;">${inA}</strong>`;
+  if (btnB) btnB.innerHTML = `Input B: <strong style="color:var(--accent-cyan); font-size:1.1rem;">${inB}</strong>`;
+
+  let outVal = 0;
+  let rows = [];
+
+  if (gate === 'inv') {
+    outVal = inA === 0 ? 1 : 0;
+    rows = [
+      { a: 0, b: '-', y: 1 },
+      { a: 1, b: '-', y: 0 }
+    ];
+  } else if (gate === 'nand2') {
+    outVal = (inA === 1 && inB === 1) ? 0 : 1;
+    rows = [
+      { a: 0, b: 0, y: 1 },
+      { a: 0, b: 1, y: 1 },
+      { a: 1, b: 0, y: 1 },
+      { a: 1, b: 1, y: 0 }
+    ];
+  } else if (gate === 'nor2') {
+    outVal = (inA === 0 && inB === 0) ? 1 : 0;
+    rows = [
+      { a: 0, b: 0, y: 1 },
+      { a: 0, b: 1, y: 0 },
+      { a: 1, b: 0, y: 0 },
+      { a: 1, b: 1, y: 0 }
+    ];
+  } else if (gate === 'tg') {
+    outVal = inB === 1 ? inA : 'Hi-Z (Tri)';
+    rows = [
+      { a: 0, b: 0, y: 'Hi-Z' },
+      { a: 1, b: 0, y: 'Hi-Z' },
+      { a: 0, b: 1, y: 0 },
+      { a: 1, b: 1, y: 1 }
+    ];
+  } else if (gate === 'dff') {
+    outVal = inA; // Q tracks D
+    rows = [
+      { a: 0, b: '↑', y: 0 },
+      { a: 1, b: '↑', y: 1 }
+    ];
+  }
+
+  // Update Badge Output
+  const badgeOut = document.getElementById('badgeLogicOutput');
+  if (badgeOut) {
+    badgeOut.textContent = `OUT = ${outVal}`;
+    badgeOut.className = `badge ${outVal === 1 || outVal === '1' ? 'badge-emerald' : 'badge-cyan'}`;
+  }
+
+  // Render Truth Table
+  const tableEl = document.getElementById('logicTruthTable');
+  if (tableEl) {
+    tableEl.innerHTML = `
+      <thead>
+        <tr>
+          <th>Input A</th>
+          ${gate !== 'inv' ? '<th>Input B (or Clk)</th>' : ''}
+          <th>Output (Y)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => {
+          const isActive = (r.a === inA) && (gate === 'inv' || r.b === inB || r.b === '-' || (gate === 'dff' && r.a === inA));
+          return `
+            <tr class="${isActive ? 'active-row' : ''}">
+              <td>${r.a}</td>
+              ${gate !== 'inv' ? `<td>${r.b}</td>` : ''}
+              <td><strong>${r.y}</strong></td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    `;
+  }
+
+  // Render SVG Circuit Schematic & Stick Diagram
+  const svgContainer = document.getElementById('svgLogicContainer');
+  if (!svgContainer) return;
+
+  const pullUpConduction = (gate === 'inv' && inA === 0) || (gate === 'nand2' && (inA === 0 || inB === 0)) || (gate === 'nor2' && inA === 0 && inB === 0);
+  const pullDownConduction = !pullUpConduction;
+
+  svgContainer.innerHTML = `
+    <svg width="460" height="220" viewBox="0 0 460 220">
+      <!-- VDD Rail -->
+      <line x1="30" y1="25" x2="430" y2="25" stroke="#00f2fe" stroke-width="4" />
+      <text x="35" y="18" fill="#00f2fe" font-size="10" font-weight="800" font-family="monospace">VDD (Power Rail)</text>
+
+      <!-- VSS Rail -->
+      <line x1="30" y1="195" x2="430" y2="195" stroke="#8b5cf6" stroke-width="4" />
+      <text x="35" y="212" fill="#8b5cf6" font-size="10" font-weight="800" font-family="monospace">VSS (Ground Rail)</text>
+
+      <!-- N-Well Region (Top Half) -->
+      <rect x="50" y="30" width="360" height="70" fill="rgba(0, 242, 254, 0.05)" stroke="rgba(0, 242, 254, 0.2)" stroke-dasharray="4,4" rx="4" />
+      <text x="56" y="44" fill="#38bdf8" font-size="9" font-family="monospace">N-WELL (PMOS Network)</text>
+
+      <!-- P-Substrate Region (Bottom Half) -->
+      <rect x="50" y="120" width="360" height="70" fill="rgba(139, 92, 246, 0.05)" stroke="rgba(139, 92, 246, 0.2)" stroke-dasharray="4,4" rx="4" />
+      <text x="56" y="134" fill="#c084fc" font-size="9" font-family="monospace">P-SUBSTRATE (NMOS Network)</text>
+
+      <!-- Vertical Polysilicon Gate 1 (Input A) -->
+      <rect x="150" y="40" width="16" height="140" fill="${inA === 1 ? '#ef4444' : '#10b981'}" rx="2" opacity="0.85" />
+      <text x="158" y="112" text-anchor="middle" fill="#050811" font-size="10" font-weight="800" font-family="monospace">A=${inA}</text>
+
+      <!-- Vertical Polysilicon Gate 2 (Input B) -->
+      ${gate !== 'inv' ? `
+        <rect x="250" y="40" width="16" height="140" fill="${inB === 1 ? '#ef4444' : '#10b981'}" rx="2" opacity="0.85" />
+        <text x="258" y="112" text-anchor="middle" fill="#050811" font-size="10" font-weight="800" font-family="monospace">B=${inB}</text>
+      ` : ''}
+
+      <!-- Output Node Y -->
+      <line x1="330" y1="65" x2="330" y2="155" stroke="${pullUpConduction ? '#10b981' : '#00f2fe'}" stroke-width="3" />
+      <circle cx="330" cy="110" r="7" fill="${outVal === 1 || outVal === '1' ? '#10b981' : '#00f2fe'}" />
+      <text x="345" y="114" fill="#f8fafc" font-size="12" font-weight="800" font-family="monospace">OUTPUT Y = ${outVal}</text>
+
+      <!-- Current Flow Arrow -->
+      ${pullUpConduction ? `
+        <path d="M 330 30 L 330 95" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow)" />
+        <text x="335" y="45" fill="#10b981" font-size="9" font-family="monospace">PULL-UP ON (VDD)</text>
+      ` : `
+        <path d="M 330 185 L 330 125" stroke="#8b5cf6" stroke-width="2.5" />
+        <text x="335" y="180" fill="#c084fc" font-size="9" font-family="monospace">PULL-DOWN ON (VSS)</text>
+      `}
+    </svg>
+  `;
 }
 
 

@@ -2,7 +2,7 @@
 
 > **Document Purpose**: Real-time record of completed milestones, ongoing enhancements, architectural decisions, and feature backlog for the **EducateVLSI Silicon Academy & Physical Design Workstation**.  
 > **Last Updated**: October 28, 2026  
-> **Status**: **Phase 5 Complete — Live Production Deployment Active on Firebase Hosting (educate-vlsi.web.app)**
+> **Status**: **Phase 6 Complete — Mobile Views UI/UX Overhaul, Silicon Studio GUI & Deep Learning Expansion Complete**
 
 ---
 
@@ -10,10 +10,11 @@
 
 | Dimension | Target Metric | Current Status | Progress |
 | :--- | :--- | :--- | :---: |
-| **Workstation UI/UX** | Semiconductor Obsidian Design | 100% Implemented & Tested | `[██████████] 100%` |
+| **Workstation Mobile UI/UX** | Fluid Grids, Bottom Sheets, Non-Overlap Chips | 100% Implemented & Tested | `[██████████] 100%` |
+| **Silicon Studio Interactive GUI** | 5 Analytical EDA & Physics Simulators | 5/5 Live Simulators | `[██████████] 100%` |
 | **Firebase Cloud Hosting** | Google Global Edge CDN Deploy | 100% Live: `educate-vlsi.web.app` | `[██████████] 100%` |
 | **Silicon Study Vault** | 24 Ingested Course Assets (`Study/`) | 24/24 Assets Live & Linked | `[██████████] 100%` |
-| **'LEARN' Academy** | 6 Tracks, 24 In-Depth Lessons | 24/24 Lessons Live + Q&A | `[██████████] 100%` |
+| **'LEARN' Academy & Studio** | 6 Tracks, 25 Lessons, 125 Study Tabs | 25/25 Deep Lessons + 5 Studio GUIs | `[██████████] 100%` |
 | **Interview Flashcards** | 74 ASIC/PD Cards with 3D Flip | 74/74 Live + Persistence | `[██████████] 100%` |
 | **Live PD Calculators** | 12 Mathematical EDA Engines | 12/12 Real-Time Calculators | `[██████████] 100%` |
 | **EDA Debug Center** | 12-Stage Triage & 10-Point Priority | 10-Point Sequence + Signatures | `[██████████] 100%` |
@@ -198,10 +199,39 @@ Every module contains an executive summary, governing mathematical formulas, dee
 | **Firebase Edge CDN (Workstation)** | `https://educate-vlsi.web.app` | HTTP 200, 114 KB payload | 🟢 PASS |
 | **Firebase Edge CDN (HTML Lab)** | `/study/day1_cmos_foundations.html` | HTTP 200, 68 KB payload | 🟢 PASS |
 | **Firebase Edge CDN (PDF Manual)** | `/study/LMS_ICC_Lab_Manual.pdf` | HTTP 200, 5.3 MB payload | 🟢 PASS |
+| **Silicon Studio GUI (5 Panels)** | Inverter, STA, MOSFET, Flow, Logic | Live SVG rendering, interactive sliders | 🟢 PASS |
+| **Hero Tech Badges Non-Overlap** | DOM Query `.hero-tech-chips-bar` | Docked cleanly below banner, 0 overlap | 🟢 PASS |
+| **Modal Study Drawer Opening** | Click `btn-open-lesson` / card | Smooth activation, backdrop scroll lock | 🟢 PASS |
+| **Multi-Tab Learning Depth** | 25 lessons × 5 tabs (125 cycles) | Formulations, SI units, EDA recipes, Q&As | 🟢 PASS |
 
 ---
 
-## 🚀 Ongoing & Future Roadmap (Phase 6 Backlog)
+### Phase 6: Mobile Views UI/UX Overhaul, Silicon Interactive Studio GUI Lab & Deep Learning Expansion
+- [x] **Mobile Views UI/UX Overhaul**:
+  - Eliminated horizontal viewport scrolling on narrow mobile screens (< 380px) via `overflow-x: hidden`, `max-width: 100vw`, and fluid `clamp()` typography.
+  - Implemented glassy backdrop overlay (`.mobile-nav-backdrop`) with `backdrop-filter: blur(12px)` and body scroll-locking (`body.nav-drawer-open`).
+  - Redesigned the lesson study drawer on mobile into an app-native bottom sheet (94vh, top-rounded, touch-scrolling body, sticky header, full-width action buttons).
+  - Overhauled all workstation grids (`.flashcards-grid`, `.calculators-grid`, `.debug-errors-grid`, `.learn-modules-grid`, `.study-vault-grid`) from rigid fixed sizes to fluid `minmax(min(100%, 320px), 1fr)`.
+  - Re-organized `.floating-tech-chip chip-1` and `chip-2` from overlapping absolute positions over the channel banner into an organized, dedicated `.hero-tech-chips-bar` situated cleanly between the banner and the channel profile.
+- [x] **Silicon Interactive Studio & GUI Lab (`#siliconStudioWrap`)**:
+  - **CMOS Inverter VTC & Carrier Simulator**: Real-time analytical VTC curves ($V_{OH}, V_{OL}, V_{IH}, V_{IL}, V_M$), dynamic Noise Margins ($NM_H, NM_L$), and charge carrier drift visualization in NMOS/PMOS channels.
+  - **STA Timing Slack & Waveform Lab**: 3-lane dynamic SVG timing waveforms (Launch Clock, Data at D-Pin, Capture Clock) with real-time Slack calculation ($\text{Slack} = T_{clk} - T_{skew} - T_{c2q} - T_{comb} - T_{setup} - T_{unc}$), dynamic setup hazard highlight zone, and live violation banner.
+  - **MOSFET IV Physics & Channel Regime Simulator**: Family of $I_{DS}-V_{DS}$ characteristic curves across $V_{GS}$ bias steps, active operating point marker, dynamic regime badge (Cutoff, Linear, Saturation), and SVG physical channel pinch-off diagram.
+  - **ASIC Physical Design 10-Stage Flow Explorer**: 10-stage sequential interactive pipeline stepper (Synthesis $\to$ Floorplan $\to$ Power Plan $\to$ Placement $\to$ CTS $\to$ Route $\to$ DRC/LVS $\to$ Parasitic Ext $\to$ STA Signoff $\to$ Tapeout) with live inputs/outputs, key EDA commands (Innovus/ICC2), and critical failure modes.
+  - **Standard Cell Logic & Stick Layout Switcher**: 6-gate logic laboratory (INV, NAND2, NOR2, AND2, OR2, XOR2) with live dynamic truth table highlighting active input state, transistor switch state summary (ON/OFF), and colored SVG stick diagram layout.
+- [x] **Deep Educational Expansion across all 25 Curriculum Lessons (`LESSON_EXPANDED_DATA`)**:
+  - Resolved `btn-open-lesson` click activation and eliminated scope errors by hoisting `LESSON_GUI_MAP` to file scope and mapping all 25 lessons to the Silicon Studio.
+  - Made the entire `.learn-module-card` clickable with `style="cursor: pointer;"` while isolating button clicks via `event.stopPropagation()`.
+  - Enhanced the 5 modal study tabs with vast, foundry-validated technical information:
+    - **`📖 Core Theory`**: Executive briefing, deep semiconductor physics, silicon architecture & EDA tool flow impact, and PPA design trade-offs.
+    - **`📐 Formulas & Math`**: Monospace equation callouts, comprehensive term-by-term physical variable tables with SI engineering units, real-world worked numerical examples with calculations and signoff pass/fail judgments, and PVT corner sensitivity analyses.
+    - **`⚡ Interactive GUI Lab`**: Direct launcher to corresponding Silicon Studio simulators with 3 guided engineering experiment challenges.
+    - **`💡 PD Practitioner Tips`**: Foundry tapeout gotchas, production EDA TCL command recipes for Cadence Innovus and Synopsys ICC2/PrimeTime, and signoff verification checklists.
+    - **`🎯 Interview Q&A`**: Tier-1 semiconductor company interview questions with difficulty tags, Core Engineering Insights, and deep-dive solutions.
+
+---
+
+## 🚀 Ongoing & Future Roadmap (Phase 7 Backlog)
 
 The following items are planned for future iterations of the platform:
 
