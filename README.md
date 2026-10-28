@@ -3,9 +3,10 @@
 [![Platform](https://img.shields.io/badge/Platform-EducateVLSI-00f2fe?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@EducateVLSI)
 [![Tech Stack](https://img.shields.io/badge/Tech-HTML5%20%7C%20Vanilla%20CSS%20%7C%20ES6%20JS-8b5cf6?style=for-the-badge)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Design](https://img.shields.io/badge/Design-Semiconductor%20Obsidian%20UI-10b981?style=for-the-badge)](#aesthetics--design-system)
-[![Status](https://img.shields.io/badge/Status-Signoff%20Ready-cyan?style=for-the-badge)](PROGRESS.md)
-[![Live Site](https://img.shields.io/badge/GitHub%20Pages-Live%20Deploy-00f2fe?style=for-the-badge&logo=github)](https://vishnu-000.github.io/EducateVLSI/)
-[![Firebase Hosting](https://img.shields.io/badge/Firebase-educate--vlsi.web.app-orange?style=for-the-badge&logo=firebase)](https://educate-vlsi.web.app)
+[![Status](https://img.shields.io/badge/Status-Phase%206%20Complete-cyan?style=for-the-badge)](PROGRESS.md)
+[![Live Site](https://img.shields.io/badge/Firebase%20Hosting-educate--vlsi.web.app-orange?style=for-the-badge&logo=firebase)](https://educate-vlsi.web.app)
+[![Silicon Studio](https://img.shields.io/badge/Silicon%20Studio-5%20Interactive%20GUIs-00f2fe?style=for-the-badge)](#silicon-interactive-studio--gui-lab)
+[![Curriculum](https://img.shields.io/badge/Curriculum-25%20Modules%20%7C%20125%20Study%20Tabs-10b981?style=for-the-badge)](#learn-academy-ece-to-vlsi-pd-curriculum)
 
 Official open-source engineering workstation and learning platform for **[EducateVLSI (@EducateVLSI)](https://www.youtube.com/@EducateVLSI)**. Designed specifically for VLSI, ASIC, and Semiconductor Physical Design engineers, students, and EDA developers transitioning from foundational Electronics and Communication Engineering (ECE) to sub-3nm Gate-All-Around (GAA) tapeouts.
 
@@ -14,17 +15,19 @@ Official open-source engineering workstation and learning platform for **[Educat
 ## 📑 Table of Contents
 1. [Platform Overview & Vision](#platform-overview--vision)
 2. [Key Feature Matrix](#key-feature-matrix)
-3. ['LEARN' Academy: ECE to VLSI-PD Curriculum (24 Modules)](#learn-academy-ece-to-vlsi-pd-curriculum)
-4. [Silicon Study Vault & Reference Library (24 Assets)](#silicon-study-vault--reference-library)
-5. [12 Live Physical Design Calculation Engines](#12-live-physical-design-calculation-engines)
-6. [EDA Debug Center & 10-Point Priority Playbook](#eda-debug-center--10-point-priority-playbook)
-7. [Production-Grade TCL Generator](#production-grade-tcl-generator)
-8. [Tapeout Signoff Checklists](#tapeout-signoff-checklists)
-9. [74+ ASIC & PD Interview Flashcards](#74-asic--pd-interview-flashcards)
-10. [SEO Architecture, Schema.org & Sitemap](#seo-architecture-schemaorg--sitemap)
-11. [Aesthetics & Design System](#aesthetics--design-system)
-12. [Getting Started & Local Execution](#getting-started--local-execution)
-13. [Hosting & Deployment Guide](#hosting--deployment-guide)
+3. [Silicon Interactive Studio & GUI Lab (5 Live Simulators)](#silicon-interactive-studio--gui-lab)
+4. ['LEARN' Academy & 5-Dimension Study Engine (25 Lessons, 125 Tabs)](#learn-academy-ece-to-vlsi-pd-curriculum)
+5. [Mobile UI/UX Architecture & Responsive Engineering](#mobile-uiux-architecture--responsive-engineering)
+6. [Silicon Study Vault & Reference Library (24 Assets)](#silicon-study-vault--reference-library)
+7. [12 Live Physical Design Calculation Engines](#12-live-physical-design-calculation-engines)
+8. [EDA Debug Center & 10-Point Priority Playbook](#eda-debug-center--10-point-priority-playbook)
+9. [Production-Grade TCL Generator](#production-grade-tcl-generator)
+10. [Tapeout Signoff Checklists](#tapeout-signoff-checklists)
+11. [74+ ASIC & PD Interview Flashcards](#74-asic--pd-interview-flashcards)
+12. [SEO Architecture, Schema.org & Sitemap](#seo-architecture-schemaorg--sitemap)
+13. [Aesthetics & Design System](#aesthetics--design-system)
+14. [Getting Started & Local Execution](#getting-started--local-execution)
+15. [Hosting & Deployment Guide](#hosting--deployment-guide)
 
 ---
 
@@ -33,10 +36,12 @@ Official open-source engineering workstation and learning platform for **[Educat
 Modern semiconductor design demands an interdisciplinary mastery spanning transistor physics, standard cell libraries (.lib / LEF), logic synthesis, floorplanning, Clock Tree Synthesis (CTS), routing, Static Timing Analysis (STA), crosstalk noise, signal integrity, and FinFET/GAA sub-wavelength lithography.
 
 **EducateVLSI** bridges this gap with an ultra-responsive, zero-dependency engineering workstation:
-- **Foundations-to-Signoff Learning**: Complete structured pathway from PN junctions to TSMC N3 / Intel 18A technologies.
+- **Silicon Interactive Studio & GUI Lab**: 5 real-time analytical & SVG hardware simulation engines (Inverter VTC, STA timing waveforms, MOSFET IV curves, 10-stage ASIC pipeline, and logic gates stick layout).
+- **Foundations-to-Signoff Learning**: 25 in-depth modules organized into 6 tracks with 125 rich study tabs spanning physics, mathematical SI unit breakdowns, worked examples, and Tier-1 interview questions.
 - **Production-Grade Utilities**: 12 real-time calculators, TCL automation scripts, and error diagnostics based on actual Synopsys ICC2, PrimeTime, and Cadence Innovus design flows.
 - **Integrated Study Vault**: Direct access to 5-day interactive HTML masterclasses, 10-day Phase 2 RTL-to-GDSII series, Synopsys ICC lab manuals, and 22MB+ official LMS handbooks.
-- **High-Yield Interview Prep**: 74 flashcards with 3D tactile flip and 72+ verified interview questions with deep technical rationales.
+- **High-Yield Interview Prep**: 74 flashcards with 3D tactile flip and 75+ verified interview questions with deep technical rationales.
+- **Mobile-First Experience**: Flawlessly optimized from narrow 320px mobile screens to 4K desktop viewports with native bottom sheets and zero page jitter.
 - **Zero-Friction Access**: Works offline out-of-the-box via `file://` or any static HTTP server with zero build tooling required.
 
 ---
@@ -45,8 +50,10 @@ Modern semiconductor design demands an interdisciplinary mastery spanning transi
 
 | Module | Core Capability | Highlights |
 | :--- | :--- | :--- |
-| **Top Workstation Ribbon** | Real-time EDA status bar | Displays active PDK (`TSMC N7 / SkyWater 130nm`), timing corners (`ss_0.72v_125c_rcworst`), and shell readiness |
-| **'LEARN' Academy** | 6-track, 24-lesson curriculum | Deep-dive theory, formula callouts, practitioner tips, and 72+ technical interview questions |
+| **Silicon Interactive Studio** | 5 Analytical & SVG Hardware Simulators | Inverter VTC carrier simulator, 3-lane STA timing waveform lab, MOSFET IV pinch-off curves, 10-stage ASIC flow stepper, and logic gate stick diagrams |
+| **'LEARN' Academy** | 6-track, 25-lesson comprehensive curriculum | 125 study tabs: Core Theory, Governing Formulas & SI Units, Interactive Studio bridges, PD Practitioner Tips with TCL recipes, and Tier-1 Q&A |
+| **Mobile UI/UX System** | Touch-optimized responsive interface | App-native bottom sheets (94vh), backdrop blur overlay with body scroll locking, fluid clamp typography, and non-overlapping telemetry strip |
+| **Top Workstation Ribbon** | Real-time EDA status telemetry | Displays active PDK (`TSMC N7 / SkyWater 130nm`), timing corners (`ss_0.72v_125c_rcworst`), and shell readiness |
 | **Silicon Study Vault** | Complete engineering resource hub | 24 live assets: 5-Day Foundations labs, 3 Phase-2 modules, ICC lab manuals, LMS notes & video toolkits |
 | **12 PD Calculators** | 12 live mathematical engines | Dynamic power, core util, setup/hold slack, clock skew, Elmore delay, EM, IR drop, uncertainty budget, wire RC, decap sizing & crosstalk |
 | **Debug Center** | 12-stage EDA troubleshooter & triage | 10-point prioritized violation hierarchy, root cause analysis, and fixes for Innovus, ICC2, Voltus, Calibre & PrimeTime |
@@ -57,28 +64,116 @@ Modern semiconductor design demands an interdisciplinary mastery spanning transi
 
 ---
 
-## 'LEARN' Academy: ECE to VLSI-PD Curriculum
+## Silicon Interactive Studio & GUI Lab
 
-The **'LEARN' Academy** provides a complete university-to-industry curriculum organized into 6 specialized tracks with 24 extensive modules:
+The workstation integrates an interactive hardware simulation environment featuring 5 real-time analytical simulators built entirely with pure client-side SVG rendering and zero external dependencies:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        'LEARN' ACADEMY PATHWAY                         │
+│                   SILICON INTERACTIVE STUDIO & GUI LAB                 │
 ├────────────────────┬────────────────────┬──────────────────────────────┤
-│ 1. ECE & Physics   │ 2. Digital Logic   │ 3. ASIC Front-End            │
-│  • PN Junction     │  • Datapath Adders │  • Logic Synthesis           │
-│  • MOSFET IV & DIBL│  • Latches vs FFs  │  • SDC Timing Constraints    │
-│  • CMOS Inverter   │  • CDC & Metastab. │  • Liberty (.lib) Models     │
-│                    │  • Synthesizable   │  • Physical LEF Models       │
-├────────────────────┼────────────────────┼──────────────────────────────┤
-│ 4. Physical Design │ 5. Signoff & SI    │ 6. Sub-7nm & Chiplets        │
-│  • Floorplanning   │  • STA & Setup/Hold│  • 3D FinFET & Gate-All-Around│
-│  • Power Mesh      │  • Signal Integrity│  • EUV High-NA Litho         │
-│  • Placement/HFNS  │  • DRC, LVS & ERC  │  • 2.5D/3D Chiplets (UCIe)   │
-│  • CTS & Skew      │  • EM & IR Signoff │                              │
-│  • Routing & DFM   │  • ECOs & Tapeout  │                              │
-└────────────────────┴────────────────────┴──────────────────────────────┘
+│ 1. CMOS Inverter   │ 2. STA Waveforms   │ 3. MOSFET IV Physics         │
+│  • Non-linear VTC  │  • 3-Lane Diagram  │  • Family of Curves          │
+│  • Carrier Drift   │  • Slack Hazard    │  • Pinch-off Visualization   │
+│  • Noise Margins   │  • Clock Skew Lab  │  • Triode / Saturation       │
+├────────────────────┴────────────────────┼──────────────────────────────┤
+│ 4. ASIC 10-Stage Pipeline Flow          │ 5. Standard Cell Logic       │
+│  • RTL -> GDSII Flow Stepper            │  • INV, NAND2, NOR2, XOR2    │
+│  • Inputs, Outputs & Critical Failures  │  • Dynamic Truth Tables      │
+│  • Real EDA Tool Command Signatures     │  • SVG Stick Layouts         │
+└─────────────────────────────────────────┴──────────────────────────────┘
 ```
+
+### 1. CMOS Inverter VTC & Carrier Simulator
+* **Real-Time VTC Curves**: Analytically calculates $V_{OH}, V_{OL}, V_{IH}, V_{IL}$, and switching threshold $V_M$ as input voltage $V_{in}$ slides from $0.0\text{V}$ to $1.0\text{V}$.
+* **Dynamic Noise Margins**: Continuously computes $NM_L = V_{IL} - V_{OL}$ and $NM_H = V_{OH} - V_{IH}$.
+* **Carrier Drift Visualizer**: Live schematic showing electron and hole conduction channels in NMOS/PMOS as gate potential transitions.
+* **$W_p/W_n$ Sizing Presets**: Explore balanced ($W_p/W_n = 2.5$), high-speed ($3.0$), and minimum-area ($1.0$) configurations.
+
+### 2. STA Timing Slack & Waveform Lab
+* **3-Lane Dynamic Waveforms**: Interactive SVG timing diagrams displaying Launch Clock, Data Arrival at Register D-pin, and Capture Clock.
+* **Real-Time Setup Slack Equation**:
+  $$\text{Slack}_{setup} = (T_{clk} + T_{skew} - T_{unc}) - (T_{c2q} + T_{comb} + T_{setup})$$
+* **Hazard Zone Highlighting**: Setup violation danger window dynamically highlights in red when data arrival encroaches into the setup aperture.
+* **Interactive Parameters**: Clock period $T_{clk}$, clock skew $T_{skew}$, combinational datapath delay $T_{comb}$, and clock uncertainty budget $T_{unc}$.
+
+### 3. MOSFET IV Physics & Channel Regime Simulator
+* **Family of Curves**: Real-time analytical generation of $I_{DS}-V_{DS}$ curves across 5 gate bias steps ($V_{GS} = 0.2\text{V}, 0.4\text{V}, 0.6\text{V}, 0.8\text{V}, 1.0\text{V}$).
+* **Active Operating Point**: Pulsating indicator tracking the active bias point along the curve.
+* **Dynamic Regime Badge**: Identifies whether the transistor is in **Cutoff**, **Linear / Triode**, or **Saturation / Pinch-off**.
+* **SVG Pinch-Off Diagram**: Live cross-section showing channel inversion depth and depletion zone widening near the drain.
+
+### 4. ASIC Physical Design 10-Stage Flow Explorer
+* **10 Sequential Pipeline Stages**:
+  1. *Logic Synthesis* $\to$ 2. *Floorplanning* $\to$ 3. *Power Planning* $\to$ 4. *Placement* $\to$ 5. *CTS* $\to$ 6. *Routing* $\to$ 7. *DRC/LVS Verification* $\to$ 8. *Parasitic Extraction* $\to$ 9. *Timing Signoff* $\to$ 10. *Tapeout*.
+* **Comprehensive Metadata**: Displays Stage Goal, Input Deliverables, Output Deliverables, Production EDA Commands (Innovus / ICC2), and Critical Failure Modes for each stage.
+
+### 5. Standard Cell Logic & Stick Layout Switcher
+* **6 Standard Gates**: Inverter (`INV`), `NAND2`, `NOR2`, `AND2`, `OR2`, and `XOR2`.
+* **Dynamic Truth Table**: Highlights the active row corresponding to user-toggled input states ($A=0,1$; $B=0,1$).
+* **Switch State Summary**: Instant readout of NMOS pull-down and PMOS pull-up conduction states.
+* **SVG Stick Diagram**: Visualizes diffusion rails, polysilicon gates, metal-1 interconnects, and contact vias.
+
+---
+
+## 'LEARN' Academy: ECE to VLSI-PD Curriculum
+
+The curriculum spans 6 tracks and 25 extensive modules. Clicking any module card opens the **Interactive Lesson Study Drawer**, providing a 5-dimension technical deep-dive across 125 total study tabs:
+
+### The 5 Study Dimensions:
+1. **`📖 Core Theory`**: Executive briefing, foundational semiconductor physics, silicon physical architecture, EDA tool flow integration, and PPA design trade-offs.
+2. **`📐 Formulas & Math`**:
+   * Governing equations in high-contrast monospace blocks.
+   * **Physical Variable Breakdown Table**: Every symbol defined with physical meaning and official SI engineering units.
+   * **Real-World Worked Numerical Examples**: Concrete foundry scenarios (e.g. SkyWater 130nm substrate isolation, 5nm FinFET drive currents, 32-bit Kogge-Stone vs RCA delays, 2-stage synchronizer MTBF, ICG power savings, Black's EM equation wire sizing) with step-by-step substitution and signoff judgments.
+   * **PVT Corner Sensitivity Matrix**: Parameter shifts between slow (`ss_0.72v_125c`) and fast (`ff_0.88v_-40c`) corners, plus temperature inversion effects.
+3. **`⚡ Interactive GUI Lab`**: Direct bridge to the corresponding Silicon Studio simulator panel with 3 guided engineering experiment challenges.
+4. **`💡 PD Practitioner Tips`**:
+   * Practical tapeout gotchas from real-world tapeouts.
+   * **Production EDA Command Recipes**: Syntax-checked TCL command blocks for Cadence Innovus, Synopsys ICC2, and PrimeTime.
+   * **Signoff Verification Checklist**: Strict signoff criteria before mask generation.
+5. **`🎯 Interview Q&A`**: Real interview questions asked by engineering interviewers at **Apple, NVIDIA, Qualcomm, TSMC, Intel, and AMD** with Core Engineering Takeaways and In-Depth Technical Solutions.
+
+### Curriculum Module Sitemap:
+| Track | Module ID | Title | Formula / Key Concept | Studio GUI |
+| :--- | :--- | :--- | :--- | :---: |
+| **Track 1: ECE & Physics** | `ece-pn` | Semiconductor Physics & PN Junction Diodes | $V_0 = V_t \cdot \ln(N_A N_D / n_i^2)$ | 🔬 MOSFET / Junction |
+| | `ece-mosfet` | MOSFET Transistor Operating Physics | $I_{DS,sat} = \frac{1}{2}\mu C_{ox}\frac{W}{L}(V_{GS}-V_{th})^2$ | 🔬 MOSFET IV Curves |
+| | `ece-cmos-inverter` | CMOS Inverter & Power Dissipation | $P = \alpha C_L V_{DD}^2 f + I_{sc}V_{DD} + I_{leak}V_{DD}$ | ⚡ Inverter VTC |
+| **Track 2: Digital Logic** | `dig-comb` | Combinational Datapaths & Adders | Kogge-Stone vs Brent-Kung vs CLA | 🔌 Logic Gates |
+| | `dig-seq` | Sequential Logic: Latches vs Flip-Flops | $T_{clk} \ge T_{c2q} + T_{comb} + T_{setup} - T_{skew}$ | 🔌 Sequential DFF |
+| | `dig-cdc` | Clock Domain Crossing (CDC) & FIFOs | $\text{MTBF} = \frac{e^{t_r/\tau}}{T_0 f_{clk} f_{data}}$ | ⏱️ STA Waveforms |
+| | `dig-hdl` | Synthesizable Verilog & RTL Best Practices | Integrated Clock Gating (ICG) Efficiency | 🗺️ ASIC Pipeline |
+| **Track 3: ASIC Flow** | `fe-synth` | Logic Synthesis & Technology Mapping | Area-delay optimization curves | 🗺️ ASIC Pipeline |
+| | `fe-sdc` | SDC Timing Constraints Decoded | `create_clock`, `set_input_delay`, False Paths | ⏱️ STA Waveforms |
+| | `fe-lib` | Standard Cell Timing Models (.lib) | NLDM 7x7 Lookup Table Bi-Linear Interpolation | ⏱️ STA Waveforms |
+| | `fe-lef` | Physical Abstraction: Tech & Macro LEF | Routing pitch grids, OBS keepout layers | 🔌 Logic & Layout |
+| **Track 4: Physical Design** | `be-floorplan` | Floorplanning & Die Architecture | $\text{Util} = \frac{\sum A_{cells}}{\text{Core Area}}$, Aspect Ratio | 🗺️ ASIC Pipeline |
+| | `be-macro` | Macro Placement & Keepout Halos | Dataflow orientation, channel pitch | 🗺️ ASIC Pipeline |
+| | `be-power` | Power Distribution Network (PDN) & Decap | Static & Dynamic IR Drop, $C_{decap} = \Delta Q / \Delta V$ | 🗺️ ASIC Pipeline |
+| | `be-placement` | Cell Placement, Legalization & HFNS | Half-Perimeter Wire Length ($\text{HPWL}$) | 🗺️ ASIC Pipeline |
+| | `be-cts` | Clock Tree Synthesis (CTS) & Skew | $T_{skew} = T_{lat,capture} - T_{lat,launch}$, 2W2S NDR | ⏱️ STA Waveforms |
+| | `be-routing` | Global & Detailed Routing, DRC | Elmore Delay $T_d = 0.69 R_{wire} C_{wire}$ | 🔌 Detailed Routing |
+| **Track 5: Signoff & SI** | `so-sta` | Static Timing Analysis (STA) & MCMM | Setup/Hold Slack, CRPR, OCV derates | ⏱️ STA Waveforms |
+| | `so-si` | Signal Integrity, Crosstalk & Glitch | Miller Coupling Factor $M \in [0, 2]$, $\Delta V_{noise}$ | ⏱️ STA Waveforms |
+| | `so-pv` | Physical Verification: DRC, LVS & Antenna | Antenna Ratio $\le 400:1$, Gate area protection | 🔌 Layout & DRC |
+| | `so-em` | Electromigration & Power Integrity | Black's Equation $\text{MTTF} \propto \frac{1}{J^n}\exp(\frac{E_a}{kT})$ | 🗺️ ASIC Pipeline |
+| | `so-tapeout` | ECOs & GDSII/OASIS Tapeout Signoff | Metal-only ECOs, Spare cells, Mask fracturing | 🗺️ ASIC Pipeline |
+| **Track 6: Advanced Nodes** | `adv-finfet` | FinFET, Gate-All-Around (GAA) & 3nm | $W_{eff} = 2H_{fin} + W_{fin}$, Self-Heating (SHE) | 🔬 FinFET / GAA |
+| | `adv-litho` | EUV Photolithography & Multi-Patterning | Rayleigh Resolution $R = k_1 \frac{\lambda}{\text{NA}}$, EPE | 🗺️ ASIC Pipeline |
+| | `adv-pkg` | 2.5D/3D Chiplets, Interposers & UCIe | TSMC CoWoS, Intel EMIB, Hybrid Bonding | 🗺️ ASIC Pipeline |
+
+---
+
+## Mobile UI/UX Architecture & Responsive Engineering
+
+The workstation has been meticulously re-engineered for mobile viewports (320px to 768px) while maintaining the desktop workstation aesthetic:
+
+* **App-Native Bottom Sheet Modal**: On screens $< 768\text{px}$, the lesson study notes modal automatically transforms into a 94vh bottom sheet with top-rounded corners, a sticky drag header, and smooth touch-scrolling.
+* **Glassy Backdrop & Scroll Locking**: The mobile navigation drawer is supported by `.mobile-nav-backdrop` (`backdrop-filter: blur(12px)`) and automatically locks background body scrolling (`body.nav-drawer-open`) to eliminate scroll stutter.
+* **Non-Overlapping Telemetry Strip**: Re-engineered `.floating-tech-chip chip-1` and `chip-2` from absolute coordinates over the channel banner into an organized horizontal `.hero-tech-chips-bar` situated cleanly between the banner and the channel info, keeping the EducateVLSI banner artwork 100% visible and centered.
+* **Zero Horizontal Overflow**: Bounded all layout containers with `overflow-x: hidden`, `max-width: 100vw`, and fluid `clamp()` typography to prevent horizontal scrollbars on narrow screens.
+* **Fluid Auto-Fit Grids**: All workstation cards (`.flashcards-grid`, `.calculators-grid`, `.debug-errors-grid`, `.learn-modules-grid`, `.study-vault-grid`) use fluid CSS grids (`minmax(min(100%, 320px), 1fr)`).
 
 ---
 
@@ -157,7 +252,7 @@ Includes exact tool error signatures for Cadence Innovus (`ENCPL-1234`), Voltus 
 ## SEO Architecture, Schema.org & Sitemap
 
 The application implements modern web search engine standards:
-* **Canonical URL**: `https://vishnu-000.github.io/EducateVLSI/`
+* **Canonical URL**: `https://educate-vlsi.web.app/`
 * **Robots Directives**: `index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1`
 * **OpenGraph**: High-resolution 1200x630 social card (`assets/EducateVLSI_BannerImage.jpg`)
 * **Twitter / X Cards**: Large image card with summary
@@ -165,7 +260,7 @@ The application implements modern web search engine standards:
   * `WebSite` Schema
   * `WebApplication` Schema
   * `Course` Schema
-* **Sitemap**: [`sitemap.xml`](sitemap.xml) indexing 14 endpoints including all interactive HTML labs.
+* **Sitemap**: [`sitemap.xml`](sitemap.xml) indexing all 14 endpoints including all interactive HTML labs.
 * **Robots Configuration**: [`robots.txt`](robots.txt) declaring sitemap endpoint.
 
 ---
@@ -173,7 +268,7 @@ The application implements modern web search engine standards:
 ## Aesthetics & Design System
 
 * **Base**: Ultra-dark `#030712` (Semiconductor Obsidian)
-* **Accents**: Electric Cyan `#00f2fe`, Violet `#8b5cf6`, Emerald `#10b981`, Coral Red `#ef4444`
+* **Accents**: Electric Cyan `#00f2fe`, Violet `#8b5cf6`, Emerald `#10b981`, Coral Red `#ef4444`, Amber `#fbbf24`
 * **Card Style**: Glassmorphism (`backdrop-filter: blur(16px)`), subtle glowing borders, interactive lift transitions.
 * **Typography**: Clean monospace callouts for EDA commands and mathematical equations with KaTeX/LaTeX formatting.
 
@@ -198,12 +293,13 @@ Visit `http://localhost:8088/` in your browser.
 
 ## Hosting & Deployment Guide
 
-### Deploying with Firebase Hosting
+### Deploying with Firebase Hosting (Production Edge CDN)
 The repository includes a pre-configured [`firebase.json`](firebase.json) with `public: "."`:
 ```powershell
 cd D:\EducateVLSI\WebPage
 firebase deploy --only hosting
 ```
+Live Production URL: **`https://educate-vlsi.web.app`**
 
 ### Deploying with GitHub Pages
 1. Push to your repository: `git push origin main`
@@ -213,5 +309,6 @@ firebase deploy --only hosting
 
 ## 👥 Contributors & Community
 
-- **Instructor**: [EducateVLSI YouTube Channel](https://www.youtube.com/@EducateVLSI)
-- **Repository**: [https://github.com/Vishnu-000/EducateVLSI](https://github.com/Vishnu-000/EducateVLSI)
+- **Lead Engineer & Instructor**: [EducateVLSI YouTube Channel](https://www.youtube.com/@EducateVLSI)
+- **Primary Repository**: [https://github.com/Vishnu-000/EducateVLSI](https://github.com/Vishnu-000/EducateVLSI)
+- **Production Deployment**: [https://educate-vlsi.web.app](https://educate-vlsi.web.app)
