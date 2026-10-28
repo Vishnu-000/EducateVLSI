@@ -2007,6 +2007,7 @@ const state = {
 // DOM Ready initialization
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initNavigation();
   initLearnAcademy();
   initStudyVault();
   initFlashcardStudio();
@@ -2021,6 +2022,66 @@ document.addEventListener('DOMContentLoaded', () => {
   initKeyboardShortcuts();
   updateProgressTracker();
 });
+
+/* ==========================================================================
+   Navigation & Dropdown Management
+   ========================================================================== */
+function initNavigation() {
+  const mobileToggle = document.getElementById('mobileNavToggle');
+  const navMenu = document.getElementById('primaryNav');
+  const dropdown = document.getElementById('navDropdown');
+  const dropdownBtn = document.getElementById('navDropdownBtn');
+
+  // Mobile drawer toggle
+  if (mobileToggle && navMenu) {
+    mobileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navMenu.classList.toggle('open');
+      const isOpen = navMenu.classList.contains('open');
+      mobileToggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close mobile menu on nav link click
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('open');
+        if (dropdown) dropdown.classList.remove('open');
+      });
+    });
+  }
+
+  // Dropdown click toggle (touch and click support)
+  if (dropdown && dropdownBtn) {
+    dropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('open');
+      const isExpanded = dropdown.classList.contains('open');
+      dropdownBtn.setAttribute('aria-expanded', isExpanded);
+    });
+  }
+
+  // Close menus when clicking outside
+  document.addEventListener('click', (e) => {
+    if (navMenu && !navMenu.contains(e.target) && mobileToggle && !mobileToggle.contains(e.target)) {
+      navMenu.classList.remove('open');
+    }
+    if (dropdown && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+      if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close menus on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (navMenu) navMenu.classList.remove('open');
+      if (dropdown) {
+        dropdown.classList.remove('open');
+        if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+    }
+  });
+}
 
 /* ==========================================================================
    Theme Management

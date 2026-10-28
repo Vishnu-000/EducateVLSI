@@ -143,19 +143,67 @@
         </div>
       </a>
 
-      <nav>
+      <nav class="nav-container-inner">
         <ul class="nav-menu" id="primaryNav">
-          <li><a href="#learn" class="nav-item-link" id="navLinkLearn" style="color: var(--accent-cyan); font-weight: 700;"><span style="color:var(--accent-cyan);">★</span> 'LEARN' Academy</a></li>
-          <li><a href="#study-vault" class="nav-item-link" id="navLinkStudyVault" style="color: var(--accent-emerald); font-weight: 700;"><span style="color:var(--accent-emerald);">✦</span> 'STUDY' Vault</a></li>
+          <li><a href="#learn" class="nav-item-link" id="navLinkLearn" style="color: var(--accent-cyan); font-weight: 700;"><span class="nav-badge-dot cyan"></span> 'LEARN' Academy</a></li>
+          <li><a href="#study-vault" class="nav-item-link" id="navLinkStudyVault" style="color: var(--accent-emerald); font-weight: 700;"><span class="nav-badge-dot emerald"></span> 'STUDY' Vault</a></li>
           <li><a href="#flashcards" class="nav-item-link active" id="navLinkFlashcards">Flashcards</a></li>
           <li><a href="#calculators" class="nav-item-link" id="navLinkCalculators">Calculators</a></li>
           <li><a href="#debug" class="nav-item-link" id="navLinkDebug">Debug Center</a></li>
-          <li><a href="#tcl-generator" class="nav-item-link" id="navLinkTclGen">TCL Generator</a></li>
-          <li><a href="#checklists" class="nav-item-link" id="navLinkChecklists">Checklists</a></li>
-          <li><a href="#roadmap" class="nav-item-link" id="navLinkRoadmap">Roadmap</a></li>
-          <li><a href="#videos" class="nav-item-link" id="navLinkVideos">Video Hub</a></li>
-          <li><a href="#terminal" class="nav-item-link" id="navLinkCommands">ICC2 Shell</a></li>
-          <li><a href="#resources" class="nav-item-link" id="navLinkResources">Resources</a></li>
+
+          <!-- EDA Tools & Resources Dropdown -->
+          <li class="nav-dropdown" id="navDropdown">
+            <button class="nav-dropdown-btn" id="navDropdownBtn" aria-expanded="false" aria-haspopup="true">
+              <span>EDA Tools</span>
+              <svg class="dropdown-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="nav-dropdown-menu" id="navDropdownMenu">
+              <a href="#tcl-generator" class="nav-dropdown-item" id="navLinkTclGen">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                <div>
+                  <strong>TCL Script Builder</strong>
+                  <small>Automated flow generator</small>
+                </div>
+              </a>
+              <a href="#checklists" class="nav-dropdown-item" id="navLinkChecklists">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div>
+                  <strong>Tapeout Checklists</strong>
+                  <small>6-stage signoff matrix</small>
+                </div>
+              </a>
+              <a href="#roadmap" class="nav-dropdown-item" id="navLinkRoadmap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <div>
+                  <strong>RTL-to-GDSII Roadmap</strong>
+                  <small>Complete physical pipeline</small>
+                </div>
+              </a>
+              <a href="#terminal" class="nav-dropdown-item" id="navLinkCommands">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                <div>
+                  <strong>Synopsys ICC2 Shell</strong>
+                  <small>EDA command reference</small>
+                </div>
+              </a>
+              <a href="#videos" class="nav-dropdown-item" id="navLinkVideos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                <div>
+                  <strong>Video Masterclasses</strong>
+                  <small>Curated YouTube lessons</small>
+                </div>
+              </a>
+              <a href="#resources" class="nav-dropdown-item" id="navLinkResources">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <div>
+                  <strong>Handbooks &amp; Docs</strong>
+                  <small>PDF guides &amp; specs</small>
+                </div>
+              </a>
+            </div>
+          </li>
         </ul>
       </nav>
 
@@ -171,6 +219,11 @@
           </svg>
           <span>YouTube</span>
         </a>
+        <button class="mobile-toggle-btn" id="mobileNavToggle" aria-label="Toggle Navigation Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
@@ -187,7 +240,7 @@
           From Code to Silicon: Master Modern <span class="gradient-text">VLSI Physical Design</span>
         </h1>
         <p class="hero-desc">
-          Accelerate your semiconductor engineering journey with 74+ ASIC & ICC2 interview flashcards, 24-lesson ECE to sub-3nm Physical Design Academy, live PD calculation engines, production-grade TCL automation generators, and complete tapeout roadmaps.
+          Accelerate your semiconductor engineering journey with 74+ ASIC &amp; ICC2 interview flashcards, 24-lesson ECE to sub-3nm Physical Design Academy, live PD calculation engines, production-grade TCL automation generators, and complete tapeout roadmaps.
         </p>
 
         <div class="hero-cta-group">
@@ -221,7 +274,7 @@
             <span class="metric-label">Interview Flashcards</span>
           </div>
           <div class="metric-item">
-            <span class="metric-value">8 Engines</span>
+            <span class="metric-value">12 Engines</span>
             <span class="metric-label">Live PD Calculators</span>
           </div>
           <div class="metric-item">
@@ -233,21 +286,23 @@
 
       <!-- Hero Media Showcase Card -->
       <div class="hero-media-wrap">
-        <div class="floating-tech-chip chip-1">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-          </svg>
-          <span>TCL EDA Automation</span>
-        </div>
-
-        <div class="floating-tech-chip chip-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-          </svg>
-          <span>Static Timing Analysis (STA)</span>
-        </div>
-
         <div class="hero-card-glow">
+          <div class="floating-tech-chip chip-1">
+            <span class="chip-pulse-dot cyan"></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+            <span>TCL Automation</span>
+          </div>
+
+          <div class="floating-tech-chip chip-2">
+            <span class="chip-pulse-dot amber"></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <span>STA Timing Engine</span>
+          </div>
+
           <img src="assets/EducateVLSI_BannerImage.jpg" alt="EducateVLSI Channel Banner" class="hero-banner-img">
           <div class="hero-card-content">
             <div class="hero-channel-badge">
