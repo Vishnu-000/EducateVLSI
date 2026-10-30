@@ -3,7 +3,7 @@
 [![Platform](https://img.shields.io/badge/Platform-EducateVLSI-00f2fe?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@EducateVLSI)
 [![Tech Stack](https://img.shields.io/badge/Tech-HTML5%20%7C%20Vanilla%20CSS%20%7C%20ES6%20JS-8b5cf6?style=for-the-badge)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Design](https://img.shields.io/badge/Design-Semiconductor%20Obsidian%20UI-10b981?style=for-the-badge)](#aesthetics--design-system)
-[![Status](https://img.shields.io/badge/Status-Phase%206%20Complete-cyan?style=for-the-badge)](PROGRESS.md)
+[![Status](https://img.shields.io/badge/Status-Phase%207%20Complete-cyan?style=for-the-badge)](PROGRESS.md)
 [![Live Site](https://img.shields.io/badge/Firebase%20Hosting-educate--vlsi.web.app-orange?style=for-the-badge&logo=firebase)](https://educate-vlsi.web.app)
 [![Silicon Studio](https://img.shields.io/badge/Silicon%20Studio-5%20Interactive%20GUIs-00f2fe?style=for-the-badge)](#silicon-interactive-studio--gui-lab)
 [![Curriculum](https://img.shields.io/badge/Curriculum-25%20Modules%20%7C%20125%20Study%20Tabs-10b981?style=for-the-badge)](#learn-academy-ece-to-vlsi-pd-curriculum)
@@ -18,14 +18,14 @@ Official open-source engineering workstation and learning platform for **[Educat
 3. [Silicon Interactive Studio & GUI Lab (5 Live Simulators)](#silicon-interactive-studio--gui-lab)
 4. ['LEARN' Academy & 5-Dimension Study Engine (25 Lessons, 125 Tabs)](#learn-academy-ece-to-vlsi-pd-curriculum)
 5. [Mobile UI/UX Architecture & Responsive Engineering](#mobile-uiux-architecture--responsive-engineering)
-6. [Silicon Study Vault & Reference Library (24 Assets)](#silicon-study-vault--reference-library)
+6. [Silicon Study Vault & Reference Library (27 Assets)](#silicon-study-vault--reference-library)
 7. [12 Live Physical Design Calculation Engines](#12-live-physical-design-calculation-engines)
 8. [EDA Debug Center & 10-Point Priority Playbook](#eda-debug-center--10-point-priority-playbook)
 9. [Production-Grade TCL Generator](#production-grade-tcl-generator)
 10. [Tapeout Signoff Checklists](#tapeout-signoff-checklists)
 11. [74+ ASIC & PD Interview Flashcards](#74-asic--pd-interview-flashcards)
 12. [SEO Architecture, Schema.org & Sitemap](#seo-architecture-schemaorg--sitemap)
-13. [Aesthetics & Design System](#aesthetics--design-system)
+13. [Aesthetics, Premium Warm Theming & Ergonomics](#aesthetics--design-system)
 14. [Getting Started & Local Execution](#getting-started--local-execution)
 15. [Hosting & Deployment Guide](#hosting--deployment-guide)
 
@@ -54,7 +54,8 @@ Modern semiconductor design demands an interdisciplinary mastery spanning transi
 | **'LEARN' Academy** | 6-track, 25-lesson comprehensive curriculum | 125 study tabs: Core Theory, Governing Formulas & SI Units, Interactive Studio bridges, PD Practitioner Tips with TCL recipes, and Tier-1 Q&A |
 | **Mobile UI/UX System** | Touch-optimized responsive interface | App-native bottom sheets (94vh), backdrop blur overlay with body scroll locking, fluid clamp typography, and non-overlapping telemetry strip |
 | **Top Workstation Ribbon** | Real-time EDA status telemetry | Displays active PDK (`TSMC N7 / SkyWater 130nm`), timing corners (`ss_0.72v_125c_rcworst`), and shell readiness |
-| **Silicon Study Vault** | Complete engineering resource hub | 24 live assets: 5-Day Foundations labs, 3 Phase-2 modules, ICC lab manuals, LMS notes & video toolkits |
+| **Silicon Study Vault** | Complete engineering resource hub | 27 live assets: 5-Day Foundations labs, 3 PD Mentorship masterclasses, 3 Phase-2 modules, ICC lab manuals, LMS notes & video toolkits |
+| **Ergonomic Reading & UI** | Premium Warm Paper & Obsidian Modes | Unbleached ivory paper (`#f8f5ee`), dark obsidian (`#18181b`), KaTeX mathematical equations with 1-click copy, tiny sticky nav, floating scroll controls |
 | **12 PD Calculators** | 12 live mathematical engines | Dynamic power, core util, setup/hold slack, clock skew, Elmore delay, EM, IR drop, uncertainty budget, wire RC, decap sizing & crosstalk |
 | **Debug Center** | 12-stage EDA troubleshooter & triage | 10-point prioritized violation hierarchy, root cause analysis, and fixes for Innovus, ICC2, Voltus, Calibre & PrimeTime |
 | **Interview Flashcards** | 74 high-yield flashcard deck | 3D tactile card flip, category filtering, search, keyboard shortcuts (`Space`, `←`, `→`, `M`), mastery tracking |
@@ -179,7 +180,7 @@ The workstation has been meticulously re-engineered for mobile viewports (320px 
 
 ## Silicon Study Vault & Reference Library
 
-Hosted inside [`study/`](study/), the platform serves 24 production-grade educational assets:
+Hosted inside [`study/`](study/), the platform serves 27 production-grade educational assets:
 
 ### 1. 5-Day Foundation Masterclass (Interactive HTML Modules)
 - **Day 1: Semiconductor Physics, CMOS & Logic Gates** (`study/day1_cmos_foundations.html`): Silicon lattice, doping, MOSFET $V_{TH}$ & 3 operating regions, CMOS inverter VTC, noise margins, standard gates, and 10-Q quiz.
@@ -188,12 +189,17 @@ Hosted inside [`study/`](study/), the platform serves 24 production-grade educat
 - **Day 4: Logic Synthesis — RTL to Gate Netlist** (`study/day4_logic_synthesis.html`): Translation, logic optimization, technology mapping, drive strength (X1/X2/X4), Liberty (.lib) PVT corners, and SDC constraints.
 - **Day 5: Static Timing Analysis — Reading the Fabric of Time** (`study/day5_static_timing_analysis.html`): Reg-to-reg paths, 4 path types, unateness, MMMC analysis, OCV/AOCV/POCV derating, clock uncertainty budget, and report reading.
 
-### 2. Phase 2 Advanced Physical Design Series
+### 2. PD Mentorship Masterclass Series (Interactive HTML Modules)
+- **Session 4: Logic Synthesis & SDC Fundamentals** (`study/session4_synthesis_sdc.html`): RTL synthesis algorithms, `.lib` tech mapping, SDC clock uncertainty/jitter, input/output delay budgeting, multicycle path rules ($N-1$ hold edge), netlist sanity checklist, and 3 industrial debug scenarios.
+- **Session 5: Floorplanning: Die, Core, Macros & IO Placement** (`study/session5_floorplanning.html`): Core utilization vs row utilization mathematical formulation, aspect ratio selection, boundary IO pad planning, macro flylines, keepout halos, hard/soft blockages, well tap distance rules, and endcap insertion.
+- **Session 6: Power Planning: Grid Architecture, IR Drop & EM** (`study/session6_power_planning.html`): Power Delivery Network (PDN) topology, static vs dynamic IR drop, Black's electromigration reliability equation ($J \le J_{\max}$), top-metal strap mesh design, followpin rails, and decap capacitor sizing.
+
+### 3. Phase 2 Advanced Physical Design Series
 - **Phase 2 · Part 1: VLSI & Digital Fundamentals & File Ecosystem** (`study/Phase2_Part1_VLSI_Fundamentals.html`): Standard cell drive strengths (X1–X8), timing waveforms, full RTL-to-GDSII flow, complete PD file ecosystem (.lib, .lef, .sdc, .def, .spef, .gds).
 - **Phase 2 · Part 2: Floorplan, Power Planning & Placement** (`study/Phase2_Part2_Floorplan_Power_Placement.html`): Floorplan anatomy, die area estimation, power mesh rings/stripes, IR drop, global/legalized placement, and OpenROAD hands-on lab.
 - **Phase 2 · Part 3: CTS, Routing, STA & Signoff** (`study/Phase2_Part3_CTS_Routing_STA_Signoff.html`): Clock Tree Synthesis skew/latency, routing metal stackup (M1–M9), global vs detailed routing, real PrimeTime STA reports, signoff checklist.
 
-### 3. Master LMS Textbooks, Lab Manuals & Handbooks (PDFs)
+### 4. Master LMS Textbooks, Lab Manuals & Handbooks (PDFs)
 - **Synopsys IC Compiler (ICC) Lab Manual** (`study/LMS_ICC_Lab_Manual.pdf` — 5.3 MB): Step-by-step practical lab exercises in Synopsys ICC shell.
 - **Complete Physical Design Notes** (`study/LMS_PD_Notes.pdf` — 22.7 MB): Official 22.7 MB comprehensive training handbook from netlist to tapeout.
 - **Blueprint to Silicon Masterclass Guide** (`study/Blueprint_to_Silicon.pdf` — 14.6 MB): Architecture, RTL, synthesis, and foundry flow.
@@ -205,7 +211,7 @@ Hosted inside [`study/`](study/), the platform serves 24 production-grade educat
 - **CMOS & VLSI Architecture Handbooks** (`study/cmos.pdf`, `study/vlsi-design.pdf`, `study/PD_Adv_Inputs_class.pdf`, `study/PD_Adv_Presentatrion.pdf`).
 - **Benchmark Extractions & Triage Matrix** (`study/shivas-pd-hub-extracted-content.md` — 32 KB).
 
-### 4. Video Toolkits
+### 5. Video Toolkits
 - **ASIC Design Flow Video Tutorial** (`study/ASIC_Design_Flow.mp4` — 36.2 MB)
 - **The Engineer’s Toolkit Video Tutorial** (`study/The_Engineer_s_Toolkit.mp4` — 31.9 MB)
 
@@ -265,12 +271,30 @@ The application implements modern web search engine standards:
 
 ---
 
-## Aesthetics & Design System
+## Aesthetics, Premium Warm Theming & Ergonomics
 
-* **Base**: Ultra-dark `#030712` (Semiconductor Obsidian)
-* **Accents**: Electric Cyan `#00f2fe`, Violet `#8b5cf6`, Emerald `#10b981`, Coral Red `#ef4444`, Amber `#fbbf24`
-* **Card Style**: Glassmorphism (`backdrop-filter: blur(16px)`), subtle glowing borders, interactive lift transitions.
-* **Typography**: Clean monospace callouts for EDA commands and mathematical equations with KaTeX/LaTeX formatting.
+The workstation features a dual-theme, publication-grade design system engineered for prolonged engineering study and zero eye fatigue:
+
+* **Semiconductor Obsidian Dark Mode**:
+  * Base: Ultra-dark `#030712` with atmospheric radial gradients.
+  * Accents: Electric Cyan `#00f2fe`, Violet `#8b5cf6`, Emerald `#10b981`, Amber `#fbbf24`.
+  * Glassmorphic cards with `backdrop-filter: blur(16px)` and subtle glowing borders.
+* **Professional Premium Warm Light Mode**:
+  * Base: Calming unbleached ivory paper (`#f8f5ee` / `#fdfbf7`) with a subtle drafting coordinate grid (`body::before`).
+  * Typography: Razor-sharp dark obsidian/espresso ink (`#18181b`) and rich warm slate (`#3f3e3a`) ensuring effortless letter identification.
+  * Accents: Deep royal sapphire blue (`#0284c7`), warm amber (`#b45309`), and warm linen borders (`#d4cbbd`).
+* **Structured Mathematical Formula Callouts (`.lesson-formula-callout`)**:
+  * Formatted equation cards with categorical badge header, SVG icon, and dedicated math display area.
+  * 1-Click `Copy Formula` button with clipboard integration and visual feedback (`Copied!`).
+  * KaTeX-rendered LaTeX formatting across all curriculum lessons and dynamic modal dialogs.
+* **Compact Mid-Page Sticky Navigation (`nav-container tiny` / `.navbar.scrolled`)**:
+  * Navbar smoothly contracts to a compact 52px height upon scrolling past 60px.
+  * Real-time scrollspy dynamically highlights active navigation links as sections scroll into view.
+* **Floating Page Up & Page Down Controls**:
+  * Floating action buttons (`#pageScrollControls`) positioned at the bottom-right of the viewport for effortless page traversal.
+  * Global keyboard shortcut support for <kbd>PageUp</kbd> and <kbd>PageDown</kbd> navigation.
+* **Section Ending Margin Divider Lines**:
+  * Elegant multi-tone gradient horizontal rule (`.section-spacer::after`) accented by a centered silicon diamond jewel (`◆`).
 
 ---
 

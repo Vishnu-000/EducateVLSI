@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PD Mentorship — Session 5: Floorplanning | EducateVLSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090d16;
+    --bg-secondary: #0f172a;
+    --card: #131c2e;
+    --card-hover: #172338;
+    --border: #1e293b;
+    --border-accent: rgba(56, 189, 248, 0.35);
+    --accent: #38bdf8;
+    --accent2: #f59e0b;
+    --accent-emerald: #10b981;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --muted: #64748b;
+    --good: #34d399;
+    --bad: #f87171;
+    --code-bg: #070b12;
+    --code-text: #a5f3fc;
+    --callout-bg: rgba(8, 14, 26, 0.95);
+    --divider-gradient: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%);
+    --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+  }
+
+  [data-theme="light"] {
+    --bg: #faf7f2;
+    --bg-secondary: #f3eee4;
+    --card: #ffffff;
+    --card-hover: #ffffff;
+    --border: #e2dbce;
+    --border-accent: rgba(180, 83, 9, 0.35);
+    --accent: #0284c7;
+    --accent2: #b45309;
+    --accent-emerald: #059669;
+    --text: #18181b;
+    --text-secondary: #3f3e3a;
+    --muted: #78716c;
+    --good: #059669;
+    --bad: #dc2626;
+    --code-bg: #1c1c24;
+    --code-text: #67e8f9;
+    --callout-bg: #fdfbf7;
+    --divider-gradient: linear-gradient(90deg, transparent 0%, rgba(180, 83, 9, 0.35) 50%, transparent 100%);
+    --shadow: 0 10px 30px -10px rgba(60, 45, 30, 0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    padding-bottom: 90px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Sticky Top Navigation Bar */
+  .portal-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(9, 13, 22, 0.88);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s ease;
+  }
+  [data-theme="light"] .portal-nav {
+    background: rgba(250, 247, 242, 0.92);
+  }
+  .portal-nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .portal-brand-badge {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #030712;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .btn-nav-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .btn-nav-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  header {
+    background: linear-gradient(135deg, rgba(30, 58, 95, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+    padding: 44px 24px 34px;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+    position: relative;
+  }
+  [data-theme="light"] header {
+    background: linear-gradient(135deg, #ede6d8 0%, #f7f3ec 100%);
+  }
+  header h1 { margin: 0 0 10px; font-size: 2rem; font-weight: 800; color: var(--text); }
+  header p { margin: 0; color: var(--text-secondary); font-size: 1.05rem; }
+  .progress { color: var(--muted); font-size: 0.92rem; margin-top: 10px; }
+  .progress strong { color: var(--accent); }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-top: 32px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    border-color: var(--border-accent);
+  }
+  h2 {
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h3 { color: var(--accent2); margin: 24px 0 10px; font-size: 1.12rem; }
+  p { margin-bottom: 14px; color: var(--text); }
+
+  code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 14px 0 18px;
+    border: 1px solid var(--border);
+  }
+
+  /* Well-Structured Formula Callout */
+  .lesson-formula-callout {
+    background: var(--callout-bg);
+    border: 1px solid var(--border-accent);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.2), 0 4px 14px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .formula-callout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .formula-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  [data-theme="light"] .formula-badge {
+    background: rgba(180, 83, 9, 0.12);
+    color: var(--accent2);
+  }
+  .formula-copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .formula-copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .formula-body {
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 500;
+    padding: 0.5rem 0;
+  }
+  .formula-params {
+    margin-top: 0.75rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .formula-params strong { color: var(--accent); }
+
+  /* Debug Box & Answers */
+  .debug-box {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-left: 4px solid var(--bad);
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin: 18px 0;
+  }
+  .debug-box h4 { margin-top: 0; color: var(--bad); font-size: 1.05rem; }
+  .answer-box {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-left: 4px solid var(--good);
+    padding: 16px 22px;
+    border-radius: 8px;
+    margin: 10px 0 24px;
+  }
+  .qa {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .qa .q { color: var(--accent2); font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+  .qa .a { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 8px; overflow: hidden; }
+  th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 0.94rem; }
+  th { background: var(--bg-secondary); color: var(--accent); font-weight: 700; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+  [data-theme="light"] tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+
+  .tag {
+    display: inline-block;
+    background: var(--bg-secondary);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 8px;
+    border: 1px solid var(--border);
+  }
+  ul li, ol li { margin-bottom: 8px; margin-left: 20px; color: var(--text); }
+
+  /* Section Ending Divider Margin Line */
+  .section-divider {
+    height: 1px;
+    width: 100%;
+    margin: 32px 0 8px;
+    background: var(--divider-gradient);
+    position: relative;
+  }
+  .section-divider::after {
+    content: '◆';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent);
+    font-size: 10px;
+    background: var(--card);
+    padding: 0 8px;
+  }
+
+  /* Floating Scroll Page Up / Page Down Controls */
+  .scroll-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999;
+  }
+  .btn-scroll {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--border-accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+  }
+  .btn-scroll:hover {
+    transform: translateY(-2px);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  }
+  [data-theme="light"] .btn-scroll:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Navigation Footer */
+  .session-footer-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn-session-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .btn-session-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+</style>
+</head>
+<body>
+
+<!-- Portal Header -->
+<nav class="portal-nav">
+  <div class="portal-nav-inner">
+    <a href="../index.html#study-vault" class="portal-brand">
+      <span class="portal-brand-badge">EDUCATEVLSI</span>
+      <span>PD Mentorship Sessions</span>
+    </a>
+    <div class="nav-controls">
+      <a href="../index.html" class="btn-nav-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Portal Home</span>
+      </a>
+      <a href="../index.html#study-vault" class="btn-nav-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Study Vault</span>
+      </a>
+      <button class="btn-nav-action" id="themeToggleBtn" aria-label="Toggle Theme">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Light</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <h1>Physical Design Mentorship — Session 5</h1>
+  <p>Floorplanning: Die, Core, Macros, IOs and the Decisions That Follow You to Sign-off</p>
+  <div class="progress">CMOS → Standard Cells → Timing → Synthesis &amp; SDC → <strong>Floorplanning</strong> → (next: Power Planning)</div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Why This Session Matters</h2>
+    <p>A senior PD lead will tell you: <strong>a bad floorplan cannot be fixed by good placement, good CTS, or good routing.</strong> Floorplan decisions fix the wire-length budget, the congestion hot-spots, and the power delivery quality of the whole chip. Time spent here is the highest-leverage time in the flow.</p>
+    <div style="margin-top: 14px;">
+      <span class="tag">Theory</span><span class="tag">Debug</span><span class="tag">Interview Prep</span>
+    </div>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>1. Inputs and Goals</h2>
+    <h3>1.1 What you need before you start</h3>
+    <ul>
+      <li>Gate-level netlist (from synthesis) and the SDC</li>
+      <li>Technology data: tech LEF, standard-cell LEF, macro LEFs/frame views, timing libraries, parasitic (RC) tech files</li>
+      <li>Floorplan intent: target area, aspect ratio, IO/pin constraints, macro hints from the architecture team, power intent (UPF) if any</li>
+    </ul>
+    <h3>1.2 What a good floorplan achieves</h3>
+    <ul>
+      <li>Meets area target with enough routing resources</li>
+      <li>Short wires on critical paths (related blocks and macros close together)</li>
+      <li>Routable: no unavoidable congestion</li>
+      <li>Good power delivery (clean place for rings/stripes, low IR drop)</li>
+      <li>Leaves room for CTS buffers, timing/hold fixing and ECOs</li>
+    </ul>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Core Concepts</h2>
+
+    <h3>2.1 Die vs Core</h3>
+    <p>The <strong>die</strong> is the whole silicon rectangle including the IO ring/pad area and margins. The <strong>core</strong> is the inner region where standard cells and macros are placed, organized into <strong>rows</strong> of site-width slots. The gap between the two is the <strong>core-to-die margin</strong>, used for IO cells, power rings and seal ring.</p>
+
+    <h3>2.2 Utilization</h3>
+
+    <!-- Structured Formula Callout for Core & Row Utilization -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Governing Formulation · Core &amp; Row Utilization</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('Core_Util = (A_stdcell + A_macro) / A_core * 100, Row_Util = A_stdcell / (A_core - A_macro - A_blockage) * 100')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$\text{Core Utilization} = \frac{A_{\text{std-cell}} + A_{\text{macro}}}{A_{\text{core}}} \times 100\%$$
+        $$\text{Row (std-cell) Utilization} = \frac{A_{\text{std-cell}}}{A_{\text{core}} - A_{\text{macro}} - A_{\text{blockages}}} \times 100\%$$
+      </div>
+      <div class="formula-params">
+        <strong>Headroom Rule:</strong> Standard cell areas expand by 5–10% across the flow due to CTS clock buffers, hold fixing delay cells, and ECO sizing.
+      </div>
+    </div>
+
+    <p>Netlist area is known from synthesis, so you choose target utilization and derive core size:</p>
+
+    <!-- Structured Formula Callout for Core Area Sizing -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Sizing Calculation · Core Area Derivation</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('Core_Area = Netlist_Area / Target_Utilization')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$A_{\text{core}} = \frac{A_{\text{netlist}}}{\text{Target Utilization}}$$
+      </div>
+      <div class="formula-params">
+        <strong>Typical target:</strong> 60%–75% for logic blocks. Lower (&lt; 50%) for routing-dense or macro-heavy designs.
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Utilization Level</th><th>Impact on Flow &amp; Convergence</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Too high (&gt; ~80–85%)</td><td>Severe routing congestion, poor timing slack, zero whitespace for CTS/hold/ECO buffers; detailed routing often fails.</td></tr>
+        <tr><td>Too low (&lt; ~50%)</td><td>Wasted silicon real-estate (high die cost), longer average interconnect wires, higher dynamic power, degraded wire RC.</td></tr>
+        <tr><td>Typical starting point</td><td>~60–75% for standard-cell dominated blocks; lower for congested or macro-heavy designs.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Mentor's rule:</strong> start conservative, because it is easy to tighten later and very expensive to loosen late in the project. Final utilization usually creeps upward as buffers and hold cells are added, so leave headroom for that growth.</p>
+
+    <h3>2.3 Aspect Ratio</h3>
+
+    <!-- Structured Formula Callout for Aspect Ratio -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Geometry Formulation · Core Aspect Ratio</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('Aspect_Ratio = Core_Height / Core_Width')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$\text{Aspect Ratio (AR)} = \frac{\text{Core Height}}{\text{Core Width}}$$
+      </div>
+      <div class="formula-params">
+        <strong>Optimal choice:</strong> Square ($\text{AR} = 1.0$) typically balances horizontal and vertical routing resources and minimizes worst-case clock latency.
+      </div>
+    </div>
+    <p>Aspect ratio is usually driven by the chip's package, the top-level floorplan, or the pin locations of the neighbours. Within your control, pick what makes macro and IO placement natural. A very skewed ratio increases routing demand on one direction and can starve the preferred-direction layers.</p>
+
+    <h3>2.4 Rows, Sites and Orientation</h3>
+    <p>Standard cells snap to <strong>sites</strong> arranged in <strong>rows</strong>. Adjacent rows are flipped (alternate N / FS orientation) so neighbouring rows share a power rail (VDD next to VDD, VSS next to VSS). This is why power rails are continuous horizontal stripes in a standard-cell block.</p>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. Macro Placement</h2>
+    <p>Macros (SRAMs, ROMs, analog IP, hard IP) are the biggest lever in the floorplan. They are large, have fixed pin positions, block routing layers underneath, and often have strict orientation rules.</p>
+
+    <h3>3.1 Guidelines</h3>
+    <ul>
+      <li><strong>Push macros to the periphery</strong> so the centre stays open as one contiguous placement region for standard cells and routing channels.</li>
+      <li><strong>Face macro pins towards the logic they talk to.</strong> Pin side matters: placing an SRAM with data pins pointing at the chip edge forces long wires across the macro.</li>
+      <li><strong>Respect connectivity (dataflow).</strong> Use the netlist and hierarchy to put heavily-connected macros and logic close together.</li>
+      <li><strong>Leave channels</strong> between macros wide enough for the wires and buffers they need (a function of pin count). Pin-dense macros need wider channels.</li>
+      <li><strong>Add halos / keepout margins</strong> around macros to prevent cells packing against macro edges where pin access is hard.</li>
+      <li><strong>Avoid enclosed pockets</strong> and narrow slivers of standard-cell area between macros and edges; they create congestion and are hard to power.</li>
+      <li><strong>Respect orientation and abutment rules</strong> from the IP vendor (some macros must be mirrored in specific ways, or abut for shared power).</li>
+      <li><strong>Lock macros</strong> (fixed status) once happy, so later steps do not move them.</li>
+    </ul>
+
+    <h3>3.2 Blockages</h3>
+<pre>Hard placement blockage   : no cells at all (reserve space for something specific)
+Soft placement blockage   : no cells during initial placement, optimizer may use it later
+Partial blockage (density): limit cell density to X% in a region (congestion relief)
+Routing blockage          : block specific metal layers in a region</pre>
+    <p>Partial blockages are a common tool to reduce congestion near macro corners without wasting area.</p>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. IO / Pin Placement</h2>
+    <ul>
+      <li>For a <strong>chip</strong>: pads are placed in the IO ring following package ball-out, ESD and power-pad rules, and analog/digital separation.</li>
+      <li>For a <strong>block</strong>: pins are placed on block edges, ideally near the logic they connect to, spread across layers and tracks to keep them routable.</li>
+      <li>Pin placement should follow <strong>connectivity and top-level floorplan</strong> (a pin facing the wrong neighbour guarantees long wires and timing trouble at integration).</li>
+      <li>Pins must be on <strong>routing tracks</strong> of the correct layer with sufficient spacing, otherwise you get immediate DRC violations and pin-access problems.</li>
+      <li>Clock pins and critical timing pins should be placed with extra care, and often get dedicated attention.</li>
+    </ul>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>5. Other Floorplan-Stage Tasks</h2>
+    <ul>
+      <li><strong>Tap cells / well-tap insertion:</strong> placed at regular intervals to tie wells to supply and prevent latch-up. Distance limits come from the technology rules.</li>
+      <li><strong>End-cap cells:</strong> placed at row ends to protect edge cells and satisfy design rules.</li>
+      <li><strong>Physical-only cells:</strong> decaps (placed later), fillers (late), metal-fill (sign-off).</li>
+      <li><strong>Voltage areas / power domains:</strong> for multi-voltage designs, define regions for each domain with isolation and level-shifter placement in mind (UPF-driven).</li>
+      <li><strong>Congestion and timing pre-check:</strong> run a quick global placement / virtual flat placement to see congestion maps and rough timing before accepting the floorplan.</li>
+    </ul>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>6. Floorplan Sanity Checklist</h2>
+    <ol>
+      <li>Utilization and aspect ratio match the plan; headroom for growth exists.</li>
+      <li>All macros placed, fixed, correctly oriented, with halos.</li>
+      <li>No tight pockets or narrow slivers between macros/edges.</li>
+      <li>Pins placed on tracks, spread sensibly, consistent with top-level neighbours.</li>
+      <li>Tap and end-cap cells inserted, with no tap-distance violations.</li>
+      <li>Global placement shows no severe congestion; initial timing is in a recoverable range.</li>
+      <li>Power structure can be built cleanly (space for rings and stripes, macro power pins reachable).</li>
+      <li>Floorplan DEF/database saved and versioned so you can compare alternatives.</li>
+    </ol>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>7. Debug Scenarios</h2>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario A: Severe congestion appears around macro corners after placement</h4>
+      <p>Global route shows red hot-spots clustered at the corners and gaps between two SRAMs, while the rest of the core is fine.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong>
+      <ol>
+        <li>Check the <strong>channel width</strong> between the macros against the number of nets that must pass through. Pin-heavy macros facing each other with a narrow channel is the classic cause.</li>
+        <li>Look at macro <strong>pin direction</strong>: if pins face each other across the gap, all their nets originate in the channel. Rotate/flip the macro or move it.</li>
+        <li>Add <strong>partial placement blockages</strong> at the corners to cut cell density there and free routing resources.</li>
+        <li>Enable/adjust <strong>macro halos</strong> so cells do not pack against the macro edge where pin access consumes tracks.</li>
+        <li>If still bad, widen the channel (increase core size slightly) or re-order macros to follow dataflow.</li>
+      </ol>
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario B: Utilization was 85% at floorplan, and now timing/hold fixing and routing will not converge</h4>
+      <p>Optimizer fails to place required hold buffers and wire detours fail.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> At 85% there was no whitespace for the cells that get added later (CTS buffers, hold buffers, upsized cells, ECO cells), so the effective utilization ends up above 90% and the router has no resources to detour. Fixes: reduce the starting utilization, add partial blockages in congested spots, or reduce the netlist area before PD (area recovery in synthesis, less aggressive sizing). Next project, plan for utilization growth of ~5–10% across the flow.
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario C: Long wires and failing timing between a macro and the logic it feeds</h4>
+      <p>Setup slack shows massive delay on paths entering an SRAM block.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> Open the connectivity view (flight lines) for that macro. Likely causes: macro placed on the opposite side from its consumer logic; macro pins facing away from the logic; or pins assigned on the far side of the block. Resolve by moving or rotating the macro, re-assigning IO pins closer to the logic, or, if architecture allows, pipelining the interface.
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario D: DRC violations at the die edge and around pins right after floorplan</h4>
+      <p>Spacing and boundary rules violated on pins immediately after placement initialization.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> Check that pins are on legal track positions, on the correct layer, and not spaced below minimum. Check end-cap and tap-cell insertion at row boundaries, and that the core-to-die margin satisfies the design-rule distance to the boundary.
+    </div>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>8. Interview Questions</h2>
+
+    <div class="qa">
+      <div class="q">Q1: Define core utilization and how you pick a starting value.</div>
+      <div class="a">A: It is the ratio of placed cell (and macro) area to core area. I compute core area from netlist area divided by a target utilization, starting conservatively (about 60–75% for std-cell logic) to leave room for CTS buffers, hold fixes, and ECOs, and tighten later if area is critical.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q2: Why are macros usually placed at the periphery?</div>
+      <div class="a">A: It leaves a large contiguous region in the centre for standard cells and routing, shortens power and IO connectivity for the macros, and avoids fragmenting the placement area into pockets that cause congestion.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q3: What is a macro halo and why use it?</div>
+      <div class="a">A: A keepout margin around a macro in which standard cells cannot be placed. It protects pin access, prevents dense cell packing at macro edges, and reduces congestion and DRC issues near macro pins.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q4: Hard vs soft vs partial blockage?</div>
+      <div class="a">A: Hard blocks all cell placement. Soft blocks the initial placer but lets later optimization use the space (for buffers). Partial caps the cell density in a region to a percentage, which is the usual tool to relieve congestion.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q5: Why are alternate rows flipped?</div>
+      <div class="a">A: So adjacent rows share a power rail: VDD abuts VDD and VSS abuts VSS, giving continuous rails with half the metal and a regular power structure.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q6: What are tap cells and why are they needed?</div>
+      <div class="a">A: Tap cells connect the n-well and substrate to supply at regular spacing to prevent latch-up (and keep well potential stable). The technology rules define the maximum distance from any transistor to a tap.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q7: How does aspect ratio affect the design?</div>
+      <div class="a">A: It shapes wire length and routing demand per direction. Extreme ratios can overload one routing direction, and it must also fit the package and the parent floorplan. I choose it to make macro and pin placement natural and then verify congestion.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q8: You must reduce congestion without increasing area. What are your options?</div>
+      <div class="a">A: Reposition/re-orient macros, adjust channel widths, add partial blockages and halos, relocate pins, tune placement for congestion (congestion-driven placement), reduce logic duplication or high-fanout nets with synthesis changes, and use more routing layers or layer-assignment strategies if the technology allows.</div>
+    </div>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>9. Practice Task (Hands-on, 60–90 min)</h2>
+    <ol>
+      <li>Take the design you synthesized last session. Note its cell area from the synthesis report.</li>
+      <li>In OpenLane/OpenROAD, run floorplanning at three utilizations (for example 40%, 60%, 80%) with the same aspect ratio.</li>
+      <li>For each, run placement and record: core area, placement density map, congestion estimate (global route overflow), and WNS.</li>
+      <li>Write 4–5 lines: at what point did congestion or timing start to degrade, and what does this tell you about headroom?</li>
+      <li>Bonus: change the aspect ratio (1.0 vs 2.0) at the best utilization and compare wire length and congestion.</li>
+    </ol>
+    <div class="section-divider"></div>
+  </div>
+
+  <!-- Session Navigation Footer -->
+  <div class="session-footer-nav">
+    <a href="session4_synthesis_sdc.html" class="btn-session-link">
+      <span>← Previous: Session 4 — Logic Synthesis &amp; SDC</span>
+    </a>
+    <a href="session6_power_planning.html" class="btn-session-link" style="border-color: var(--accent); color: var(--accent);">
+      <span>Next: Session 6 — Power Planning →</span>
+    </a>
+  </div>
+
+</div>
+
+<!-- Floating Scroll Controls (Page Up / Page Down) -->
+<div class="scroll-controls" id="scrollControls">
+  <button class="btn-scroll" id="btnPageUp" title="Page Up (Scroll Up)" aria-label="Page Up">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+  <button class="btn-scroll" id="btnPageDown" title="Page Down (Scroll Down)" aria-label="Page Down">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>
+
+<script>
+  // Theme Management
+  const html = document.documentElement;
+  const themeToggle = document.getElementById('themeToggleBtn');
+  const themeIcon = document.getElementById('themeIcon');
+  const themeLabel = document.getElementById('themeLabel');
+
+  function setTheme(t) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('educatevlsi_theme', t);
+    if (t === 'light') {
+      themeIcon.textContent = '🌙';
+      themeLabel.textContent = 'Dark';
+    } else {
+      themeIcon.textContent = '☀️';
+      themeLabel.textContent = 'Light';
+    }
+  }
+
+  const savedTheme = localStorage.getItem('educatevlsi_theme') || 'dark';
+  setTheme(savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    const cur = html.getAttribute('data-theme');
+    setTheme(cur === 'light' ? 'dark' : 'light');
+  });
+
+  // Page Up / Page Down Scroll Controls
+  document.getElementById('btnPageUp').addEventListener('click', () => {
+    window.scrollBy({ top: -window.innerHeight * 0.85, behavior: 'smooth' });
+  });
+  document.getElementById('btnPageDown').addEventListener('click', () => {
+    window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' });
+  });
+
+  // Copy Formula Functionality
+  function copyFormulaText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Formula copied to clipboard: ' + text);
+    }).catch(() => {
+      prompt('Copy formula:', text);
+    });
+  }
+</script>
+</body>
+</html>

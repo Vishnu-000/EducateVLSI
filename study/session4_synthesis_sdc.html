@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PD Mentorship — Session 4: Logic Synthesis &amp; SDC | EducateVLSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090d16;
+    --bg-secondary: #0f172a;
+    --card: #131c2e;
+    --card-hover: #172338;
+    --border: #1e293b;
+    --border-accent: rgba(56, 189, 248, 0.35);
+    --accent: #38bdf8;
+    --accent2: #f59e0b;
+    --accent-emerald: #10b981;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --muted: #64748b;
+    --good: #34d399;
+    --bad: #f87171;
+    --code-bg: #070b12;
+    --code-text: #a5f3fc;
+    --callout-bg: rgba(8, 14, 26, 0.95);
+    --divider-gradient: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%);
+    --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+  }
+
+  [data-theme="light"] {
+    --bg: #faf7f2;
+    --bg-secondary: #f3eee4;
+    --card: #ffffff;
+    --card-hover: #ffffff;
+    --border: #e2dbce;
+    --border-accent: rgba(180, 83, 9, 0.35);
+    --accent: #0284c7;
+    --accent2: #b45309;
+    --accent-emerald: #059669;
+    --text: #18181b;
+    --text-secondary: #3f3e3a;
+    --muted: #78716c;
+    --good: #059669;
+    --bad: #dc2626;
+    --code-bg: #1c1c24;
+    --code-text: #67e8f9;
+    --callout-bg: #fdfbf7;
+    --divider-gradient: linear-gradient(90deg, transparent 0%, rgba(180, 83, 9, 0.35) 50%, transparent 100%);
+    --shadow: 0 10px 30px -10px rgba(60, 45, 30, 0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    padding-bottom: 90px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Sticky Top Navigation Bar */
+  .portal-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(9, 13, 22, 0.88);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s ease;
+  }
+  [data-theme="light"] .portal-nav {
+    background: rgba(250, 247, 242, 0.92);
+  }
+  .portal-nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .portal-brand-badge {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #030712;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .btn-nav-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .btn-nav-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  header {
+    background: linear-gradient(135deg, rgba(30, 58, 95, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+    padding: 44px 24px 34px;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+    position: relative;
+  }
+  [data-theme="light"] header {
+    background: linear-gradient(135deg, #ede6d8 0%, #f7f3ec 100%);
+  }
+  header h1 { margin: 0 0 10px; font-size: 2rem; font-weight: 800; color: var(--text); }
+  header p { margin: 0; color: var(--text-secondary); font-size: 1.05rem; }
+  .progress { color: var(--muted); font-size: 0.92rem; margin-top: 10px; }
+  .progress strong { color: var(--accent); }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-top: 32px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    border-color: var(--border-accent);
+  }
+  h2 {
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h3 { color: var(--accent2); margin: 24px 0 10px; font-size: 1.12rem; }
+  p { margin-bottom: 14px; color: var(--text); }
+
+  code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 14px 0 18px;
+    border: 1px solid var(--border);
+  }
+
+  /* Well-Structured Formula Callout */
+  .lesson-formula-callout {
+    background: var(--callout-bg);
+    border: 1px solid var(--border-accent);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.2), 0 4px 14px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .formula-callout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .formula-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  [data-theme="light"] .formula-badge {
+    background: rgba(180, 83, 9, 0.12);
+    color: var(--accent2);
+  }
+  .formula-copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .formula-copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .formula-body {
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 500;
+    padding: 0.5rem 0;
+  }
+  .formula-params {
+    margin-top: 0.75rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .formula-params strong { color: var(--accent); }
+
+  /* Debug Box & Answers */
+  .debug-box {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-left: 4px solid var(--bad);
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin: 18px 0;
+  }
+  .debug-box h4 { margin-top: 0; color: var(--bad); font-size: 1.05rem; }
+  .answer-box {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-left: 4px solid var(--good);
+    padding: 16px 22px;
+    border-radius: 8px;
+    margin: 10px 0 24px;
+  }
+  .qa {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .qa .q { color: var(--accent2); font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+  .qa .a { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 8px; overflow: hidden; }
+  th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 0.94rem; }
+  th { background: var(--bg-secondary); color: var(--accent); font-weight: 700; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+  [data-theme="light"] tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+
+  .tag {
+    display: inline-block;
+    background: var(--bg-secondary);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 8px;
+    border: 1px solid var(--border);
+  }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0; }
+  .flow span {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .flow .arrow { border: none; background: none; color: var(--muted); padding: 0; font-size: 1.1rem; }
+  ul li, ol li { margin-bottom: 8px; margin-left: 20px; color: var(--text); }
+
+  /* Section Ending Divider Margin Line */
+  .section-divider {
+    height: 1px;
+    width: 100%;
+    margin: 32px 0 8px;
+    background: var(--divider-gradient);
+    position: relative;
+  }
+  .section-divider::after {
+    content: '◆';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent);
+    font-size: 10px;
+    background: var(--card);
+    padding: 0 8px;
+  }
+
+  /* Floating Scroll Page Up / Page Down Controls */
+  .scroll-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999;
+  }
+  .btn-scroll {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--border-accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+  }
+  .btn-scroll:hover {
+    transform: translateY(-2px);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  }
+  [data-theme="light"] .btn-scroll:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Navigation Footer */
+  .session-footer-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn-session-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .btn-session-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+</style>
+</head>
+<body>
+
+<!-- Portal Header -->
+<nav class="portal-nav">
+  <div class="portal-nav-inner">
+    <a href="../index.html#study-vault" class="portal-brand">
+      <span class="portal-brand-badge">EDUCATEVLSI</span>
+      <span>PD Mentorship Sessions</span>
+    </a>
+    <div class="nav-controls">
+      <a href="../index.html" class="btn-nav-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Portal Home</span>
+      </a>
+      <a href="../index.html#study-vault" class="btn-nav-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Study Vault</span>
+      </a>
+      <button class="btn-nav-action" id="themeToggleBtn" aria-label="Toggle Theme">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Light</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <h1>Physical Design Mentorship — Session 4</h1>
+  <p>Logic Synthesis &amp; SDC Fundamentals</p>
+  <div class="progress">MOSFET/CMOS → Standard Cells → Timing Fundamentals → <strong>Logic Synthesis &amp; SDC</strong> → (next: Floorplanning)</div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Why This Session Matters</h2>
+    <p>Physical design never starts from RTL. It starts from a <strong>gate-level netlist plus constraints</strong>. If either is poor, no amount of clever placement or CTS will rescue you. As a PD engineer you must be able to read a synthesis report, judge whether a netlist is a good starting point, and, most importantly, <em>read and write SDC</em>, because wrong constraints cause more wasted weeks than wrong tools.</p>
+    <div style="margin-top: 14px;">
+      <span class="tag">Theory</span><span class="tag">Debug</span><span class="tag">Interview Prep</span>
+    </div>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>1. Theory — What Synthesis Actually Does</h2>
+
+    <div class="flow">
+      <span>RTL (Verilog)</span><span class="arrow">→</span>
+      <span>Translation (generic gates)</span><span class="arrow">→</span>
+      <span>Logic optimization</span><span class="arrow">→</span>
+      <span>Technology mapping (.lib cells)</span><span class="arrow">→</span>
+      <span>Gate-level netlist + reports</span>
+    </div>
+
+    <h3>1.1 The Three Stages</h3>
+    <ul>
+      <li><strong>Translation / elaboration:</strong> RTL is converted to a technology-independent netlist of generic logic (AND, OR, MUX, flops, adders). Your <code>always</code> blocks become flops and combinational clouds.</li>
+      <li><strong>Logic optimization:</strong> Boolean restructuring, constant propagation, sharing of common sub-expressions, removing redundant logic. This is technology-independent.</li>
+      <li><strong>Technology mapping:</strong> Generic logic is mapped onto real cells from the target library (the <code>.lib</code> you studied in Session 2), choosing cell types and drive strengths to meet the constraints.</li>
+    </ul>
+
+    <h3>1.2 Constraint-Driven Optimization</h3>
+    <p>Synthesis is a three-way trade: <strong>timing, area, power</strong>. The tool does not know what you want, only what your constraints say. Typical priority: fix design-rule violations (max transition, max capacitance, max fanout) first, then timing (WNS/TNS), then area and power.</p>
+
+    <!-- Structured Formula Callout for Timing Slack Formulation -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Governing Equation · Timing Slack &amp; TNS</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('Slack = T_required - T_arrival, TNS = \\sum \\min(0, Slack_i)')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$\text{Slack} = T_{\text{required}} - T_{\text{arrival}} \quad \implies \quad \text{TNS} = \sum_{i \in \text{endpoints}} \min(0, \text{Slack}_i)$$
+      </div>
+      <div class="formula-params">
+        <strong>WNS (Worst Negative Slack):</strong> $\min(\text{Slack}_i)$ across all failing endpoints. <strong>TNS:</strong> cumulative sum of negative slack exposing problem breadth.
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Meaning</th><th>What you check in the report</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>WNS</td><td>Worst Negative Slack: the single worst failing path</td><td>Should be ≥ 0 at hand-off</td></tr>
+        <tr><td>TNS</td><td>Total Negative Slack: sum of all failing endpoints' slack</td><td>Tells you how widespread the problem is</td></tr>
+        <tr><td>Violating paths</td><td>Number of failing endpoints</td><td>Few paths = local fix; many = structural issue</td></tr>
+        <tr><td>Area</td><td>Sum of cell areas</td><td>Sets floorplan size via utilization</td></tr>
+        <tr><td>DRV</td><td>Max transition / cap / fanout violations</td><td>Must be clean before PD</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1.3 Wire Load Models vs Physical-Aware Synthesis</h3>
+    <p>Before placement, synthesis does not know real wire lengths. Older flows used <strong>wire load models (WLM)</strong>: statistical wire estimates based on fanout. They are often wrong, which is why synthesis timing and post-route timing disagree. Modern flows use <strong>physical-aware / topographical synthesis</strong> (floorplan or placement information fed into synthesis), which gives much better correlation with the PD tool.</p>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Theory — SDC (Synopsys Design Constraints)</h2>
+    <p>SDC is a Tcl-based format that tells every tool in the flow (synthesis, PD, STA) what "correct timing" means. The same SDC, with updates, travels from synthesis to sign-off.</p>
+
+    <h3>2.1 Clock Definition</h3>
+<pre>create_clock -name clk -period 2.0 -waveform {0 1.0} [get_ports clk]
+set_clock_uncertainty -setup 0.15 [get_clocks clk]
+set_clock_uncertainty -hold  0.05 [get_clocks clk]
+set_clock_latency 0.3 [get_clocks clk]          ;# pre-CTS only
+set_clock_transition 0.1 [get_clocks clk]       ;# pre-CTS only</pre>
+    <p>Latency and transition are <strong>ideal-clock</strong> assumptions used before CTS. After CTS the clock is <em>propagated</em> (<code>set_propagated_clock</code>) and these ideal values are removed.</p>
+
+    <h3>2.2 I/O Constraints</h3>
+<pre>set_input_delay  -clock clk -max 0.8 [get_ports data_in*]
+set_input_delay  -clock clk -min 0.2 [get_ports data_in*]
+set_output_delay -clock clk -max 0.6 [get_ports data_out*]
+set_driving_cell -lib_cell BUFX2 [get_ports data_in*]
+set_load 0.05 [get_ports data_out*]</pre>
+
+    <!-- Structured Formula Callout for I/O Budgeting -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Physical Budgeting · I/O Path Timing Margin</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('T_internal_budget = T_period - T_input_delay - T_setup - T_uncertainty')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$T_{\text{internal\_budget}} = T_{\text{period}} - T_{\text{input\_delay}} - T_{\text{setup}} - T_{\text{uncertainty}}$$
+      </div>
+      <div class="formula-params">
+        <strong>Mentor's Perspective:</strong> <code>set_input_delay</code> models delay already burned external to your block. Logic inside has only $(T_{\text{period}} - T_{\text{input\_delay}})$ left.
+      </div>
+    </div>
+
+    <h3>2.3 Timing Exceptions</h3>
+<pre>set_false_path -from [get_clocks clkA] -to [get_clocks clkB]
+set_multicycle_path 2 -setup -from [get_pins regA/Q] -to [get_pins regB/D]
+set_multicycle_path 1 -hold  -from [get_pins regA/Q] -to [get_pins regB/D]
+set_clock_groups -asynchronous -group {clkA} -group {clkB}</pre>
+    <table>
+      <thead>
+        <tr><th>Exception</th><th>Use when</th><th>Danger</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>False path</td><td>Path exists structurally but can never be functionally exercised (or is async / static config)</td><td>Hiding a real path = silicon failure</td></tr>
+        <tr><td>Multicycle path</td><td>Data is intentionally given N cycles to propagate</td><td>Forgetting the matching hold adjustment</td></tr>
+        <tr><td>Clock groups</td><td>Clocks are asynchronous or mutually exclusive</td><td>Masking real CDC paths that need synchronizers</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Structured Formula Callout for Multicycle Hold Check -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Rule of Thumb · Multicycle Hold Relationship</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('Hold_Cycles = N_setup - 1')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$\text{Hold Check Cycle Shift} = N_{\text{setup}} - 1$$
+      </div>
+      <div class="formula-params">
+        <strong>The Rule:</strong> When setup is relaxed to $N$ cycles, STA automatically moves the default hold check $N-1$ cycles earlier. Restore it with <code>set_multicycle_path (N-1) -hold</code>.
+      </div>
+    </div>
+
+    <h3>2.4 Design Rule Constraints</h3>
+<pre>set_max_transition 0.4 [current_design]
+set_max_fanout 20 [current_design]
+set_max_capacitance 0.2 [all_outputs]</pre>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. What a PD Engineer Checks Before Accepting a Netlist</h2>
+    <ol>
+      <li><strong>No unconstrained paths.</strong> Run <code>check_timing</code>: look for unconstrained endpoints, missing clocks, no input delay.</li>
+      <li><strong>No unresolved references / black boxes</strong> (missing macros or cells).</li>
+      <li><strong>No assign statements or multiply-driven nets</strong> (unless intentional); netlist should be clean for PD import.</li>
+      <li><strong>WNS/TNS and DRV</strong> acceptable at the synthesis stage, with realistic margin because PD will add wire delay.</li>
+      <li><strong>Area</strong> in line with expectation (it drives the floorplan).</li>
+      <li><strong>Scan / DFT insertion done</strong> if required, and scan chains stitched, since this changes the netlist PD receives.</li>
+      <li><strong>Hierarchy decisions</strong> understood: flattened vs hierarchical (affects how you partition and budget later).</li>
+    </ol>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. Debug Scenarios</h2>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario A: Synthesis reports WNS = 0 and everything looks perfect, but PD shows hundreds of violations</h4>
+      <p>The synthesis log is clean, yet the first placement run shows thousands of ps of negative slack. What do you suspect?</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong>
+      <ol>
+        <li><strong>Wire delay was never seen:</strong> Synthesis used an over-optimistic wire load model (WLM) or zero-interconnect delay. Check how interconnect was modeled.</li>
+        <li><strong>Constraints mismatch:</strong> Diff the SDC used in synthesis vs PD. A relaxed clock period or extra exceptions in the synthesis SDC would explain "too good" results.</li>
+        <li><strong>Over-optimistic exceptions:</strong> A broad <code>set_false_path</code> or <code>set_clock_groups</code> may have masked real paths from synthesis.</li>
+        <li><strong>Different library corner:</strong> Mismatch between synthesis and PD target libraries.</li>
+        <li><strong>Resolution:</strong> Re-run synthesis with physical-aware mode, align SDC/corners, and add realistic uncertainty margin.</li>
+      </ol>
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario B: After adding a multicycle path, a flood of hold violations appears</h4>
+      <p>You set <code>set_multicycle_path 2 -setup</code> between two registers. Setup is now met easily, but hold reports show huge violations on that same path.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> You relaxed setup to 2 cycles but left hold at its default. With a 2-cycle setup, the default hold edge shifts one cycle earlier, so STA demands data stay stable for an extra full cycle. Fix: add <code>set_multicycle_path 1 -hold</code> on the same path, restoring hold to the original edge relationship.
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario C: <code>check_timing</code> reports "unconstrained endpoints"</h4>
+      <p>Hundreds of flop D-pins show no timing check at all. Is that good news?</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> No, it is dangerous: unconstrained means nobody is checking those paths, so they will never be optimized. Typical causes: the clock was defined on the wrong port/pin, a generated clock (divider output) was not declared, or a <code>set_case_analysis</code> / disable-timing is blocking the clock. Trace backwards to find where the clock definition stops.
+    </div>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>5. Interview Questions</h2>
+
+    <div class="qa">
+      <div class="q">Q1: What are the inputs and outputs of logic synthesis?</div>
+      <div class="a">A: Inputs: RTL, technology library (.lib, plus LEF/physical info if physical-aware), and constraints (SDC). Outputs: gate-level netlist, updated SDC, and reports (timing, area, power, DRV, constraint checks).</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q2: What does <code>set_input_delay</code> mean physically?</div>
+      <div class="a">A: It models the delay consumed outside the chip (launch flop clock-to-Q plus board/previous-block logic) relative to a reference clock. The internal path from the input port to the first flop therefore has only (period − input delay − setup) available.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q3: Difference between a false path and a multicycle path?</div>
+      <div class="a">A: A false path is excluded from timing analysis entirely because it never functionally matters. A multicycle path is still analyzed, but with a relaxed capture edge because the design guarantees data has multiple cycles to propagate.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q4: Why must you adjust hold when you set a multicycle setup of N?</div>
+      <div class="a">A: STA picks the hold check relative to the setup capture edge. Moving setup to N cycles drags the hold check N−1 cycles away from where it should be. Applying <code>-hold (N−1)</code> pulls it back to the true launch-edge relationship.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q5: Why do synthesis timing numbers differ from post-route numbers?</div>
+      <div class="a">A: Synthesis estimates wires (WLM or rough placement), uses ideal clocks, and has no crosstalk, OCV, or real RC extraction. Post-route has propagated clocks, extracted parasitics, SI effects, and derates. Physical-aware synthesis narrows but never fully closes the gap.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q6: What is the difference between ideal and propagated clocks?</div>
+      <div class="a">A: An ideal clock has zero (or user-set) latency and transition at all sinks, which is used pre-CTS. A propagated clock uses the actual delays through the built clock tree, which is used post-CTS and in sign-off.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q7: What is a generated clock and why must it be declared?</div>
+      <div class="a">A: A clock derived from another (e.g., a divide-by-2 flop output). If not declared with <code>create_generated_clock</code>, STA does not know it is a clock, so the flops it drives become unconstrained.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q8: Is flattening or keeping hierarchy better for PD?</div>
+      <div class="a">A: Flat gives the tool more optimization freedom and usually better QoR, but is heavy on runtime/memory for large designs. Hierarchical allows parallel work and ECO isolation but needs careful timing budgeting at block boundaries. The choice is driven by design size and team structure.</div>
+    </div>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>6. Practice Task (Hands-on, 45–60 min)</h2>
+    <ol>
+      <li>Take the counter/FSM RTL you wrote in Week 1 and write a complete SDC: clock, uncertainty, input/output delays, driving cell, load.</li>
+      <li>Synthesize with Yosys + OpenSTA (or your OpenLane run) at two clock periods, one relaxed and one aggressive.</li>
+      <li>Compare area and WNS between the two runs and write 3 sentences on what changed in the netlist (cell sizes, logic depth).</li>
+      <li>Deliberately remove the <code>create_clock</code> line and run <code>check_timing</code>. Observe and note what the tool reports.</li>
+    </ol>
+    <div class="section-divider"></div>
+  </div>
+
+  <!-- Session Navigation Footer -->
+  <div class="session-footer-nav">
+    <a href="../index.html#study-vault" class="btn-session-link">
+      <span>← Back to Study Vault</span>
+    </a>
+    <a href="session5_floorplanning.html" class="btn-session-link" style="border-color: var(--accent); color: var(--accent);">
+      <span>Next: Session 5 — Floorplanning →</span>
+    </a>
+  </div>
+
+</div>
+
+<!-- Floating Scroll Controls (Page Up / Page Down) -->
+<div class="scroll-controls" id="scrollControls">
+  <button class="btn-scroll" id="btnPageUp" title="Page Up (Scroll Up)" aria-label="Page Up">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+  <button class="btn-scroll" id="btnPageDown" title="Page Down (Scroll Down)" aria-label="Page Down">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>
+
+<script>
+  // Theme Management
+  const html = document.documentElement;
+  const themeToggle = document.getElementById('themeToggleBtn');
+  const themeIcon = document.getElementById('themeIcon');
+  const themeLabel = document.getElementById('themeLabel');
+
+  function setTheme(t) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('educatevlsi_theme', t);
+    if (t === 'light') {
+      themeIcon.textContent = '🌙';
+      themeLabel.textContent = 'Dark';
+    } else {
+      themeIcon.textContent = '☀️';
+      themeLabel.textContent = 'Light';
+    }
+  }
+
+  const savedTheme = localStorage.getItem('educatevlsi_theme') || 'dark';
+  setTheme(savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    const cur = html.getAttribute('data-theme');
+    setTheme(cur === 'light' ? 'dark' : 'light');
+  });
+
+  // Page Up / Page Down Scroll Controls
+  document.getElementById('btnPageUp').addEventListener('click', () => {
+    window.scrollBy({ top: -window.innerHeight * 0.85, behavior: 'smooth' });
+  });
+  document.getElementById('btnPageDown').addEventListener('click', () => {
+    window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' });
+  });
+
+  // Copy Formula Functionality
+  function copyFormulaText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Formula copied to clipboard: ' + text);
+    }).catch(() => {
+      prompt('Copy formula:', text);
+    });
+  }
+</script>
+</body>
+</html>

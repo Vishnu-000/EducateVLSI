@@ -1,10 +1,10 @@
 # EducateVLSI — Silicon Study Vault & Physical Design Course Assets
 
-Welcome to the **EducateVLSI Course Assets & Silicon Reference Library** (`D:\EducateVLSI\Study`). This directory contains 24 production-grade technical training assets, interactive HTML laboratories, Synopsys ICC lab manuals, official LMS physical design notes, and video toolkits developed for **[EducateVLSI (@EducateVLSI)](https://www.youtube.com/@EducateVLSI)**.
+Welcome to the **EducateVLSI Course Assets & Silicon Reference Library** (`D:\EducateVLSI\Study`). This directory contains 27 production-grade technical training assets, interactive HTML laboratories, Synopsys ICC lab manuals, official LMS physical design notes, and video toolkits developed for **[EducateVLSI (@EducateVLSI)](https://www.youtube.com/@EducateVLSI)**.
 
 ---
 
-## 📑 Catalog of Course Assets (24 Items)
+## 📑 Catalog of Course Assets (27 Items)
 
 | Asset Name | Type | Size | Category | Description |
 | :--- | :---: | :---: | :---: | :--- |
@@ -13,6 +13,9 @@ Welcome to the **EducateVLSI Course Assets & Silicon Reference Library** (`D:\Ed
 | **`day3_power_vlsi_verilog.html`** | HTML Lab | 99 KB | Foundations | Power Dissipation ($P = \alpha C V^2 f$), Leakage, Multi-Vt & Verilog RTL |
 | **`day4_logic_synthesis.html`** | HTML Lab | 112 KB | Foundations | RTL Synthesis, Tech Mapping, Cell Drive Strengths & .lib PVT Corners |
 | **`day5_static_timing_analysis.html`** | HTML Lab | 122 KB | Foundations | STA Mastery, 4 Timing Path Types, MMMC, OCV Derating & Timing Reports |
+| **`session4_synthesis_sdc.html`** | HTML Lab | 65 KB | Mentorship | Logic Synthesis & SDC: Tech Mapping, Clock Constraints, I/O Delay & 3 Debug Labs |
+| **`session5_floorplanning.html`** | HTML Lab | 68 KB | Mentorship | Floorplanning: Core/Row Util, Aspect Ratio, Macro Halos, Blockages & Endcaps |
+| **`session6_power_planning.html`** | HTML Lab | 72 KB | Mentorship | Power Planning: Mesh Design, IR Drop, Black's EM Equation, Followpins & Decap Sizing |
 | **`Phase2_Part1_VLSI_Fundamentals.html`** | HTML Lab | 70 KB | Phase 2 PD | Digital Fundamentals, Drive Strengths X1-X8 & Full PD File Ecosystem |
 | **`Phase2_Part2_Floorplan_Power_Placement.html`** | HTML Lab | 76 KB | Phase 2 PD | Floorplan Anatomy, Die Sizing, Power Mesh, IR Drop & OpenROAD Lab |
 | **`Phase2_Part3_CTS_Routing_STA_Signoff.html`** | HTML Lab | 110 KB | Phase 2 PD | CTS Skew/Latency, M1-M9 Metal Stackup, PrimeTime Reports & Signoff |
@@ -111,7 +114,33 @@ These self-contained interactive web modules combine deep-dive theory, animated 
 
 ---
 
-### 3. Master LMS Textbooks & Lab Manuals (PDFs)
+### 3. PD Mentorship Masterclass Series (Interactive HTML Modules)
+These hands-on sessions provide deep architectural, algorithmic, and debugging coverage of critical physical design stages:
+
+- **Session 4: Logic Synthesis & SDC Fundamentals** (`session4_synthesis_sdc.html`)
+  - Translation, logic optimization, technology mapping to target `.lib`.
+  - SDC clocks, jitter/skew uncertainty budgets, and input/output delay budgeting.
+  - Multicycle path hold rules ($N-1$ clock edges).
+  - Netlist acceptance sanity checklist and 3 industrial EDA debug scenarios.
+  - 8-question technical interview preparation with verified answers.
+
+- **Session 5: Floorplanning: Die, Core, Macros & IO Placement** (`session5_floorplanning.html`)
+  - Core utilization vs. row utilization mathematical formulation.
+  - Aspect ratio selection, core dimensions, and boundary IO pin planning.
+  - Macro placement guidelines: flyline analysis, channels, halos, and blockages (soft, hard, partial).
+  - Well tap cell maximum distance rules and boundary endcap cell insertion.
+  - 4 industrial floorplanning triage scenarios and signoff checklist.
+
+- **Session 6: Power Planning: Grid Architecture, IR Drop & EM** (`session6_power_planning.html`)
+  - Power Delivery Network (PDN) topology from C4 bumps/wirebonds to standard cell rails.
+  - Static IR drop vs. dynamic peak-switching IR drop.
+  - Electromigration reliability and Black's equation current density limits ($J \le J_{\max}$).
+  - Top-metal strap mesh design, followpin rails, and decap capacitor sizing.
+  - 4 power integrity debug scenarios and 60-90 min OpenLane hands-on laboratory task.
+
+---
+
+### 4. Master LMS Textbooks & Lab Manuals (PDFs)
 - **`LMS_PD_Notes.pdf`** (22.7 MB): Official 22.7 MB comprehensive training handbook detailing the full ASIC physical design flow from netlist import to tapeout.
 - **`LMS_ICC_Lab_Manual.pdf`** (5.3 MB): Complete Synopsys IC Compiler (ICC) step-by-step hands-on laboratory manual covering:
   - Floorplanning and boundary setup.
@@ -134,7 +163,7 @@ These self-contained interactive web modules combine deep-dive theory, animated 
 
 ---
 
-### 4. Video Toolkits
+### 5. Video Toolkits
 - **`ASIC_Design_Flow.mp4`** (36.2 MB): Full architectural video breakdown of the RTL-to-GDSII ASIC design flow.
 - **`The_Engineer_s_Toolkit.mp4`** (31.9 MB): Professional video tutorial on workstation setup, Linux terminal efficiency, and EDA automation.
 

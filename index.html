@@ -43,6 +43,10 @@
   <link rel="apple-touch-icon" href="assets/EducateVLSI_Logo.jpg">
   <link rel="stylesheet" href="styles.css">
 
+  <!-- KaTeX for Publication-Grade VLSI Formula Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
   <!-- Structured Data (JSON-LD) for Search Engines -->
   <script type="application/ld+json">
   {
@@ -750,13 +754,13 @@
   <!-- ==========================================================================
        'STUDY' VAULT & REFERENCE LIBRARY (D:\EducateVLSI\Study)
        ========================================================================== -->
-  <section class="section-spacer study-vault-section" id="study-vault" style="background: rgba(11, 15, 25, 0.45);">
+  <section class="section-spacer study-vault-section" id="study-vault" style="background: var(--section-alt-bg);">
     <div class="container">
       <div class="section-header">
         <span class="section-pretitle">// INDUSTRY-GRADE TRAINING VAULT &amp; LMS REPOSITORY</span>
         <h2 class="section-title">Silicon Study Vault &amp; <span class="gradient-text">Engineering Library</span></h2>
         <p class="section-subtitle">
-          Direct access to our 5-Day Foundation Masterclass, 10-Day Phase 2 RTL-to-GDSII series, Synopsys ICC lab manuals, and 22MB+ official LMS handbooks from the <code>D:\EducateVLSI\Study</code> repository.
+          Direct access to our 5-Day Foundation Masterclass, 3 PD Mentorship Sessions, 10-Day Phase 2 RTL-to-GDSII series, Synopsys ICC lab manuals, and 22MB+ official LMS handbooks from the <code>D:\EducateVLSI\Study</code> repository.
         </p>
       </div>
 
@@ -764,11 +768,15 @@
       <div class="study-vault-filter-nav" id="studyVaultFilterNav">
         <button class="track-nav-btn active" data-cat="all">
           <span>All Materials</span>
-          <span class="track-badge-count" id="studyCountAll">24</span>
+          <span class="track-badge-count" id="studyCountAll">27</span>
         </button>
         <button class="track-nav-btn" data-cat="foundations">
           <span>5-Day Foundations</span>
           <span class="track-badge-count">5</span>
+        </button>
+        <button class="track-nav-btn" data-cat="mentorship">
+          <span>PD Mentorship</span>
+          <span class="track-badge-count">3</span>
         </button>
         <button class="track-nav-btn" data-cat="phase2">
           <span>Phase 2 PD Series</span>
@@ -983,7 +991,7 @@
   <!-- =========================================================================
        NEW MODULE 1: Physical Design Interactive Calculators Suite
        ========================================================================= -->
-  <section class="section-spacer" id="calculators" style="background: rgba(11, 15, 25, 0.45);">
+  <section class="section-spacer" id="calculators" style="background: var(--section-alt-bg);">
     <div class="container">
       <div class="section-header">
         <span class="section-pretitle">// REAL-TIME ENGINEERING MATH</span>
@@ -1640,7 +1648,7 @@
   <!-- =========================================================================
        NEW MODULE 3: Interactive TCL Automation Script Generator
        ========================================================================= -->
-  <section class="section-spacer" id="tcl-generator" style="background: rgba(11, 15, 25, 0.45);">
+  <section class="section-spacer" id="tcl-generator" style="background: var(--section-alt-bg);">
     <div class="container">
       <div class="section-header">
         <span class="section-pretitle">// EDUCATEVLSI SIGNATURE AUTOMATION</span>
@@ -1738,7 +1746,7 @@
   </section>
 
   <!-- RTL to GDSII Physical Design Roadmap -->
-  <section class="section-spacer roadmap-section" id="roadmap" style="background: rgba(11, 15, 25, 0.45);">
+  <section class="section-spacer roadmap-section" id="roadmap" style="background: var(--section-alt-bg);">
     <div class="container">
       <div class="section-header">
         <span class="section-pretitle">// ARCHITECTURE & FLOW</span>
@@ -2178,7 +2186,7 @@
   </section>
 
   <!-- EDA Commands & TCL Interactive Terminal -->
-  <section class="section-spacer" id="terminal" style="background: rgba(11, 15, 25, 0.45);">
+  <section class="section-spacer" id="terminal" style="background: var(--section-alt-bg);">
     <div class="container">
       <div class="section-header">
         <span class="section-pretitle">// INDUSTRY TOOLS CHEATSHEET</span>
@@ -2560,6 +2568,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating Page Up / Page Down Scroll Controls -->
+  <aside class="page-scroll-controls" id="pageScrollControls" aria-label="Page Scrolling Controls">
+    <button class="btn-scroll-step" id="btnPageScrollUp" title="Page Up (Scroll Up)" aria-label="Page Up">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+      <span class="scroll-tooltip">Page Up</span>
+    </button>
+    <button class="btn-scroll-step" id="btnPageScrollDown" title="Page Down (Scroll Down)" aria-label="Page Down">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <span class="scroll-tooltip">Page Down</span>
+    </button>
+  </aside>
 
   <script src="app.js"></script>
 </body>

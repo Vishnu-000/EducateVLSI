@@ -805,6 +805,38 @@ const STUDY_VAULT_ITEMS = [
     meta: ['Interactive HTML', 'STA Reports', 'Slack Equations']
   },
 
+  // PD Mentorship Masterclass Series
+  {
+    id: 'session-4',
+    category: 'mentorship',
+    type: 'html',
+    badge: 'Mentorship · Session 4',
+    title: 'Logic Synthesis & SDC Fundamentals',
+    desc: 'Translation, optimization, tech mapping (.lib), SDC clock/uncertainty, I/O delay budgeting, multicycle path hold rules, netlist acceptance checklist, and 3 debug scenarios.',
+    file: 'study/session4_synthesis_sdc.html',
+    meta: ['Interactive HTML', 'SDC Constraints', 'Debug Scenarios', '8-Q Interview Prep']
+  },
+  {
+    id: 'session-5',
+    category: 'mentorship',
+    type: 'html',
+    badge: 'Mentorship · Session 5',
+    title: 'Floorplanning: Die, Core, Macros & IO Placement',
+    desc: 'Core utilization vs row utilization, aspect ratio, macro placement rules, channel budgeting, halos, blockages, well tap/endcap insertion, and 4 debug scenarios.',
+    file: 'study/session5_floorplanning.html',
+    meta: ['Interactive HTML', 'Macro Halos', 'Core Sizing', 'Sanity Checklist']
+  },
+  {
+    id: 'session-6',
+    category: 'mentorship',
+    type: 'html',
+    badge: 'Mentorship · Session 6',
+    title: 'Power Planning: Grid Architecture, IR Drop & EM',
+    desc: 'Power delivery path, static vs dynamic IR drop, Black electromigration limits, power estimation, top-metal mesh design, followpin rails, decap sizing, and 4 debug scenarios.',
+    file: 'study/session6_power_planning.html',
+    meta: ['Interactive HTML', 'Static/Dynamic IR', 'EM Reliability', 'Power Mesh Lab']
+  },
+
   // Phase 2 Advanced Physical Design Series (10-Day Deep Dive)
   {
     id: 'phase2-part1',
@@ -2033,12 +2065,17 @@ function initNavigation() {
   const dropdown = document.getElementById('navDropdown');
   const dropdownBtn = document.getElementById('navDropdownBtn');
   const mobileBackdrop = document.getElementById('mobileNavBackdrop');
+  const mainNavbar = document.querySelector('.navbar');
+  const navContainer = document.querySelector('.nav-container');
 
   function closeMobileNav() {
     if (navMenu) navMenu.classList.remove('open');
     if (mobileBackdrop) mobileBackdrop.classList.remove('active');
     document.body.classList.remove('nav-drawer-open');
-    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    if (mobileToggle) {
+      mobileToggle.classList.remove('active');
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    }
     if (dropdown) dropdown.classList.remove('open');
     if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
   }
@@ -2047,11 +2084,12 @@ function initNavigation() {
   if (mobileToggle && navMenu) {
     mobileToggle.addEventListener('click', (e) => {
       e.stopPropagation();
-      navMenu.classList.toggle('open');
-      const isOpen = navMenu.classList.contains('open');
-      mobileToggle.setAttribute('aria-expanded', isOpen);
-      if (mobileBackdrop) mobileBackdrop.classList.toggle('active', isOpen);
-      document.body.classList.toggle('nav-drawer-open', isOpen);
+      const willOpen = !navMenu.classList.contains('open');
+      navMenu.classList.toggle('open', willOpen);
+      mobileToggle.classList.toggle('active', willOpen);
+      mobileToggle.setAttribute('aria-expanded', willOpen);
+      if (mobileBackdrop) mobileBackdrop.classList.toggle('active', willOpen);
+      document.body.classList.toggle('nav-drawer-open', willOpen);
     });
 
     // Close mobile menu on nav link click
@@ -2093,6 +2131,81 @@ function initNavigation() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeMobileNav();
+    }
+  });
+
+  // Tiny Nav Container & Scrolled Navbar Appearance on Mid-page / Scroll
+  const navScrollLinks = document.querySelectorAll('.nav-menu .nav-item-link[href^="#"]');
+  const sections = Array.from(navScrollLinks).map(link => {
+    const targetId = link.getAttribute('href').substring(1);
+    const el = document.getElementById(targetId);
+    return el ? { id: targetId, el, link } : null;
+  }).filter(Boolean);
+
+  function handleNavbarAndScrollspy() {
+    const scrollPos = window.scrollY || window.pageYOffset;
+    const isScrolled = scrollPos > 60;
+    
+    // Toggle compact tiny nav container
+    if (mainNavbar) mainNavbar.classList.toggle('scrolled', isScrolled);
+    if (navContainer) navContainer.classList.toggle('tiny', isScrolled);
+
+    // Scrollspy active highlight
+    if (sections.length > 0) {
+      const offsetTop = scrollPos + 180;
+      let currentSection = null;
+      for (let i = 0; i < sections.length; i++) {
+        const item = sections[i];
+        const top = item.el.offsetTop;
+        const height = item.el.offsetHeight;
+        if (offsetTop >= top && offsetTop < top + height) {
+          currentSection = item;
+          break;
+        }
+      }
+      if (currentSection) {
+        navScrollLinks.forEach(link => link.classList.remove('active'));
+        currentSection.link.classList.add('active');
+      }
+    }
+  }
+
+  window.addEventListener('scroll', handleNavbarAndScrollspy, { passive: true });
+  handleNavbarAndScrollspy();
+
+  // Floating Page Up / Page Down Buttons
+  const btnScrollUp = document.getElementById('btnPageScrollUp');
+  const btnScrollDown = document.getElementById('btnPageScrollDown');
+
+  if (btnScrollUp) {
+    btnScrollUp.addEventListener('click', (e) => {
+      e.preventDefault();
+      const scrollStep = Math.max(window.innerHeight * 0.82, 380);
+      window.scrollBy({ top: -scrollStep, behavior: 'smooth' });
+    });
+  }
+
+  if (btnScrollDown) {
+    btnScrollDown.addEventListener('click', (e) => {
+      e.preventDefault();
+      const scrollStep = Math.max(window.innerHeight * 0.82, 380);
+      window.scrollBy({ top: scrollStep, behavior: 'smooth' });
+    });
+  }
+
+  // Keyboard shortcut listener for PageUp and PageDown
+  window.addEventListener('keydown', (e) => {
+    const activeEl = document.activeElement;
+    const tag = activeEl ? activeEl.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea' || (activeEl && activeEl.isContentEditable)) {
+      return;
+    }
+    if (e.key === 'PageUp') {
+      e.preventDefault();
+      window.scrollBy({ top: -Math.max(window.innerHeight * 0.82, 380), behavior: 'smooth' });
+    } else if (e.key === 'PageDown') {
+      e.preventDefault();
+      window.scrollBy({ top: Math.max(window.innerHeight * 0.82, 380), behavior: 'smooth' });
     }
   });
 }
@@ -4933,6 +5046,113 @@ window.resetLearnFilters = function() {
   renderLearnModules();
 };
 
+/* ==========================================================================
+   Mathematical Formula Formatting & Clipboard Utilities
+   ========================================================================== */
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatMathForDisplay(rawFormula) {
+  if (!rawFormula || rawFormula === 'N/A') {
+    return '<span style="color:var(--text-muted); font-style:italic;">No formal analytical expression required.</span>';
+  }
+  if (window.katex && typeof window.katex.renderToString === 'function') {
+    try {
+      return window.katex.renderToString(rawFormula, { displayMode: true, throwOnError: false });
+    } catch (err) {
+      console.warn('KaTeX render warning:', err);
+    }
+  }
+  return `<code>${escapeHtml(rawFormula)}</code>`;
+}
+
+window.copyFormulaToClipboard = function(btn, encodedFormula) {
+  try {
+    const raw = decodeURIComponent(encodedFormula || '');
+    if (!raw) return;
+    navigator.clipboard.writeText(raw).then(() => {
+      if (btn) {
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = origHtml;
+          btn.classList.remove('copied');
+        }, 2200);
+      }
+      if (typeof showToast === 'function') {
+        showToast('Formula copied to clipboard');
+      }
+    }).catch(err => {
+      console.warn('Clipboard write failed:', err);
+    });
+  } catch (e) {
+    console.error('copyFormula error:', e);
+  }
+};
+
+function enhanceFormulaCallouts(container) {
+  if (!container) return;
+  const callouts = container.querySelectorAll('.lesson-formula-callout');
+  callouts.forEach(box => {
+    // If it is already structured with header, just re-check KaTeX render if needed
+    if (box.querySelector('.formula-header')) {
+      const displayEl = box.querySelector('.formula-math-display');
+      if (displayEl && !displayEl.dataset.katexRendered && window.katex) {
+        const rawCode = displayEl.dataset.rawFormula;
+        if (rawCode && rawCode !== 'N/A') {
+          try {
+            displayEl.innerHTML = window.katex.renderToString(rawCode, { displayMode: true, throwOnError: false });
+            displayEl.dataset.katexRendered = 'true';
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      }
+      return;
+    }
+    // Otherwise enhance plain text / LaTeX callout
+    if (!box.dataset.enhanced) {
+      box.dataset.enhanced = 'true';
+      const rawMath = box.textContent.trim();
+      const header = document.createElement('div');
+      header.className = 'formula-header';
+      header.innerHTML = `
+        <span class="formula-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          <span>Mathematical Formulation</span>
+        </span>
+        <button class="formula-copy-btn" title="Copy raw formula to clipboard">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy Formula</span>
+        </button>
+      `;
+      const copyBtn = header.querySelector('.formula-copy-btn');
+      copyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.copyFormulaToClipboard(copyBtn, encodeURIComponent(rawMath));
+      });
+      
+      const display = document.createElement('div');
+      display.className = 'formula-math-display';
+      display.dataset.rawFormula = rawMath;
+      display.innerHTML = formatMathForDisplay(rawMath);
+      display.dataset.katexRendered = window.katex ? 'true' : 'false';
+
+      box.innerHTML = '';
+      box.appendChild(header);
+      box.appendChild(display);
+    }
+  });
+}
+
 window.openLessonModal = function(lessonId) {
   const lesson = LEARN_LESSONS.find(l => l.id === lessonId);
   if (!lesson) {
@@ -5048,8 +5268,20 @@ window.switchModalTab = function(tabKey) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
           <span>Primary Governing Physical & Timing Equations</span>
         </div>
-        <div class="lesson-formula-callout" style="padding:1.25rem; font-size:1.05rem;">
-          <code>${lesson.formula || 'N/A'}</code>
+        <div class="lesson-formula-callout">
+          <div class="formula-header">
+            <span class="formula-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              <span>VLSI Physical &amp; Timing Formulation</span>
+            </span>
+            <button class="formula-copy-btn" onclick="copyFormulaToClipboard(this, '${encodeURIComponent(lesson.formula || '')}')" title="Copy raw formula to clipboard">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy Formula</span>
+            </button>
+          </div>
+          <div class="formula-math-display" id="modalActiveFormulaDisplay" data-raw-formula="${escapeHtml(lesson.formula || '')}">
+            ${formatMathForDisplay(lesson.formula || 'N/A')}
+          </div>
         </div>
 
         <h4 style="color:var(--text-primary); margin:1.75rem 0 0.75rem; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
@@ -5233,6 +5465,9 @@ window.switchModalTab = function(tabKey) {
       </div>
     `;
   }
+
+  // Enhance all formula callouts in current tab
+  enhanceFormulaCallouts(contentEl);
 };
 
 window.openLessonDrawer = window.openLessonModal;

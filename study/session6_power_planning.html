@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PD Mentorship — Session 6: Power Planning | EducateVLSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090d16;
+    --bg-secondary: #0f172a;
+    --card: #131c2e;
+    --card-hover: #172338;
+    --border: #1e293b;
+    --border-accent: rgba(56, 189, 248, 0.35);
+    --accent: #38bdf8;
+    --accent2: #f59e0b;
+    --accent-emerald: #10b981;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --muted: #64748b;
+    --good: #34d399;
+    --bad: #f87171;
+    --code-bg: #070b12;
+    --code-text: #a5f3fc;
+    --callout-bg: rgba(8, 14, 26, 0.95);
+    --divider-gradient: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%);
+    --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+  }
+
+  [data-theme="light"] {
+    --bg: #faf7f2;
+    --bg-secondary: #f3eee4;
+    --card: #ffffff;
+    --card-hover: #ffffff;
+    --border: #e2dbce;
+    --border-accent: rgba(180, 83, 9, 0.35);
+    --accent: #0284c7;
+    --accent2: #b45309;
+    --accent-emerald: #059669;
+    --text: #18181b;
+    --text-secondary: #3f3e3a;
+    --muted: #78716c;
+    --good: #059669;
+    --bad: #dc2626;
+    --code-bg: #1c1c24;
+    --code-text: #67e8f9;
+    --callout-bg: #fdfbf7;
+    --divider-gradient: linear-gradient(90deg, transparent 0%, rgba(180, 83, 9, 0.35) 50%, transparent 100%);
+    --shadow: 0 10px 30px -10px rgba(60, 45, 30, 0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    padding-bottom: 90px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Sticky Top Navigation Bar */
+  .portal-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(9, 13, 22, 0.88);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s ease;
+  }
+  [data-theme="light"] .portal-nav {
+    background: rgba(250, 247, 242, 0.92);
+  }
+  .portal-nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .portal-brand-badge {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #030712;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .btn-nav-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .btn-nav-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  header {
+    background: linear-gradient(135deg, rgba(30, 58, 95, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+    padding: 44px 24px 34px;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+    position: relative;
+  }
+  [data-theme="light"] header {
+    background: linear-gradient(135deg, #ede6d8 0%, #f7f3ec 100%);
+  }
+  header h1 { margin: 0 0 10px; font-size: 2rem; font-weight: 800; color: var(--text); }
+  header p { margin: 0; color: var(--text-secondary); font-size: 1.05rem; }
+  .progress { color: var(--muted); font-size: 0.92rem; margin-top: 10px; }
+  .progress strong { color: var(--accent); }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-top: 32px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    border-color: var(--border-accent);
+  }
+  h2 {
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h3 { color: var(--accent2); margin: 24px 0 10px; font-size: 1.12rem; }
+  p { margin-bottom: 14px; color: var(--text); }
+
+  code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 14px 0 18px;
+    border: 1px solid var(--border);
+  }
+
+  /* Well-Structured Formula Callout */
+  .lesson-formula-callout {
+    background: var(--callout-bg);
+    border: 1px solid var(--border-accent);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.2), 0 4px 14px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .formula-callout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .formula-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  [data-theme="light"] .formula-badge {
+    background: rgba(180, 83, 9, 0.12);
+    color: var(--accent2);
+  }
+  .formula-copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .formula-copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .formula-body {
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 500;
+    padding: 0.5rem 0;
+  }
+  .formula-params {
+    margin-top: 0.75rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .formula-params strong { color: var(--accent); }
+
+  /* Debug Box & Answers */
+  .debug-box {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-left: 4px solid var(--bad);
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin: 18px 0;
+  }
+  .debug-box h4 { margin-top: 0; color: var(--bad); font-size: 1.05rem; }
+  .answer-box {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-left: 4px solid var(--good);
+    padding: 16px 22px;
+    border-radius: 8px;
+    margin: 10px 0 24px;
+  }
+  .qa {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .qa .q { color: var(--accent2); font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+  .qa .a { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 8px; overflow: hidden; }
+  th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 0.94rem; }
+  th { background: var(--bg-secondary); color: var(--accent); font-weight: 700; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+  [data-theme="light"] tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+
+  .tag {
+    display: inline-block;
+    background: var(--bg-secondary);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 8px;
+    border: 1px solid var(--border);
+  }
+  ul li, ol li { margin-bottom: 8px; margin-left: 20px; color: var(--text); }
+
+  /* Section Ending Divider Margin Line */
+  .section-divider {
+    height: 1px;
+    width: 100%;
+    margin: 32px 0 8px;
+    background: var(--divider-gradient);
+    position: relative;
+  }
+  .section-divider::after {
+    content: '◆';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent);
+    font-size: 10px;
+    background: var(--card);
+    padding: 0 8px;
+  }
+
+  /* Floating Scroll Page Up / Page Down Controls */
+  .scroll-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999;
+  }
+  .btn-scroll {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--border-accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+  }
+  .btn-scroll:hover {
+    transform: translateY(-2px);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  }
+  [data-theme="light"] .btn-scroll:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Navigation Footer */
+  .session-footer-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn-session-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .btn-session-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+</style>
+</head>
+<body>
+
+<!-- Portal Header -->
+<nav class="portal-nav">
+  <div class="portal-nav-inner">
+    <a href="../index.html#study-vault" class="portal-brand">
+      <span class="portal-brand-badge">EDUCATEVLSI</span>
+      <span>PD Mentorship Sessions</span>
+    </a>
+    <div class="nav-controls">
+      <a href="../index.html" class="btn-nav-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Portal Home</span>
+      </a>
+      <a href="../index.html#study-vault" class="btn-nav-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Study Vault</span>
+      </a>
+      <button class="btn-nav-action" id="themeToggleBtn" aria-label="Toggle Theme">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Light</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <h1>Physical Design Mentorship — Session 6</h1>
+  <p>Power Planning: Grid Architecture, IR Drop and Electromigration</p>
+  <div class="progress">Synthesis &amp; SDC → Floorplanning → <strong>Power Planning</strong> → (next: Placement)</div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Why This Session Matters</h2>
+    <p>Every transistor on the chip needs a clean supply. If the grid is weak, supply voltage sags at the cells (<strong>IR drop</strong>), cells slow down, timing fails in ways that no STA setup run predicted, and in the worst case wires fuse over time (<strong>electromigration</strong>). Power problems are also among the most expensive to fix late, because the grid occupies the top metal layers that everything else routes around.</p>
+    <div style="margin-top: 14px;">
+      <span class="tag">Theory</span><span class="tag">Debug</span><span class="tag">Interview Prep</span>
+    </div>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>1. The Power Delivery Path</h2>
+    <p>Current flows from the package/bump or pad, through the top thick metals, down through vias to the lower metals, and finally into the standard-cell rails that touch the transistors. Every segment has resistance, so voltage drops along the way.</p>
+    <table>
+      <thead>
+        <tr><th>Layer of the Power Grid</th><th>Critical Physical Role</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Pads / bumps</td><td>Entry points for VDD/VSS from the package</td></tr>
+        <tr><td>Power rings</td><td>Wide metal loops around the core (or around macros) that collect current from pads and feed the stripes</td></tr>
+        <tr><td>Power stripes (straps)</td><td>Vertical and horizontal wide wires across the core, on upper metals, forming the low-impedance mesh</td></tr>
+        <tr><td>Standard-cell rails (followpins)</td><td>Thin M1 rails running along each cell row, feeding the cells directly</td></tr>
+        <tr><td>Via stacks</td><td>Connect the layers; their resistance and cut count determine reliability</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Mentor's mental model:</strong> think of it as a river system. Pads are the springs, rings and stripes are the main rivers and tributaries, the M1 rails are the irrigation channels. The narrow channels at the end carry the least current each, but they are the ones the cells actually drink from.</p>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Core Theory</h2>
+
+    <h3>2.1 IR Drop</h3>
+
+    <!-- Structured Formula Callout for IR Drop & Effective Supply -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Governing Formulation · IR Drop &amp; Effective Supply</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('V_drop = I * R, V_effective = V_DD - delta_V_IR(VDD) - V_bounce(VSS)')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$\Delta V_{\text{drop}} = I \times R_{\text{mesh}}$$
+        $$V_{\text{cell, effective}} = V_{\text{DD}} - \Delta V_{\text{IR, VDD}} - V_{\text{bounce, VSS}}$$
+      </div>
+      <div class="formula-params">
+        <strong>Timing Impact:</strong> Because gate propagation delay increases non-linearly as supply falls ($t_d \propto \frac{V_{DD}}{(V_{DD}-V_{th})^\alpha}$), cells in an IR-drop droop region suffer major unbudgeted setup failures.
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Metric / Aspect</th><th>Static IR Drop</th><th>Dynamic IR Drop</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Underlying physics</td><td>Average switching current across cycles ($I_{\text{avg}}$)</td><td>Instantaneous peak current during clock edges ($I_{\text{peak}}(t)$)</td></tr>
+        <tr><td>Mesh characteristics captured</td><td>Pure resistive weakness of stripes and rails ($R$)</td><td>Resistive + inductive ($L \frac{di}{dt}$) + capacitive ($C$) effects</td></tr>
+        <tr><td>Typical application</td><td>Early planning, width and pitch sizing</td><td>Sign-off verification, hot-spot debugging</td></tr>
+        <tr><td>Target sign-off budget</td><td>Typically &lt; 2%–3% of nominal $V_{\text{DD}}$</td><td>Typically &lt; 5%–10% of nominal $V_{\text{DD}}$</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 Electromigration (EM)</h3>
+    <p>High current density in a wire moves metal atoms over time via electron momentum transfer, creating voids (open circuits) or hillocks (whisker shorts). Wire reliability depends on current density, temperature, and wire width.</p>
+
+    <!-- Structured Formula Callout for EM Current Density -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Reliability Criterion · Black's EM Current Density</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('J = I / (W * T) <= J_max(T_temp, Layer)')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$J = \frac{I}{W \times T_{\text{layer}}} \le J_{\text{max}}(T_{\text{junction}}, \text{Metal Layer})$$
+      </div>
+      <div class="formula-params">
+        <strong>Fixing Rules:</strong> Widen stripes, increase parallel straps, and replace single vias with dense multi-cut via arrays to disperse current.
+      </div>
+    </div>
+
+    <ul>
+      <li><strong>Power/ground EM:</strong> DC (unidirectional) current, so the limit is stricter. Fix with wider wires, more vias, more parallel straps.</li>
+      <li><strong>Signal EM:</strong> mostly AC with average and RMS limits; matters on high-activity or heavily loaded nets (clocks especially).</li>
+      <li>Vias are common EM weak points: single-via connections carrying high current are classic failures.</li>
+    </ul>
+
+    <h3>2.3 Power Estimation to Size the Grid</h3>
+
+    <!-- Structured Formula Callout for Total Grid Current -->
+    <div class="lesson-formula-callout">
+      <div class="formula-callout-header">
+        <span class="formula-badge">∑ Estimation Equation · Supply Grid Current Demand</span>
+        <button class="formula-copy-btn" onclick="copyFormulaText('I_total = P_total / V_DD')">Copy Formula</button>
+      </div>
+      <div class="formula-body">
+        $$I_{\text{total}} \approx \frac{P_{\text{total}}}{V_{\text{DD}}} \quad \implies \quad I_{\text{strap}} = \frac{I_{\text{total}}}{N_{\text{straps}}} \times K_{\text{hotspot}}$$
+      </div>
+      <div class="formula-params">
+        <strong>Margin factor ($K_{\text{hotspot}}$):</strong> Power is non-uniform across the core. Clock trees, datapaths, and SRAMs concentrate switching activity.
+      </div>
+    </div>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. Grid Design Decisions</h2>
+
+    <h3>3.1 Layer selection</h3>
+    <p>Use the <strong>top thick metals</strong> for rings and straps because they have the lowest resistance per length. Use alternating horizontal/vertical layers so they form a mesh. Keep enough routing resources for signals on the middle layers. The more layers you give the grid, the better the power but the worse the routability.</p>
+
+    <h3>3.2 Width, pitch and spacing of stripes</h3>
+    <ul>
+      <li><strong>Wider stripes:</strong> Lower resistance but consume more signal routing tracks.</li>
+      <li><strong>Smaller pitch (denser):</strong> Shorter current path to the standard-cell rails, lower IR drop, but increases routing blockage.</li>
+      <li>Interleave VDD and VSS stripes so every cell row point is in close proximity to both rails.</li>
+      <li>Tune using IR-drop simulation maps rather than guessing: start from a reasonable pitch, analyze, then densify locally.</li>
+    </ul>
+
+    <h3>3.3 Rails and via arrays</h3>
+    <p>Standard-cell rails on M1 are connected up to the stripes with <strong>via stacks</strong> at every intersection. Use multi-cut (via-array) connections where space allows, since single vias are both resistive and EM-prone.</p>
+
+    <h3>3.4 Macro power</h3>
+    <ul>
+      <li>Macros usually need their own <strong>ring</strong> and/or connections from the main stripes to their power pins.</li>
+      <li>Macro pins are on specific metal layers, so the grid must offer a legal connection to those layers.</li>
+      <li>High-power macros (SRAMs, hard IP) deserve extra stripes or direct pad/bump connections.</li>
+      <li>Keep the grid continuous across the macro-free channels; narrow gaps with thin straps are classic IR hot-spots.</li>
+    </ul>
+
+    <h3>3.5 Decoupling capacitors (decaps)</h3>
+    <p>Decaps act as local charge reservoirs that supply current during switching peaks, reducing <em>dynamic</em> IR drop and supply noise. They cost area (and add leakage), so they are placed where dynamic analysis shows need, often late in the flow.</p>
+
+    <h3>3.6 Multi-voltage and power gating (preview)</h3>
+    <p>Multi-domain designs need separate grids per domain, plus power switches, isolation, retention and level shifters. We will treat this properly in the low-power session.</p>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. Typical Flow in Practice</h2>
+<pre>1. Connect logical power/ground nets (global net connection) to all cells and macros
+2. Define rails (followpins) along standard-cell rows
+3. Create rings around the core and around macros that need them
+4. Create stripes (vertical + horizontal mesh) on chosen top layers
+5. Connect everything: rails to stripes, stripes to rings, rings to pads/bumps, macros to the mesh
+6. Run connectivity / DRC checks on the grid (no floating nets, no shorts/opens)
+7. Run static IR drop and EM analysis; iterate on width/pitch/layers/vias
+8. Later (post-route): sign-off power analysis, dynamic IR, decap insertion</pre>
+    <p><strong>Always verify power connectivity first.</strong> A single unconnected macro pin or a stripe that misses its target can masquerade as a catastrophic IR-drop problem, or worse, be silent until LVS fails.</p>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>5. Debug Scenarios</h2>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario A: IR drop hot-spot in the middle of a macro-dense region</h4>
+      <p>The static IR drop map shows a red region between two SRAMs, far from any ring, while the rest of the core is within budget.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong>
+      <ol>
+        <li>Check if the <strong>grid is continuous</strong> through the channel: are straps cut by macro blockages, leaving only thin links?</li>
+        <li>Look at <strong>current demand</strong>: SRAM macros draw large peak current, and the path from ring to that region may be long.</li>
+        <li>Fix options: add straps in the channel on a higher layer, add a ring around the macros, increase via count at ring-to-strap junctions, or add additional pad/bump supply nearby if possible.</li>
+        <li>Re-run analysis; confirm the improvement is local and has not hurt routability.</li>
+      </ol>
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario B: Timing fails post-route only in one corner of the chip, STA setup was fine</h4>
+      <p>A cluster of 80 flip-flop endpoints fail setup slack by 400ps in a localized corner.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> Overlay the IR-drop map on the failing paths. If the failing cells sit in a drooping region, they are running at a lower effective voltage than the STA corner assumed. Fix the grid in that region (or run IR-drop-aware timing / apply derate) rather than endlessly resizing cells. Many "mystery" timing failures in one area are really power problems.
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario C: EM violations on a few power stripes and via stacks</h4>
+      <p>Reliability log flags multiple M5/M6 power straps exceeding DC current density limits.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> Identify whether violations are on the wire segment (current density too high → widen or add parallel stripes) or on vias (too few cuts → use via arrays). Check if these stripes are the only path to a high-power block; adding another feed distributes the current. Re-run EM after changes.
+    </div>
+
+    <div class="debug-box">
+      <h4>🔴 Scenario D: LVS or connectivity check reports floating VDD/VSS on some cells</h4>
+      <p>Post-placement Calibre or Innovus connectivity checker outputs dangling supply pins.</p>
+    </div>
+    <div class="answer-box">
+      <strong>Walkthrough:</strong> Likely causes: rails not connected to stripes in an area (stripe missing, or blocked by a keepout), cells added after the power connection step and never connected, or tie-high/tie-low cells and special cells missed by global net connection. Re-run power-net connection, check around blockages and boundaries, then re-verify.
+    </div>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>6. Interview Questions</h2>
+
+    <div class="qa">
+      <div class="q">Q1: What is the difference between static and dynamic IR drop?</div>
+      <div class="a">A: Static uses average current and exposes resistive weakness in the grid. Dynamic uses time-varying switching current and also includes grid capacitance/inductance and decap effects, so it reveals peak droops during simultaneous switching. Static guides grid sizing; dynamic is the sign-off view.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q2: How does IR drop affect timing?</div>
+      <div class="a">A: Lower supply voltage at a cell increases its delay. Cells in a droop region are slower than the STA corner assumed, so setup slack erodes; very large droops can also affect hold and clock-tree behaviour.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q3: Why use the top metal layers for the power grid?</div>
+      <div class="a">A: Top metals are thicker and wider, so lower resistance per length, which carries current with less drop and better EM margin. They also leave the lower layers for local signal routing.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q4: What is electromigration and how do you fix violations?</div>
+      <div class="a">A: Gradual movement of metal atoms under high current density, causing opens or shorts. Fix by widening wires, adding parallel straps, using more via cuts, reducing the current (lower activity/load), or splitting nets.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q5: Why do decaps reduce dynamic IR drop, and what is their cost?</div>
+      <div class="a">A: They store charge locally and supply it during switching peaks, so the grid does not have to deliver all the transient current. Cost: area and leakage, so insert them where analysis shows need.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q6: What is the trade-off in making the power grid denser?</div>
+      <div class="a">A: Better IR drop and EM, but it consumes routing tracks on the grid layers, so signal routability worsens and congestion rises. The goal is the sparsest grid that meets the IR/EM budget.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q7: What are followpins / standard-cell rails?</div>
+      <div class="a">A: The M1 power/ground rails that run along each placement row and connect directly to the cells' supply pins. Because rows alternate orientation, adjacent rows share a rail.</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">Q8: A macro has IR drop violations at its power pins. What do you check?</div>
+      <div class="a">A: Number and width of connections from the mesh to the macro pins, via arrays at those junctions, whether the macro has its own ring, the distance to the nearest pad/bump or ring, and the macro's peak current. Then add straps/vias or an additional supply path.</div>
+    </div>
+
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="card">
+    <h2>7. Practice Task (Hands-on, 60–90 min)</h2>
+    <ol>
+      <li>In OpenLane/OpenROAD, take your floorplanned design and create the power grid with the default stripe pitch and width.</li>
+      <li>Run the IR-drop analysis (OpenROAD's PDN and static IR tools) and note the worst-case drop and where it occurs.</li>
+      <li>Halve the stripe pitch (denser) and re-run. Record the change in worst IR drop and in routing congestion later.</li>
+      <li>Write 4–5 lines: what did the denser grid buy you, and what did it cost?</li>
+      <li>Bonus: deliberately disconnect one stripe from the ring and observe the IR-drop map, to learn what a connectivity bug looks like.</li>
+    </ol>
+    <div class="section-divider"></div>
+  </div>
+
+  <!-- Session Navigation Footer -->
+  <div class="session-footer-nav">
+    <a href="session5_floorplanning.html" class="btn-session-link">
+      <span>← Previous: Session 5 — Floorplanning</span>
+    </a>
+    <a href="../index.html#study-vault" class="btn-session-link" style="border-color: var(--accent); color: var(--accent);">
+      <span>Back to Silicon Study Vault ↗</span>
+    </a>
+  </div>
+
+</div>
+
+<!-- Floating Scroll Controls (Page Up / Page Down) -->
+<div class="scroll-controls" id="scrollControls">
+  <button class="btn-scroll" id="btnPageUp" title="Page Up (Scroll Up)" aria-label="Page Up">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+  <button class="btn-scroll" id="btnPageDown" title="Page Down (Scroll Down)" aria-label="Page Down">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>
+
+<script>
+  // Theme Management
+  const html = document.documentElement;
+  const themeToggle = document.getElementById('themeToggleBtn');
+  const themeIcon = document.getElementById('themeIcon');
+  const themeLabel = document.getElementById('themeLabel');
+
+  function setTheme(t) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('educatevlsi_theme', t);
+    if (t === 'light') {
+      themeIcon.textContent = '🌙';
+      themeLabel.textContent = 'Dark';
+    } else {
+      themeIcon.textContent = '☀️';
+      themeLabel.textContent = 'Light';
+    }
+  }
+
+  const savedTheme = localStorage.getItem('educatevlsi_theme') || 'dark';
+  setTheme(savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    const cur = html.getAttribute('data-theme');
+    setTheme(cur === 'light' ? 'dark' : 'light');
+  });
+
+  // Page Up / Page Down Scroll Controls
+  document.getElementById('btnPageUp').addEventListener('click', () => {
+    window.scrollBy({ top: -window.innerHeight * 0.85, behavior: 'smooth' });
+  });
+  document.getElementById('btnPageDown').addEventListener('click', () => {
+    window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' });
+  });
+
+  // Copy Formula Functionality
+  function copyFormulaText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Formula copied to clipboard: ' + text);
+    }).catch(() => {
+      prompt('Copy formula:', text);
+    });
+  }
+</script>
+</body>
+</html>
